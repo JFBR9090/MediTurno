@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Calendar,
+  CalendarClock,
   CalendarPlus,
   Clock,
   Info,
@@ -13,6 +14,7 @@ import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { SkeletonLoader } from '../../components/common/SkeletonLoader';
 import { EmptyState } from '../../components/common/EmptyState';
 import { ModalCancelar } from '../../components/citas/ModalCancelar';
+import { ModalReprogramar } from '../../components/citas/ModalReprogramar';
 import { useAuth } from '../../context/AuthContext';
 import { useMediTurno } from '../../context/MediTurnoContext';
 
@@ -41,14 +43,15 @@ const BADGE_MAP = {
 
 export function MisCitasPage() {
   const { user } = useAuth();
-  const { citas, cancelarCita, showToast } = useMediTurno();
+  const { citas, cancelarCita, reprogramarCita, showToast } = useMediTurno();
 
   const [tab, setTab] = useState('programadas');
   const [loading, setLoading] = useState(true);
   const [citaACancelar, setCitaACancelar] = useState(null);
+  const [citaAReprogramar, setCitaAReprogramar] = useState(null);
 
   useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 300);
+    const t = setTimeout(() => setLoading(false), 260);
     return () => clearTimeout(t);
   }, []);
 
@@ -90,10 +93,19 @@ export function MisCitasPage() {
     });
   };
 
+  const handleConfirmarReprogramacion = async (citaId, payload) => {
+    const actualizada = await reprogramarCita(citaId, payload);
+    showToast({
+      type: 'success',
+      title: 'Cita reprogramada con éxito',
+      message: `Nuevo horario guardado para el turno ${actualizada.codigo_reserva}.`,
+    });
+  };
+
   return (
     <DashboardLayout
       title="Mis Citas Médicas"
-      subtitle="Consulta tus turnos activos, verifica códigos de reserva y gestiona cancelaciones."
+      subtitle="Consulta tus turnos activos, reprograma horarios y gestiona cancelaciones."
       actions={
         <Link to="/paciente/reservar" className="btn-primary">
           <CalendarPlus className="h-4 w-4" />
@@ -180,9 +192,9 @@ export function MisCitasPage() {
               hour12: true,
             });
 
-            // Regla de Negocio RN07: mínimo 2 horas de anticipación para cancelar
+            // Regla de Negocio RN07: mínimo 2 horas de anticipación para cancelar o reprogramar
             const horasRestantes = (fechaIni.getTime() - Date.now()) / 3600000;
-            const esCancelable =
+            const esModificable =
               ['programada', 'confirmada'].includes(cita.estado) &&
               horasRestantes >= 2;
             const bloqueadaPorTiempo =
@@ -247,7 +259,7 @@ export function MisCitasPage() {
 
                 {/* Acciones */}
                 {['programada', 'confirmada'].includes(cita.estado) && (
-                  <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 shrink-0">
+                  <div className="flex flex-wrap items-center gap-2 shrink-0">
                     <a
                       href={`https://wa.me/573001234567?text=${waText}`}
                       target="_blank"
@@ -258,15 +270,25 @@ export function MisCitasPage() {
                       WhatsApp
                     </a>
 
-                    {esCancelable ? (
-                      <button
-                        type="button"
-                        onClick={() => setCitaACancelar(cita)}
-                        className="inline-flex items-center gap-1.5 rounded-xl border border-red-200 bg-white px-3.5 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors"
-                      >
-                        <XCircle className="h-4 w-4" />
-                        Cancelar Cita
-                      </button>
+                    {esModificable ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => setCitaAReprogramar(cita)}
+                          className="btn-secondary text-xs px-3 py-2 text-sky-700 border-sky-200 hover:bg-sky-50"
+                        >
+                          <CalendarClock className="h-4 w-4" />
+                          Reprogramar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setCitaACancelar(cita)}
+                          className="inline-flex items-center gap-1.5 rounded-xl border border-red-200 bg-white px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors"
+                        >
+                          <XCircle className="h-4 w-4" />
+                          Cancelar Cita
+                        </button>
+                      </>
                     ) : bloqueadaPorTiempo ? (
                       <div className="group relative inline-flex items-center">
                         <button
@@ -279,7 +301,6 @@ export function MisCitasPage() {
                           <Info className="h-4 w-4" />
                           Cancelar Cita
                         </button>
-                        {/* Tooltip accesible */}
                         <span className="pointer-events-none absolute bottom-full right-0 mb-2 hidden w-60 rounded-xl bg-slate-900 px-3 py-2 text-[11px] font-medium text-white shadow-lg group-hover:block z-20">
                           Límite superado: mínimo 2 horas de anticipación
                         </span>
@@ -299,7 +320,13 @@ export function MisCitasPage() {
         onClose={() => setCitaACancelar(null)}
         onConfirm={handleConfirmarCancelacion}
       />
+
+      <ModalReprogramar
+        cita={citaAReprogramar}
+        isOpen={Boolean(citaAReprogramar)}
+        onClose={() => setCitaAReprogramar(null)}
+        onConfirm={handleConfirmarReprogramacion}
+      />
     </DashboardLayout>
   );
 }
-

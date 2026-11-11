@@ -46,12 +46,16 @@ class CitaController extends Controller
         $response = ['success' => true, 'data' => $citas];
 
         if ($user->rol === 'administrador') {
+            $hoyInicio = Carbon::now('America/Bogota')->startOfDay();
+            $hoyFin = Carbon::now('America/Bogota')->endOfDay();
+
             $response['metricas'] = [
                 'total_pacientes' => Paciente::count(),
                 'medicos_activos' => Medico::where('activo', true)->count(),
                 'citas_agendadas' => Cita::whereIn('estado', ['programada', 'confirmada'])->count(),
                 'citas_atendidas' => Cita::where('estado', 'completada')->count(),
                 'citas_canceladas' => Cita::where('estado', 'cancelada')->count(),
+                'citas_hoy' => Cita::whereBetween('fecha_hora_inicio', [$hoyInicio, $hoyFin])->count(),
             ];
         }
 
@@ -86,7 +90,7 @@ class CitaController extends Controller
         $inicio = Carbon::parse($data['fecha_hora_inicio'])->setTimezone('America/Bogota');
         $fin = Carbon::parse($data['fecha_hora_fin'])->setTimezone('America/Bogota');
 
-        // RN04: No retroactividad
+        // RN02 / RN04: No retroactividad
         if ($inicio->lte(Carbon::now('America/Bogota'))) {
             return response()->json([
                 'success' => false,
@@ -102,8 +106,15 @@ class CitaController extends Controller
             ], 409);
         }
 
+        // RN05 del documento: la especialidad debe corresponder al profesional
+        if ((int) $data['especialidad_id'] !== (int) $medico->especialidad_id) {
+            return response()->json([
+                'success' => false,
+                'error' => 'La especialidad seleccionada no corresponde al profesional.',
+            ], 400);
+        }
+
         $resultado = DB::transaction(function () use ($user, $medico, $data, $inicio, $fin) {
-            // Bloqueo pesimista sobre citas activas del médico en el rango (RN05 - Anti-solapamiento en MySQL)
             $colisionCita = Cita::query()
                 ->where('medico_id', $medico->id)
                 ->whereIn('estado', ['programada', 'confirmada'])
@@ -116,7 +127,6 @@ class CitaController extends Controller
                 return ['conflict' => 'El turno seleccionado acaba de ser tomado por otro paciente'];
             }
 
-            // RN06: Verificar bloqueos de horario
             $colisionBloqueo = BloqueoHorario::query()
                 ->where('medico_id', $medico->id)
                 ->where('fecha_hora_inicio', '<', $fin)
@@ -140,7 +150,7 @@ class CitaController extends Controller
                 'fecha_hora_inicio' => $inicio,
                 'fecha_hora_fin' => $fin,
                 'estado' => 'programada',
-                'motivo_consulta' => $data['motivo_consulta'] ?: 'Consulta médica general',
+                'motivo_consulta' => ($data['motivo_consulta'] ?? null) ?: 'Consulta médica general',
             ]);
 
             HistorialCita::create([
@@ -204,7 +214,6 @@ class CitaController extends Controller
             ], 400);
         }
 
-        // RN07: Mínimo 2 horas (120 minutos) de anticipación para pacientes
         $minutosRestantes = Carbon::now('America/Bogota')->diffInMinutes($cita->fecha_hora_inicio, false);
         if ($user->rol === 'paciente' && $minutosRestantes < 120) {
             return response()->json([
@@ -219,7 +228,7 @@ class CitaController extends Controller
 
         DB::transaction(function () use ($cita, $user, $data) {
             $estadoAnterior = $cita->estado;
-            $motivo = $data['motivo_cancelacion'] ?: 'Cancelada por el paciente';
+            $motivo = ($data['motivo_cancelacion'] ?? null) ?: 'Cancelada por el paciente';
 
             $cita->update([
                 'estado' => 'cancelada',
@@ -251,6 +260,113 @@ class CitaController extends Controller
         ]);
     }
 
+    public function reprogramar(Request $request, Cita $cita): JsonResponse
+    {
+        $user = $request->user();
+        if (! $user) {
+            return response()->json(['success' => false, 'error' => 'Autenticación requerida.'], 401);
+        }
+
+        $esDuenio = $user->rol === 'paciente' && $user->paciente?->id === $cita->paciente_id;
+        if (! $esDuenio && $user->rol !== 'administrador') {
+            return response()->json(['success' => false, 'error' => 'No tienes permisos para reprogramar esta cita.'], 403);
+        }
+
+        if (! in_array($cita->estado, ['programada', 'confirmada'], true)) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Solo se pueden reprogramar citas programadas o confirmadas.',
+            ], 400);
+        }
+
+        $minutosRestantes = Carbon::now('America/Bogota')->diffInMinutes($cita->fecha_hora_inicio, false);
+        if ($user->rol === 'paciente' && $minutosRestantes < 120) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Las citas no pueden reprogramarse con menos de 2 horas de anticipación.',
+            ], 400);
+        }
+
+        $data = $request->validate([
+            'fecha_hora_inicio' => ['required', 'date'],
+            'fecha_hora_fin' => ['required', 'date', 'after:fecha_hora_inicio'],
+        ]);
+
+        $nuevoInicio = Carbon::parse($data['fecha_hora_inicio'])->setTimezone('America/Bogota');
+        $nuevoFin = Carbon::parse($data['fecha_hora_fin'])->setTimezone('America/Bogota');
+
+        if ($nuevoInicio->lte(Carbon::now('America/Bogota'))) {
+            return response()->json([
+                'success' => false,
+                'error' => 'No se puede reprogramar una cita hacia una fecha u hora pasada.',
+            ], 400);
+        }
+
+        $resultado = DB::transaction(function () use ($cita, $user, $nuevoInicio, $nuevoFin) {
+            $colision = Cita::query()
+                ->where('medico_id', $cita->medico_id)
+                ->where('id', '!=', $cita->id)
+                ->whereIn('estado', ['programada', 'confirmada'])
+                ->where('fecha_hora_inicio', '<', $nuevoFin)
+                ->where('fecha_hora_fin', '>', $nuevoInicio)
+                ->lockForUpdate()
+                ->exists();
+
+            if ($colision) {
+                return ['conflict' => 'El nuevo horario seleccionado ya está ocupado'];
+            }
+
+            $colisionBloqueo = BloqueoHorario::query()
+                ->where('medico_id', $cita->medico_id)
+                ->where('fecha_hora_inicio', '<', $nuevoFin)
+                ->where('fecha_hora_fin', '>', $nuevoInicio)
+                ->exists();
+
+            if ($colisionBloqueo) {
+                return ['conflict' => 'El profesional presenta un bloqueo en el nuevo horario seleccionado'];
+            }
+
+            $anteriorStr = $cita->fecha_hora_inicio->format('Y-m-d H:i');
+            $estadoAnterior = $cita->estado;
+
+            $cita->update([
+                'fecha_hora_inicio' => $nuevoInicio,
+                'fecha_hora_fin' => $nuevoFin,
+                'estado' => 'programada',
+            ]);
+
+            HistorialCita::create([
+                'cita_id' => $cita->id,
+                'usuario_responsable_id' => $user->id,
+                'estado_anterior' => $estadoAnterior,
+                'estado_nuevo' => 'programada',
+                'observaciones' => "Reprogramada de {$anteriorStr} a {$nuevoInicio->format('Y-m-d H:i')}.",
+            ]);
+
+            Notificacion::create([
+                'user_id' => $user->id,
+                'cita_id' => $cita->id,
+                'titulo' => 'Cita reprogramada',
+                'mensaje' => "Tu cita {$cita->codigo_reserva} fue reprogramada para el {$nuevoInicio->format('d/m/Y h:i A')}.",
+                'leida' => false,
+            ]);
+
+            return ['cita' => $cita->fresh()];
+        });
+
+        if (isset($resultado['conflict'])) {
+            return response()->json([
+                'success' => false,
+                'error' => $resultado['conflict'],
+            ], 409);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $resultado['cita']->toFrontendArray(),
+        ]);
+    }
+
     public function actualizarEstado(Request $request, Cita $cita): JsonResponse
     {
         $user = $request->user();
@@ -262,7 +378,6 @@ class CitaController extends Controller
             return response()->json(['success' => false, 'error' => 'Solo puedes actualizar citas de tu agenda.'], 403);
         }
 
-        // RN08: Inmutabilidad de citas ya cerradas
         if (in_array($cita->estado, ['completada', 'no_asistio', 'cancelada'], true)) {
             return response()->json([
                 'success' => false,
@@ -303,5 +418,50 @@ class CitaController extends Controller
             'data' => $cita->fresh()->toFrontendArray(),
         ]);
     }
-}
 
+    public function reportes(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        if (! $user || $user->rol !== 'administrador') {
+            return response()->json(['success' => false, 'error' => 'Permisos insuficientes.'], 403);
+        }
+
+        $query = Cita::with(['paciente.user', 'medico.user', 'especialidad'])
+            ->orderByDesc('fecha_hora_inicio');
+
+        if ($request->filled('fecha_desde')) {
+            $desde = Carbon::parse($request->input('fecha_desde'), 'America/Bogota')->startOfDay();
+            $query->where('fecha_hora_inicio', '>=', $desde);
+        }
+
+        if ($request->filled('fecha_hasta')) {
+            $hasta = Carbon::parse($request->input('fecha_hasta'), 'America/Bogota')->endOfDay();
+            $query->where('fecha_hora_inicio', '<=', $hasta);
+        }
+
+        if ($request->filled('medico_id') && $request->input('medico_id') !== 'all') {
+            $query->where('medico_id', (int) $request->input('medico_id'));
+        }
+
+        if ($request->filled('estado') && $request->input('estado') !== 'all') {
+            $query->where('estado', $request->input('estado'));
+        }
+
+        $citas = $query->get();
+
+        $resumen = [
+            'total' => $citas->count(),
+            'programadas' => $citas->where('estado', 'programada')->count(),
+            'confirmadas' => $citas->where('estado', 'confirmada')->count(),
+            'completadas' => $citas->where('estado', 'completada')->count(),
+            'canceladas' => $citas->where('estado', 'cancelada')->count(),
+            'no_asistio' => $citas->where('estado', 'no_asistio')->count(),
+        ];
+
+        return response()->json([
+            'success' => true,
+            'resumen' => $resumen,
+            'data' => $citas->map(fn (Cita $c) => $c->toFrontendArray())->values(),
+        ]);
+    }
+}

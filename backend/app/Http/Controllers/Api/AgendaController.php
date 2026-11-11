@@ -63,6 +63,7 @@ class AgendaController extends Controller
 
         return response()->json([
             'success' => true,
+            'duracion_cita_defecto_min' => $medico->duracion_cita_defecto_min,
             'horarios' => $horarios,
             'bloqueos' => $bloqueos,
         ]);
@@ -83,17 +84,59 @@ class AgendaController extends Controller
             'dia_semana' => ['required', 'integer', 'between:1,7'],
             'hora_inicio' => ['required', 'date_format:H:i'],
             'hora_fin' => ['required', 'date_format:H:i', 'after:hora_inicio'],
+            'duracion_cita_defecto_min' => ['nullable', 'integer', 'in:15,20,30,45,60'],
         ]);
+
+        $inicio = $data['hora_inicio'] . ':00';
+        $fin = $data['hora_fin'] . ':00';
+
+        // HU-05: Evitar horarios superpuestos en el mismo día
+        $solapamiento = HorarioAtencion::query()
+            ->where('medico_id', $medico->id)
+            ->where('dia_semana', (int) $data['dia_semana'])
+            ->where('activo', true)
+            ->where('hora_inicio', '<', $fin)
+            ->where('hora_fin', '>', $inicio)
+            ->exists();
+
+        if ($solapamiento) {
+            return response()->json([
+                'success' => false,
+                'error' => 'La franja horaria se superpone con un horario ya configurado para ese día.',
+            ], 409);
+        }
+
+        if (isset($data['duracion_cita_defecto_min'])) {
+            $medico->update([
+                'duracion_cita_defecto_min' => (int) $data['duracion_cita_defecto_min'],
+            ]);
+        }
 
         $horario = HorarioAtencion::create([
             'medico_id' => $medico->id,
-            'dia_semana' => $data['dia_semana'],
-            'hora_inicio' => $data['hora_inicio'] . ':00',
-            'hora_fin' => $data['hora_fin'] . ':00',
+            'dia_semana' => (int) $data['dia_semana'],
+            'hora_inicio' => $inicio,
+            'hora_fin' => $fin,
             'activo' => true,
         ]);
 
         return response()->json(['success' => true, 'data' => $horario], 201);
+    }
+
+    public function eliminarHorario(Request $request, HorarioAtencion $horario): JsonResponse
+    {
+        $user = $request->user();
+        if (! $user || ! in_array($user->rol, ['administrador', 'medico'], true)) {
+            return response()->json(['success' => false, 'error' => 'Permisos insuficientes.'], 403);
+        }
+
+        if ($user->rol === 'medico' && $user->medico?->id !== $horario->medico_id) {
+            return response()->json(['success' => false, 'error' => 'Permisos insuficientes.'], 403);
+        }
+
+        $horario->delete();
+
+        return response()->json(['success' => true]);
     }
 
     public function crearBloqueo(Request $request, Medico $medico): JsonResponse
@@ -125,4 +168,3 @@ class AgendaController extends Controller
         return response()->json(['success' => true, 'data' => $bloqueo], 201);
     }
 }
-

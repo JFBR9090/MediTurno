@@ -15,6 +15,7 @@ export function MediTurnoProvider({ children }) {
   const { user, isAuthenticated } = useAuth();
 
   const [especialidades, setEspecialidades] = useState([]);
+  const [especialidadesAdmin, setEspecialidadesAdmin] = useState([]);
   const [medicos, setMedicos] = useState([]);
   const [pacientes, setPacientes] = useState([]);
   const [citas, setCitas] = useState([]);
@@ -63,6 +64,7 @@ export function MediTurnoProvider({ children }) {
     if (!isAuthenticated || !user) {
       setCitas([]);
       setPacientes([]);
+      setEspecialidadesAdmin([]);
       setMetricasAdmin(null);
       setNotificaciones([]);
       return;
@@ -72,13 +74,15 @@ export function MediTurnoProvider({ children }) {
       const peticiones = [apiRequest('/citas'), apiRequest('/notificaciones')];
       if (user.rol === 'administrador') {
         peticiones.push(apiRequest('/pacientes'));
+        peticiones.push(apiRequest('/especialidades?todas=1'));
       }
 
-      const [citasRes, notifRes, pacientesRes] = await Promise.all(peticiones);
+      const [citasRes, notifRes, pacientesRes, espAdminRes] = await Promise.all(peticiones);
       if (citasRes?.data) setCitas(citasRes.data);
       if (citasRes?.metricas) setMetricasAdmin(citasRes.metricas);
       if (notifRes?.data) setNotificaciones(notifRes.data);
       if (pacientesRes?.data) setPacientes(pacientesRes.data);
+      if (espAdminRes?.data) setEspecialidadesAdmin(espAdminRes.data);
     } catch {
       // Ignorado si sesión expiró
     }
@@ -143,6 +147,28 @@ export function MediTurnoProvider({ children }) {
     [cargarDatosPrivados]
   );
 
+  const reprogramarCita = useCallback(
+    async (citaId, { fechaISO, slot }) => {
+      const [year, month, day] = fechaISO.split('-').map(Number);
+      const [hIni, mIni] = slot.inicio.split(':').map(Number);
+      const [hFin, mFin] = slot.fin.split(':').map(Number);
+
+      const inicioDate = new Date(year, month - 1, day, hIni, mIni, 0, 0);
+      const finDate = new Date(year, month - 1, day, hFin, mFin, 0, 0);
+
+      const res = await apiRequest(`/citas/${citaId}/reprogramar`, {
+        method: 'PUT',
+        body: {
+          fecha_hora_inicio: slot.fecha_hora_inicio || inicioDate.toISOString(),
+          fecha_hora_fin: slot.fecha_hora_fin || finDate.toISOString(),
+        },
+      });
+      await cargarDatosPrivados();
+      return res.data;
+    },
+    [cargarDatosPrivados]
+  );
+
   const actualizarEstadoCitaMedico = useCallback(
     async (citaId, nuevoEstado) => {
       await apiRequest(`/citas/${citaId}/estado`, {
@@ -183,6 +209,56 @@ export function MediTurnoProvider({ children }) {
     }
   }, []);
 
+  const crearPacienteAdmin = useCallback(
+    async (payload) => {
+      const res = await apiRequest('/pacientes', {
+        method: 'POST',
+        body: payload,
+      });
+      if (res?.data) {
+        setPacientes((prev) => [res.data, ...prev]);
+        await cargarDatosPrivados();
+      }
+      return res.data;
+    },
+    [cargarDatosPrivados]
+  );
+
+  const crearEspecialidad = useCallback(
+    async (payload) => {
+      const res = await apiRequest('/especialidades', {
+        method: 'POST',
+        body: payload,
+      });
+      await Promise.all([cargarCatalogos(), cargarDatosPrivados()]);
+      return res.data;
+    },
+    [cargarCatalogos, cargarDatosPrivados]
+  );
+
+  const actualizarEspecialidad = useCallback(
+    async (id, payload) => {
+      const res = await apiRequest(`/especialidades/${id}`, {
+        method: 'PUT',
+        body: payload,
+      });
+      await Promise.all([cargarCatalogos(), cargarDatosPrivados()]);
+      return res.data;
+    },
+    [cargarCatalogos, cargarDatosPrivados]
+  );
+
+  const toggleEspecialidad = useCallback(
+    async (id) => {
+      const res = await apiRequest(`/especialidades/${id}/toggle`, {
+        method: 'PATCH',
+      });
+      await Promise.all([cargarCatalogos(), cargarDatosPrivados()]);
+      return res.data;
+    },
+    [cargarCatalogos, cargarDatosPrivados]
+  );
+
   const unreadCount = useMemo(
     () => notificaciones.filter((n) => !n.leida).length,
     [notificaciones]
@@ -190,6 +266,7 @@ export function MediTurnoProvider({ children }) {
 
   const value = {
     especialidades,
+    especialidadesAdmin,
     medicos,
     pacientes,
     citas,
@@ -202,9 +279,14 @@ export function MediTurnoProvider({ children }) {
     marcarNotificacionesLeidas,
     crearCita,
     cancelarCita,
+    reprogramarCita,
     actualizarEstadoCitaMedico,
     agregarMedico,
     toggleEstadoMedico,
+    crearPacienteAdmin,
+    crearEspecialidad,
+    actualizarEspecialidad,
+    toggleEspecialidad,
     recargarTodo: async () => {
       await Promise.all([cargarCatalogos(), cargarDatosPrivados()]);
     },
