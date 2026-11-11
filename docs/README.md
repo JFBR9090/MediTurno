@@ -6,7 +6,7 @@ Carpeta dedicada a la documentación técnica, funcional y de requisitos del sis
 
 | Documento | Descripción | Versión Actual |
 | :--- | :--- | :---: |
-| [SRS_MediTurno.md](./SRS_MediTurno.md) | Especificación de Requisitos de Software (IEEE 830 / Formato SENA) | **v1.0.0** |
+| [SRS_MediTurno.md](./SRS_MediTurno.md) | Especificación de Requisitos de Software (IEEE 830 / Formato SENA) | **v1.0.1** |
 
 ## Política de Versionamiento del SRS
 Cada cambio funcional o de interfaz aplicado al sitio web deberá quedar reflejado en la tabla **Control de Versiones** del archivo [SRS_MediTurno.md](./SRS_MediTurno.md), incrementando la versión según corresponda:

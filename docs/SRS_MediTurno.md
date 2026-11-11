@@ -5,7 +5,7 @@
 **TECNÓLOGO EN ANÁLISIS Y DESARROLLO DE SOFTWARE**  
 **FICHA:** 3413988  
 **APRENDIZ:** JUAN FERNANDO BAHAMÓN RAMÍREZ  
-**INSTRUCTOR:** CARLOS FABIÁN MARTÍNEZ MORA  
+**INSTRUCTOR:** JAVIER HUMBERTO PINTO DIAZ  
 **NEIVA, HUILA**  
 **11 de noviembre de 2026**
 
@@ -16,6 +16,7 @@
 | Versión | Fecha | Autor | Descripción del Cambio | Rama / Commit |
 | :---: | :---: | :--- | :--- | :---: |
 | **v1.0.0** | 11/11/2026 | Juan Fernando Bahamón Ramírez | Versión inicial completa del SRS de **MediTurno**, alineada con el boceto funcional del sitio web en Laravel 11, MySQL 8.0, React 18 y Tailwind CSS (módulos de Autenticación RBAC, Pacientes, Profesionales, Especialidades, Agendas/Calendarios, Citas transaccionales, Reprogramación, Cancelación, Reportes CSV y Plan de Pruebas CP-01 a CP-14). | `main` |
+| **v1.0.1** | 11/11/2026 | Juan Fernando Bahamón Ramírez | Actualización del nombre del instructor evaluador en portada y sección 1.6 (Javier Humberto Pinto Díaz). | `main` |
 
 ---
 
@@ -155,7 +156,7 @@ Con el fin de garantizar claridad frente a las funcionalidades incluidas en el M
 | **Responsabilidad** | Análisis de requerimientos, diseño de base de datos MySQL, implementación del backend en Laravel, integración del frontend, ejecución de pruebas y documentación técnica SRS. |
 | **Información de contacto** | JFBR34880458@soy.sena.edu.co |
 
-| Nombre | Carlos Fabián Martínez Mora |
+| Nombre | Javier Humberto Pinto Díaz |
 | :--- | :--- |
 | **Rol** | Instructor / Evaluador Técnico |
 | **Categoría profesional** | Instructor SENA — Centro de la Industria, la Empresa y los Servicios (Regional Huila) |
