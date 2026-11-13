@@ -36,7 +36,7 @@ class DatabaseSeeder extends Seeder
             $especialidades[$esp['nombre']] = Especialidad::create($esp);
         }
 
-        // 2. Administrador
+        // 2. Administradores y Perfiles de Coordinación
         User::create([
             'rol' => 'administrador',
             'nombre' => 'Juan Fernando',
@@ -44,6 +44,58 @@ class DatabaseSeeder extends Seeder
             'name' => 'Juan Fernando Salazar',
             'email' => 'admin@mediturno.co',
             'password' => 'Admin2026*',
+            'activo' => true,
+        ]);
+
+        User::create([
+            'rol' => 'administrador',
+            'nombre' => 'Administrador',
+            'apellido' => 'MediTurno',
+            'name' => 'Administrador MediTurno',
+            'email' => 'admin@mediturno.com',
+            'password' => 'admin123',
+            'activo' => true,
+        ]);
+
+        // Perfil 3: Gestión de Agendas y Horarios
+        User::create([
+            'rol' => 'agenda',
+            'nombre' => 'Laura',
+            'apellido' => 'Gómez',
+            'name' => 'Laura Gómez (Coordinadora Agendas)',
+            'email' => 'agendas@mediturno.com',
+            'password' => 'agenda123',
+            'activo' => true,
+        ]);
+
+        User::create([
+            'rol' => 'agenda',
+            'nombre' => 'Coordinación',
+            'apellido' => 'de Agendas',
+            'name' => 'Coordinación de Agendas',
+            'email' => 'coordinador.agendas@mediturno.co',
+            'password' => 'Agenda2026*',
+            'activo' => true,
+        ]);
+
+        // Perfil 4: Gestión Operativa de Citas y Recepción
+        User::create([
+            'rol' => 'cita',
+            'nombre' => 'Andrés',
+            'apellido' => 'Cárdenas',
+            'name' => 'Andrés Cárdenas (Gestor Citas)',
+            'email' => 'citas@mediturno.com',
+            'password' => 'citas123',
+            'activo' => true,
+        ]);
+
+        User::create([
+            'rol' => 'cita',
+            'nombre' => 'Recepción',
+            'apellido' => 'de Citas',
+            'name' => 'Recepción de Citas',
+            'email' => 'recepcion.citas@mediturno.co',
+            'password' => 'Citas2026*',
             'activo' => true,
         ]);
 
@@ -97,6 +149,13 @@ class DatabaseSeeder extends Seeder
                 'bio' => 'Oftalmóloga clínica especializada en diagnóstico de segmento anterior y optometría médica.',
                 'calificacion' => 4.9, 'iniciales' => 'JP', 'color' => 'bg-cyan-100 text-cyan-700', 'dias' => [1, 2, 3, 5],
             ],
+            [
+                'nombre' => 'Dr. Roberto', 'apellido' => 'Ramírez', 'email' => 'dr.ramirez@mediturno.com',
+                'tp' => 'TP-10023-CO', 'esp' => 'Medicina General', 'consultorio' => 'Consultorio 101 - Piso 1',
+                'bio' => 'Especialista en medicina preventiva, valoración primaria y seguimiento ambulatorio.',
+                'calificacion' => 4.9, 'iniciales' => 'RR', 'color' => 'bg-emerald-100 text-emerald-700', 'dias' => [1, 2, 3, 4, 5, 6],
+                'password' => 'medico123',
+            ],
         ];
 
         $medicos = [];
@@ -107,7 +166,7 @@ class DatabaseSeeder extends Seeder
                 'apellido' => $m['apellido'],
                 'name' => "{$m['nombre']} {$m['apellido']}",
                 'email' => $m['email'],
-                'password' => 'Medico2026*',
+                'password' => $m['password'] ?? 'Medico2026*',
                 'activo' => true,
             ]);
 
@@ -152,6 +211,7 @@ class DatabaseSeeder extends Seeder
             ['nombre' => 'Carlos Alberto', 'apellido' => 'Torres', 'email' => 'carlos.torres@correo.co', 'doc' => '80123491', 'tel' => '3204456677', 'fnac' => '1985-06-05'],
             ['nombre' => 'Luisa Fernanda', 'apellido' => 'Vargas', 'email' => 'luisa.vargas@correo.co', 'doc' => '1032498112', 'tel' => '3019987766', 'fnac' => '1999-11-30'],
             ['nombre' => 'Santiago', 'apellido' => 'Morales', 'email' => 'santiago.morales@correo.co', 'doc' => '1020304050', 'tel' => '3123456789', 'fnac' => '1990-03-14'],
+            ['nombre' => 'Carlos', 'apellido' => 'Mendoza', 'email' => 'carlos.mendoza@email.com', 'doc' => '1029384756', 'tel' => '3109876543', 'fnac' => '1992-07-15', 'password' => 'paciente123'],
         ];
 
         $pacientes = [];
@@ -162,7 +222,7 @@ class DatabaseSeeder extends Seeder
                 'apellido' => $p['apellido'],
                 'name' => "{$p['nombre']} {$p['apellido']}",
                 'email' => $p['email'],
-                'password' => 'Paciente2026*',
+                'password' => $p['password'] ?? 'Paciente2026*',
                 'activo' => true,
             ]);
 

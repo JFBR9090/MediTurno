@@ -24,6 +24,14 @@ class CitaController extends Controller
             return response()->json(['success' => false, 'error' => 'Autenticación requerida.'], 401);
         }
 
+        // El perfil de agenda solo gestiona disponibilidad de horarios, no citas médicas de pacientes
+        if ($user->rol === 'agenda') {
+            return response()->json([
+                'success' => false,
+                'error' => 'Acceso denegado. El perfil de gestión de agendas no tiene acceso a citas privadas de pacientes.',
+            ], 403);
+        }
+
         $query = Cita::with(['paciente.user', 'medico.user', 'especialidad'])
             ->orderBy('fecha_hora_inicio');
 
@@ -33,7 +41,7 @@ class CitaController extends Controller
                 return response()->json(['success' => true, 'data' => []]);
             }
             $query->where('paciente_id', $pacienteId);
-        } elseif ($user->rol === 'medico') {
+        } elseif (in_array($user->rol, ['medico', 'profesional'], true)) {
             $medicoId = $user->medico?->id;
             if (! $medicoId) {
                 return response()->json(['success' => true, 'data' => []]);
@@ -45,7 +53,7 @@ class CitaController extends Controller
 
         $response = ['success' => true, 'data' => $citas];
 
-        if ($user->rol === 'administrador') {
+        if (in_array($user->rol, ['administrador', 'cita'], true)) {
             $hoyInicio = Carbon::now('America/Bogota')->startOfDay();
             $hoyFin = Carbon::now('America/Bogota')->endOfDay();
 
@@ -65,10 +73,14 @@ class CitaController extends Controller
     public function store(Request $request): JsonResponse
     {
         $user = $request->user();
-        if (! $user || $user->rol !== 'paciente' || ! $user->paciente) {
+        if (! $user) {
+            return response()->json(['success' => false, 'error' => 'Autenticación requerida.'], 401);
+        }
+
+        if (! in_array($user->rol, ['paciente', 'cita', 'administrador'], true)) {
             return response()->json([
                 'success' => false,
-                'error' => 'Solo los pacientes autenticados pueden agendar citas.',
+                'error' => 'No tienes permisos para agendar citas médicas.',
             ], 403);
         }
 
@@ -80,12 +92,26 @@ class CitaController extends Controller
         }
 
         $data = $request->validate([
+            'paciente_id' => ['nullable', 'integer', 'exists:pacientes,id'],
             'medico_id' => ['required', 'integer', 'exists:medicos,id'],
             'especialidad_id' => ['required', 'integer', 'exists:especialidades,id'],
             'fecha_hora_inicio' => ['required', 'date'],
             'fecha_hora_fin' => ['required', 'date', 'after:fecha_hora_inicio'],
             'motivo_consulta' => ['nullable', 'string', 'max:500'],
         ]);
+
+        $pacienteId = null;
+        if ($user->rol === 'paciente') {
+            if (! $user->paciente) {
+                return response()->json(['success' => false, 'error' => 'Perfil de paciente no encontrado.'], 403);
+            }
+            $pacienteId = $user->paciente->id;
+        } else {
+            $pacienteId = (int) ($data['paciente_id'] ?? 0);
+            if (! $pacienteId) {
+                return response()->json(['success' => false, 'error' => 'Debes indicar un paciente para agendar la cita.'], 422);
+            }
+        }
 
         $inicio = Carbon::parse($data['fecha_hora_inicio'])->setTimezone('America/Bogota');
         $fin = Carbon::parse($data['fecha_hora_fin'])->setTimezone('America/Bogota');
@@ -114,7 +140,7 @@ class CitaController extends Controller
             ], 400);
         }
 
-        $resultado = DB::transaction(function () use ($user, $medico, $data, $inicio, $fin) {
+        $resultado = DB::transaction(function () use ($user, $medico, $data, $inicio, $fin, $pacienteId) {
             $colisionCita = Cita::query()
                 ->where('medico_id', $medico->id)
                 ->whereIn('estado', ['programada', 'confirmada'])
@@ -144,7 +170,7 @@ class CitaController extends Controller
 
             $cita = Cita::create([
                 'codigo_reserva' => $codigo,
-                'paciente_id' => $user->paciente->id,
+                'paciente_id' => $pacienteId,
                 'medico_id' => $medico->id,
                 'especialidad_id' => (int) $data['especialidad_id'],
                 'fecha_hora_inicio' => $inicio,
@@ -158,23 +184,28 @@ class CitaController extends Controller
                 'usuario_responsable_id' => $user->id,
                 'estado_anterior' => null,
                 'estado_nuevo' => 'programada',
-                'observaciones' => 'Reserva creada por el paciente.',
+                'observaciones' => "Reserva creada ({$user->rol}).",
             ]);
 
-            Notificacion::create([
-                'user_id' => $user->id,
-                'cita_id' => $cita->id,
-                'titulo' => 'Cita reservada',
-                'mensaje' => "Cita {$cita->codigo_reserva} con {$medico->user->nombre} {$medico->user->apellido} programada.",
-                'leida' => false,
-            ]);
+            $pacienteObj = Paciente::with('user')->find($pacienteId);
+            $nombrePaciente = $pacienteObj ? trim(($pacienteObj->user?->nombre ?? '') . ' ' . ($pacienteObj->user?->apellido ?? '')) : 'Paciente';
+
+            if ($pacienteObj?->user_id) {
+                Notificacion::create([
+                    'user_id' => $pacienteObj->user_id,
+                    'cita_id' => $cita->id,
+                    'titulo' => 'Cita reservada',
+                    'mensaje' => "Cita {$cita->codigo_reserva} con {$medico->user->nombre} {$medico->user->apellido} programada.",
+                    'leida' => false,
+                ]);
+            }
 
             if ($medico->user_id) {
                 Notificacion::create([
                     'user_id' => $medico->user_id,
                     'cita_id' => $cita->id,
                     'titulo' => 'Nueva cita asignada',
-                    'mensaje' => "El paciente {$user->nombre} {$user->apellido} reservó el turno {$cita->codigo_reserva}.",
+                    'mensaje' => "El paciente {$nombrePaciente} cuenta con el turno {$cita->codigo_reserva}.",
                     'leida' => false,
                 ]);
             }
@@ -203,7 +234,8 @@ class CitaController extends Controller
         }
 
         $esDuenio = $user->rol === 'paciente' && $user->paciente?->id === $cita->paciente_id;
-        if (! $esDuenio && $user->rol !== 'administrador') {
+        $esGestor = in_array($user->rol, ['cita', 'administrador'], true);
+        if (! $esDuenio && ! $esGestor) {
             return response()->json(['success' => false, 'error' => 'No tienes permisos para cancelar esta cita.'], 403);
         }
 
@@ -268,7 +300,8 @@ class CitaController extends Controller
         }
 
         $esDuenio = $user->rol === 'paciente' && $user->paciente?->id === $cita->paciente_id;
-        if (! $esDuenio && $user->rol !== 'administrador') {
+        $esGestor = in_array($user->rol, ['cita', 'administrador'], true);
+        if (! $esDuenio && ! $esGestor) {
             return response()->json(['success' => false, 'error' => 'No tienes permisos para reprogramar esta cita.'], 403);
         }
 
@@ -370,11 +403,11 @@ class CitaController extends Controller
     public function actualizarEstado(Request $request, Cita $cita): JsonResponse
     {
         $user = $request->user();
-        if (! $user || ! in_array($user->rol, ['medico', 'administrador'], true)) {
-            return response()->json(['success' => false, 'error' => 'Permisos insuficientes.'], 403);
+        if (! $user || ! in_array($user->rol, ['medico', 'profesional', 'administrador'], true)) {
+            return response()->json(['success' => false, 'error' => 'Permisos insuficientes. Solo el profesional médico asignado puede actualizar el estado clínico.'], 403);
         }
 
-        if ($user->rol === 'medico' && $user->medico?->id !== $cita->medico_id) {
+        if (in_array($user->rol, ['medico', 'profesional'], true) && $user->medico?->id !== $cita->medico_id) {
             return response()->json(['success' => false, 'error' => 'Solo puedes actualizar citas de tu agenda.'], 403);
         }
 
@@ -422,7 +455,7 @@ class CitaController extends Controller
     public function reportes(Request $request): JsonResponse
     {
         $user = $request->user();
-        if (! $user || $user->rol !== 'administrador') {
+        if (! $user || ! in_array($user->rol, ['administrador', 'cita'], true)) {
             return response()->json(['success' => false, 'error' => 'Permisos insuficientes.'], 403);
         }
 

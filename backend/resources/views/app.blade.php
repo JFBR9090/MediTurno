@@ -10,8 +10,8 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap"
       rel="stylesheet"
     />
-    <script type="module" crossorigin src="/assets/index-D1C3FhOK.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-dbgJeIwn.css">
+    <script type="module" crossorigin src="/assets/index-xChMJvFC.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BUnq-Q_0.css">
   </head>
   <body class="bg-slate-50 text-slate-900 antialiased selection:bg-sky-100 selection:text-sky-900">
     <div id="root"></div>

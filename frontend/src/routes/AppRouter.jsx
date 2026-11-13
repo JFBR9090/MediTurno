@@ -1,54 +1,58 @@
 import { Navigate, Route, Routes, useLocation, Link } from 'react-router-dom';
 import { ShieldAlert, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { LandingPage } from '../pages/LandingPage';
 import { LoginPage } from '../pages/LoginPage';
 import { RegistroPage } from '../pages/RegistroPage';
 import { ReservarCitaPage } from '../pages/paciente/ReservarCitaPage';
 import { MisCitasPage } from '../pages/paciente/MisCitasPage';
 import { AgendaMedicoPage } from '../pages/medico/AgendaMedicoPage';
+import { GestionAgendasPage } from '../pages/agenda/GestionAgendasPage';
+import { GestionCitasPage } from '../pages/citas/GestionCitasPage';
 import { DashboardAdminPage } from '../pages/admin/DashboardAdminPage';
 import { Navbar } from '../components/layout/Navbar';
 import { Footer } from '../components/layout/Footer';
 
 const ROLE_HOME = {
   paciente: '/paciente/citas',
+  profesional: '/medico/agenda',
   medico: '/medico/agenda',
+  agenda: '/agenda/gestion',
+  cita: '/citas/gestion',
   administrador: '/admin/dashboard',
 };
 
 function FullScreenLoading() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 gap-3">
-      <Loader2 className="h-8 w-8 animate-spin text-sky-600" />
-      <p className="text-sm font-medium text-slate-500">Verificando sesión segura...</p>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900 gap-3 text-white">
+      <Loader2 className="h-8 w-8 animate-spin text-sky-400" />
+      <p className="text-sm font-medium text-slate-300">Verificando sesión segura...</p>
     </div>
   );
 }
 
 function ForbiddenView({ userRole }) {
-  const destino = ROLE_HOME[userRole] || '/';
+  const destino = ROLE_HOME[userRole] || '/login';
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
       <Navbar />
       <main className="flex-1 flex items-center justify-center px-4 py-12">
-        <div className="max-w-md w-full card-surface p-8 text-center space-y-4">
+        <div className="max-w-md w-full card-surface p-8 text-center space-y-4 shadow-xl">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50 text-red-600">
             <ShieldAlert className="h-8 w-8" />
           </div>
           <span className="inline-block rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-red-700">
-            Error 403 · Acceso Denegado
+            Error 403 · Acceso Denegado por Perfil
           </span>
           <h1 className="font-display text-xl font-bold text-slate-900">
-            No tienes permisos para acceder a esta sección
+            No tienes permisos para acceder a este módulo
           </h1>
           <p className="text-sm text-slate-500">
-            Tu rol actual no está autorizado para visualizar este módulo. Regresa a tu
-            panel asignado para continuar.
+            Tu perfil institucional actual ({userRole}) no está autorizado para visualizar o
+            modificar este módulo. Regresa a tu panel correspondiente para continuar.
           </p>
           <div className="pt-2">
             <Link to={destino} className="btn-primary w-full">
-              Volver a mi Panel
+              Volver a mi Panel Asignado
             </Link>
           </div>
         </div>
@@ -71,8 +75,14 @@ function ProtectedRoute({ allowedRoles, children }) {
     return <Navigate to={`/login?returnTo=${returnTo}`} replace />;
   }
 
-  if (allowedRoles && !allowedRoles.includes(user.rol)) {
-    return <ForbiddenView userRole={user.rol} />;
+  // Permitir siempre al administrador o si coincide el rol
+  const hasAccess =
+    user?.rol === 'administrador' ||
+    (allowedRoles && allowedRoles.includes(user?.rol)) ||
+    (allowedRoles && allowedRoles.includes('profesional') && user?.rol === 'medico');
+
+  if (!hasAccess) {
+    return <ForbiddenView userRole={user?.rol} />;
   }
 
   return children;
@@ -85,20 +95,35 @@ function PublicAuthRoute({ children }) {
     return <FullScreenLoading />;
   }
 
-  if (isAuthenticated) {
-    return <Navigate to={ROLE_HOME[user.rol] || '/'} replace />;
+  if (isAuthenticated && user) {
+    return <Navigate to={ROLE_HOME[user.rol] || '/login'} replace />;
   }
 
   return children;
 }
 
+// Gatekeeper inicial: si no está autenticado, va a Login directamente; si está autenticado, a su home
+function RootGatekeeper() {
+  const { user, loading, isAuthenticated } = useAuth();
+
+  if (loading) {
+    return <FullScreenLoading />;
+  }
+
+  if (!isAuthenticated || !user) {
+    return <LoginPage />;
+  }
+
+  return <Navigate to={ROLE_HOME[user.rol] || '/login'} replace />;
+}
+
 export function AppRouter() {
   return (
     <Routes>
-      {/* Ruta pública principal */}
-      <Route path="/" element={<LandingPage />} />
+      {/* Entrada principal del sitio: Gatekeeper estricto */}
+      <Route path="/" element={<RootGatekeeper />} />
 
-      {/* Autenticación */}
+      {/* Pantalla de autenticación y selección de perfiles */}
       <Route
         path="/login"
         element={
@@ -116,7 +141,7 @@ export function AppRouter() {
         }
       />
 
-      {/* Panel del Paciente */}
+      {/* 1. Panel de Pacientes */}
       <Route
         path="/paciente/reservar"
         element={
@@ -134,17 +159,37 @@ export function AppRouter() {
         }
       />
 
-      {/* Panel del Médico */}
+      {/* 2. Panel de Profesionales Médicos */}
       <Route
         path="/medico/agenda"
         element={
-          <ProtectedRoute allowedRoles={['medico']}>
+          <ProtectedRoute allowedRoles={['profesional', 'medico']}>
             <AgendaMedicoPage />
           </ProtectedRoute>
         }
       />
 
-      {/* Panel del Administrador */}
+      {/* 3. Panel de Coordinación de Agendas */}
+      <Route
+        path="/agenda/gestion"
+        element={
+          <ProtectedRoute allowedRoles={['agenda']}>
+            <GestionAgendasPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* 4. Panel de Mesa de Citas y Recepción */}
+      <Route
+        path="/citas/gestion"
+        element={
+          <ProtectedRoute allowedRoles={['cita']}>
+            <GestionCitasPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Panel Superior de Administración */}
       <Route
         path="/admin/dashboard"
         element={
@@ -154,9 +199,8 @@ export function AppRouter() {
         }
       />
 
-      {/* Fallback */}
+      {/* Fallback general: redirige a la raíz controlada por Gatekeeper */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
-

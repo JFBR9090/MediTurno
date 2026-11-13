@@ -23,10 +23,14 @@ export function AuthProvider({ children }) {
     checkSession();
   }, [checkSession]);
 
-  const login = useCallback(async ({ correo, password }) => {
+  const login = useCallback(async ({ correo, password, perfil }) => {
     const data = await apiRequest('/auth/login', {
       method: 'POST',
-      body: { correo: correo.trim().toLowerCase(), password },
+      body: {
+        correo: correo.trim().toLowerCase(),
+        password,
+        perfil: perfil || undefined,
+      },
     });
     if (data?.user) {
       setUser(data.user);

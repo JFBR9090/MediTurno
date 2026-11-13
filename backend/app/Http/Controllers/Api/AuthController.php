@@ -10,13 +10,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
     private const DEMO_EMAILS = [
-        'paciente' => 'camila.restrepo@correo.co',
-        'medico' => 'a.martinez@mediturno.co',
-        'admin' => 'admin@mediturno.co',
+        'paciente' => 'carlos.mendoza@email.com',
+        'profesional' => 'dr.ramirez@mediturno.com',
+        'medico' => 'dr.ramirez@mediturno.com',
+        'agenda' => 'agendas@mediturno.com',
+        'cita' => 'citas@mediturno.com',
+        'admin' => 'admin@mediturno.com',
+        'administrador' => 'admin@mediturno.com',
     ];
 
     public function me(Request $request): JsonResponse
@@ -37,18 +43,38 @@ class AuthController extends Controller
         $data = $request->validate([
             'correo' => ['required', 'email'],
             'password' => ['required', 'string', 'min:6'],
+            'perfil' => ['nullable', 'string', 'in:paciente,profesional,medico,agenda,cita,administrador,admin'],
         ]);
 
         $correo = mb_strtolower(trim($data['correo']));
+        $throttleKey = 'login:' . $correo . '|' . $request->ip();
+
+        // 1. Protección contra Fuerza Bruta (Rate Limiting)
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+
+            return response()->json([
+                'success' => false,
+                'error' => "Demasiados intentos fallidos. Por seguridad, el acceso ha sido bloqueado temporalmente. Intenta nuevamente en {$seconds} segundos.",
+                'retry_after' => $seconds,
+            ], 429)->header('Retry-After', (string) $seconds);
+        }
+
         $user = User::where('email', $correo)->first();
 
+        // 2. Validación de credenciales con Hash seguro
         if (! $user || ! Hash::check($data['password'], $user->password)) {
+            RateLimiter::hit($throttleKey, 60);
+            $restantes = RateLimiter::retriesLeft($throttleKey, 5);
+
             return response()->json([
                 'success' => false,
                 'error' => 'Credenciales inválidas. Verifica tu correo y contraseña.',
+                'intentos_restantes' => $restantes,
             ], 401);
         }
 
+        // 3. Validación de estado de la cuenta
         if (! $user->activo) {
             return response()->json([
                 'success' => false,
@@ -56,6 +82,46 @@ class AuthController extends Controller
             ], 403);
         }
 
+        // 4. Verificación de Perfil de Acceso Seleccionado
+        if (! empty($data['perfil'])) {
+            $perfilSolicitado = match ($data['perfil']) {
+                'medico' => 'profesional',
+                'admin' => 'administrador',
+                default => $data['perfil'],
+            };
+
+            $esPerfilValido = match ($perfilSolicitado) {
+                'paciente' => $user->isPaciente(),
+                'profesional' => $user->isProfesional(),
+                'agenda' => $user->isAgenda(),
+                'cita' => $user->isCita(),
+                'administrador' => $user->isAdmin(),
+                default => false,
+            };
+
+            if (! $esPerfilValido) {
+                RateLimiter::hit($throttleKey, 60);
+
+                $nombresPerfiles = [
+                    'paciente' => 'Pacientes',
+                    'profesional' => 'Profesionales Médicos',
+                    'agenda' => 'Gestión de Agendas',
+                    'cita' => 'Gestión de Citas',
+                    'administrador' => 'Administración',
+                ];
+
+                $perfilUsuarioTxt = $nombresPerfiles[$user->rol] ?? $user->rol;
+                $perfilSolicitadoTxt = $nombresPerfiles[$perfilSolicitado] ?? $perfilSolicitado;
+
+                return response()->json([
+                    'success' => false,
+                    'error' => "Acceso denegado: tu cuenta pertenece al perfil '{$perfilUsuarioTxt}', el cual no coincide con el perfil seleccionado ('{$perfilSolicitadoTxt}'). Por favor selecciona el perfil correspondiente.",
+                ], 403);
+            }
+        }
+
+        // 5. Autenticación exitosa: limpiar intentos y regenerar sesión contra session fixation
+        RateLimiter::clear($throttleKey);
         Auth::login($user);
         $request->session()->regenerate();
 
@@ -113,11 +179,28 @@ class AuthController extends Controller
     public function demoLogin(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'role' => ['required', 'string', 'in:paciente,medico,admin'],
+            'role' => ['required', 'string', 'in:paciente,medico,profesional,agenda,cita,admin,administrador'],
         ]);
 
-        $email = self::DEMO_EMAILS[$data['role']];
+        $roleKey = match ($data['role']) {
+            'medico' => 'profesional',
+            'administrador' => 'admin',
+            default => $data['role'],
+        };
+
+        $email = self::DEMO_EMAILS[$roleKey] ?? self::DEMO_EMAILS['paciente'];
         $user = User::where('email', $email)->first();
+
+        // Fallback si no está el demo específico
+        if (! $user && $roleKey === 'profesional') {
+            $user = User::where('email', 'a.martinez@mediturno.co')->first();
+        }
+        if (! $user && $roleKey === 'paciente') {
+            $user = User::where('email', 'camila.restrepo@correo.co')->first();
+        }
+        if (! $user && $roleKey === 'admin') {
+            $user = User::where('email', 'admin@mediturno.co')->first();
+        }
 
         if (! $user) {
             return response()->json([
@@ -144,4 +227,3 @@ class AuthController extends Controller
         return response()->json(['success' => true]);
     }
 }
-

@@ -72,11 +72,11 @@ class AgendaController extends Controller
     public function guardarHorario(Request $request, Medico $medico): JsonResponse
     {
         $user = $request->user();
-        if (! $user || ! in_array($user->rol, ['administrador', 'medico'], true)) {
+        if (! $user || ! in_array($user->rol, ['administrador', 'agenda', 'medico', 'profesional'], true)) {
             return response()->json(['success' => false, 'error' => 'Permisos insuficientes.'], 403);
         }
 
-        if ($user->rol === 'medico' && $user->medico?->id !== $medico->id) {
+        if (in_array($user->rol, ['medico', 'profesional'], true) && $user->medico?->id !== $medico->id) {
             return response()->json(['success' => false, 'error' => 'No puedes editar la agenda de otro médico.'], 403);
         }
 
@@ -126,11 +126,11 @@ class AgendaController extends Controller
     public function eliminarHorario(Request $request, HorarioAtencion $horario): JsonResponse
     {
         $user = $request->user();
-        if (! $user || ! in_array($user->rol, ['administrador', 'medico'], true)) {
+        if (! $user || ! in_array($user->rol, ['administrador', 'agenda', 'medico', 'profesional'], true)) {
             return response()->json(['success' => false, 'error' => 'Permisos insuficientes.'], 403);
         }
 
-        if ($user->rol === 'medico' && $user->medico?->id !== $horario->medico_id) {
+        if (in_array($user->rol, ['medico', 'profesional'], true) && $user->medico?->id !== $horario->medico_id) {
             return response()->json(['success' => false, 'error' => 'Permisos insuficientes.'], 403);
         }
 
@@ -142,11 +142,11 @@ class AgendaController extends Controller
     public function crearBloqueo(Request $request, Medico $medico): JsonResponse
     {
         $user = $request->user();
-        if (! $user || ! in_array($user->rol, ['administrador', 'medico'], true)) {
+        if (! $user || ! in_array($user->rol, ['administrador', 'agenda', 'medico', 'profesional'], true)) {
             return response()->json(['success' => false, 'error' => 'Permisos insuficientes.'], 403);
         }
 
-        if ($user->rol === 'medico' && $user->medico?->id !== $medico->id) {
+        if (in_array($user->rol, ['medico', 'profesional'], true) && $user->medico?->id !== $medico->id) {
             return response()->json(['success' => false, 'error' => 'No puedes bloquear la agenda de otro médico.'], 403);
         }
 

@@ -3,11 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   Bell,
   CalendarCheck,
+  ClipboardList,
   LogOut,
   Menu,
   Shield,
+  ShieldCheck,
   Stethoscope,
   User,
+  Users,
   X,
 } from 'lucide-react';
 import { Logo } from '../common/Logo';
@@ -16,14 +19,29 @@ import { useMediTurno } from '../../context/MediTurnoContext';
 
 const ROLE_DEFAULT_ROUTES = {
   paciente: '/paciente/citas',
+  profesional: '/medico/agenda',
   medico: '/medico/agenda',
+  agenda: '/agenda/gestion',
+  cita: '/citas/gestion',
   administrador: '/admin/dashboard',
 };
 
 const ROLE_LABELS = {
   paciente: 'Paciente',
-  medico: 'Médico',
+  profesional: 'Profesional Médico',
+  medico: 'Profesional Médico',
+  agenda: 'Gestión de Agendas',
+  cita: 'Gestión de Citas',
   administrador: 'Administrador',
+};
+
+const ROLE_BADGE_COLORS = {
+  paciente: 'bg-sky-50 text-sky-700 border-sky-200',
+  profesional: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  medico: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  agenda: 'bg-amber-50 text-amber-700 border-amber-200',
+  cita: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+  administrador: 'bg-purple-50 text-purple-700 border-purple-200',
 };
 
 export function Navbar() {
@@ -41,10 +59,10 @@ export function Navbar() {
       setMobileOpen(false);
       showToast({
         type: 'info',
-        title: `Sesión Demo: ${ROLE_LABELS[demoUser.rol]}`,
+        title: `Sesión Demo: ${ROLE_LABELS[demoUser.rol] || demoUser.rol}`,
         message: `Ingresaste como ${demoUser.nombre} ${demoUser.apellido}.`,
       });
-      navigate(ROLE_DEFAULT_ROUTES[demoUser.rol]);
+      navigate(ROLE_DEFAULT_ROUTES[demoUser.rol] || '/');
     } catch (err) {
       showToast({
         type: 'error',
@@ -63,7 +81,7 @@ export function Navbar() {
       title: 'Sesión cerrada',
       message: 'Has salido de forma segura de MediTurno.',
     });
-    navigate('/');
+    navigate('/login');
   };
 
   const handleToggleNotif = () => {
@@ -74,80 +92,160 @@ export function Navbar() {
     }
   };
 
+  const userRol = user?.rol || 'paciente';
+  const roleLabel = ROLE_LABELS[userRol] || userRol;
+  const badgeColor = ROLE_BADGE_COLORS[userRol] || 'bg-slate-100 text-slate-700 border-slate-200';
+
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
         {/* Marca */}
-        <Link to="/" className="shrink-0 focus:outline-none">
+        <Link to={isAuthenticated ? (ROLE_DEFAULT_ROUTES[userRol] || '/') : '/login'} className="shrink-0 focus:outline-none">
           <Logo size="md" />
         </Link>
 
-        {/* Selector de Sesión de Prueba para Auditoría Rápida (Desktop) */}
-        <div className="hidden lg:flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 p-1">
-          <span className="px-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-            Demo:
-          </span>
-          <button
-            type="button"
-            onClick={() => handleDemoSelect('paciente')}
-            className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all ${
-              user?.rol === 'paciente'
-                ? 'bg-sky-600 text-white shadow-sm'
-                : 'text-slate-600 hover:bg-white hover:text-sky-700'
-            }`}
-          >
-            <User className="h-3.5 w-3.5" />
-            Paciente Demo
-          </button>
-          <button
-            type="button"
-            onClick={() => handleDemoSelect('medico')}
-            className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all ${
-              user?.rol === 'medico'
-                ? 'bg-sky-600 text-white shadow-sm'
-                : 'text-slate-600 hover:bg-white hover:text-sky-700'
-            }`}
-          >
-            <Stethoscope className="h-3.5 w-3.5" />
-            Médico Demo
-          </button>
-          <button
-            type="button"
-            onClick={() => handleDemoSelect('admin')}
-            className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all ${
-              user?.rol === 'administrador'
-                ? 'bg-sky-600 text-white shadow-sm'
-                : 'text-slate-600 hover:bg-white hover:text-sky-700'
-            }`}
-          >
-            <Shield className="h-3.5 w-3.5" />
-            Admin Demo
-          </button>
-        </div>
+        {/* Auditoría Rápida entre los 4 Perfiles (Visible solo si autenticado) */}
+        {isAuthenticated && (
+          <div className="hidden xl:flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1">
+            <span className="px-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Perfiles:
+            </span>
+            <button
+              type="button"
+              onClick={() => handleDemoSelect('paciente')}
+              className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold transition-all ${
+                userRol === 'paciente'
+                  ? 'bg-sky-600 text-white shadow-sm'
+                  : 'text-slate-600 hover:bg-white hover:text-sky-700'
+              }`}
+            >
+              <User className="h-3 w-3" />
+              Pacientes
+            </button>
+            <button
+              type="button"
+              onClick={() => handleDemoSelect('profesional')}
+              className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold transition-all ${
+                userRol === 'profesional' || userRol === 'medico'
+                  ? 'bg-emerald-600 text-white shadow-sm'
+                  : 'text-slate-600 hover:bg-white hover:text-emerald-700'
+              }`}
+            >
+              <Stethoscope className="h-3 w-3" />
+              Profesionales
+            </button>
+            <button
+              type="button"
+              onClick={() => handleDemoSelect('agenda')}
+              className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold transition-all ${
+                userRol === 'agenda'
+                  ? 'bg-amber-600 text-white shadow-sm'
+                  : 'text-slate-600 hover:bg-white hover:text-amber-700'
+              }`}
+            >
+              <CalendarCheck className="h-3 w-3" />
+              Agendas
+            </button>
+            <button
+              type="button"
+              onClick={() => handleDemoSelect('cita')}
+              className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold transition-all ${
+                userRol === 'cita'
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'text-slate-600 hover:bg-white hover:text-indigo-700'
+              }`}
+            >
+              <ClipboardList className="h-3 w-3" />
+              Citas
+            </button>
+          </div>
+        )}
 
         {/* Acciones Derecha (Desktop) */}
         <div className="hidden md:flex items-center gap-3">
           {isAuthenticated ? (
             <>
-              {user.rol === 'paciente' && (
+              {/* Enlaces según perfil autorizado */}
+              {userRol === 'paciente' && (
+                <div className="flex items-center gap-2">
+                  <Link
+                    to="/paciente/citas"
+                    className="text-xs font-semibold text-slate-700 hover:text-sky-700 px-2.5 py-1.5 rounded-lg hover:bg-slate-50 transition-colors"
+                  >
+                    Mis Citas
+                  </Link>
+                  <Link
+                    to="/paciente/reservar"
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-700 hover:bg-sky-100 transition-colors"
+                  >
+                    <CalendarCheck className="h-4 w-4" />
+                    Reservar Cita
+                  </Link>
+                </div>
+              )}
+
+              {(userRol === 'profesional' || userRol === 'medico') && (
                 <Link
-                  to="/paciente/reservar"
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-sky-50 px-3 py-2 text-xs font-semibold text-sky-700 hover:bg-sky-100 transition-colors"
+                  to="/medico/agenda"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 transition-colors"
                 >
-                  <CalendarCheck className="h-4 w-4" />
-                  Agendar Cita
+                  <Stethoscope className="h-4 w-4" />
+                  Mi Agenda Clínica
                 </Link>
               )}
 
-              {/* Campana de Notificaciones */}
+              {userRol === 'agenda' && (
+                <Link
+                  to="/agenda/gestion"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-100 transition-colors"
+                >
+                  <CalendarCheck className="h-4 w-4" />
+                  Gestión de Agendas
+                </Link>
+              )}
+
+              {userRol === 'cita' && (
+                <Link
+                  to="/citas/gestion"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 transition-colors"
+                >
+                  <ClipboardList className="h-4 w-4" />
+                  Mesa de Citas
+                </Link>
+              )}
+
+              {userRol === 'administrador' && (
+                <div className="flex items-center gap-1.5">
+                  <Link
+                    to="/admin/dashboard"
+                    className="text-xs font-semibold text-slate-700 hover:text-sky-700 px-2.5 py-1.5 rounded-lg hover:bg-slate-50"
+                  >
+                    Dashboard
+                  </Link>
+                  <Link
+                    to="/agenda/gestion"
+                    className="text-xs font-semibold text-slate-700 hover:text-amber-700 px-2.5 py-1.5 rounded-lg hover:bg-slate-50"
+                  >
+                    Agendas
+                  </Link>
+                  <Link
+                    to="/citas/gestion"
+                    className="text-xs font-semibold text-slate-700 hover:text-indigo-700 px-2.5 py-1.5 rounded-lg hover:bg-slate-50"
+                  >
+                    Citas
+                  </Link>
+                </div>
+              )}
+
+              {/* Notificaciones */}
               <div className="relative">
                 <button
                   type="button"
                   onClick={handleToggleNotif}
-                  className="relative rounded-xl border border-slate-200 bg-white p-2 text-slate-600 hover:bg-slate-50 hover:text-sky-700 transition-colors"
+                  className="relative rounded-xl border border-slate-200 p-2 text-slate-500 hover:bg-slate-50 transition-colors"
                   aria-label="Notificaciones"
                 >
-                  <Bell className="h-5 w-5" />
+                  <Bell className="h-4 w-4" />
                   {unreadCount > 0 && (
                     <span className="absolute -right-1 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-emerald-500 px-1 text-[10px] font-bold text-white">
                       {unreadCount}
@@ -187,11 +285,8 @@ export function Navbar() {
                 )}
               </div>
 
-              {/* Usuario Actual */}
-              <Link
-                to={ROLE_DEFAULT_ROUTES[user.rol] || '/'}
-                className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 hover:border-sky-300 transition-colors"
-              >
+              {/* Badge de Usuario y Perfil */}
+              <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5">
                 <div className="flex h-7 w-7 items-center justify-center rounded-full bg-sky-600 text-xs font-bold text-white">
                   {user.nombre?.[0]}
                   {user.apellido?.[0]}
@@ -200,34 +295,33 @@ export function Navbar() {
                   <p className="text-xs font-semibold text-slate-900">
                     {user.nombre} {user.apellido}
                   </p>
-                  <p className="text-[11px] font-medium text-sky-700">
-                    {ROLE_LABELS[user.rol]}
-                  </p>
+                  <span className={`inline-block rounded-md border px-1.5 py-0.2 text-[10px] font-bold ${badgeColor}`}>
+                    {roleLabel}
+                  </span>
                 </div>
-              </Link>
+              </div>
 
+              {/* Botón Salir Seguro */}
               <button
                 type="button"
                 onClick={handleLogout}
                 className="rounded-xl border border-slate-200 p-2 text-slate-500 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-colors"
-                title="Cerrar sesión"
+                title="Cerrar sesión segura"
                 aria-label="Cerrar sesión"
               >
                 <LogOut className="h-4 w-4" />
               </button>
             </>
           ) : (
-            <>
-              <Link
-                to="/login"
-                className="text-sm font-semibold text-slate-700 hover:text-sky-700 px-3 py-2 transition-colors"
-              >
-                Ingresar
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-500">
+                <ShieldCheck className="h-3.5 w-3.5 text-sky-600" />
+                Acceso Restringido
+              </span>
+              <Link to="/login" className="btn-primary text-xs py-1.5 px-3">
+                Iniciar Sesión
               </Link>
-              <Link to="/registro" className="btn-primary">
-                Crear Cuenta
-              </Link>
-            </>
+            </div>
           )}
         </div>
 
@@ -236,7 +330,7 @@ export function Navbar() {
           type="button"
           onClick={() => setMobileOpen((prev) => !prev)}
           className="md:hidden rounded-xl border border-slate-200 p-2 text-slate-600 hover:bg-slate-50"
-          aria-label="Abrir menú de navegación"
+          aria-label="Abrir menú"
         >
           {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
@@ -245,88 +339,115 @@ export function Navbar() {
       {/* Drawer móvil */}
       {mobileOpen && (
         <div className="border-t border-slate-200 bg-white px-4 py-4 md:hidden space-y-4">
-          <div>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
-              Acceso Rápido de Auditoría (Demo)
-            </p>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => handleDemoSelect('paciente')}
-                className={`rounded-xl border px-2 py-2 text-xs font-semibold ${
-                  user?.rol === 'paciente'
-                    ? 'border-sky-600 bg-sky-600 text-white'
-                    : 'border-slate-200 bg-slate-50 text-slate-700'
-                }`}
-              >
-                Paciente Demo
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDemoSelect('medico')}
-                className={`rounded-xl border px-2 py-2 text-xs font-semibold ${
-                  user?.rol === 'medico'
-                    ? 'border-sky-600 bg-sky-600 text-white'
-                    : 'border-slate-200 bg-slate-50 text-slate-700'
-                }`}
-              >
-                Médico Demo
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDemoSelect('admin')}
-                className={`rounded-xl border px-2 py-2 text-xs font-semibold ${
-                  user?.rol === 'administrador'
-                    ? 'border-sky-600 bg-sky-600 text-white'
-                    : 'border-slate-200 bg-slate-50 text-slate-700'
-                }`}
-              >
-                Admin Demo
-              </button>
-            </div>
-          </div>
+          {isAuthenticated ? (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sky-600 text-xs font-bold text-white">
+                  {user.nombre?.[0]}
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-900">{user.nombre} {user.apellido}</p>
+                  <p className="text-[11px] text-sky-700">{roleLabel}</p>
+                </div>
+              </div>
 
-          <div className="border-t border-slate-100 pt-3 flex flex-col gap-2">
-            {isAuthenticated ? (
-              <>
-                <Link
-                  to={ROLE_DEFAULT_ROUTES[user.rol] || '/'}
-                  onClick={() => setMobileOpen(false)}
-                  className="btn-primary w-full"
-                >
-                  Ir a mi Panel ({ROLE_LABELS[user.rol]})
-                </Link>
+              <div className="space-y-1">
+                {userRol === 'paciente' && (
+                  <>
+                    <Link
+                      to="/paciente/citas"
+                      onClick={() => setMobileOpen(false)}
+                      className="block px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 rounded-lg"
+                    >
+                      Mis Citas
+                    </Link>
+                    <Link
+                      to="/paciente/reservar"
+                      onClick={() => setMobileOpen(false)}
+                      className="block px-3 py-2 text-xs font-semibold text-sky-700 hover:bg-sky-50 rounded-lg"
+                    >
+                      Reservar Cita
+                    </Link>
+                  </>
+                )}
+                {(userRol === 'profesional' || userRol === 'medico') && (
+                  <Link
+                    to="/medico/agenda"
+                    onClick={() => setMobileOpen(false)}
+                    className="block px-3 py-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 rounded-lg"
+                  >
+                    Mi Agenda Clínica
+                  </Link>
+                )}
+                {userRol === 'agenda' && (
+                  <Link
+                    to="/agenda/gestion"
+                    onClick={() => setMobileOpen(false)}
+                    className="block px-3 py-2 text-xs font-semibold text-amber-700 hover:bg-amber-50 rounded-lg"
+                  >
+                    Gestión de Agendas
+                  </Link>
+                )}
+                {userRol === 'cita' && (
+                  <Link
+                    to="/citas/gestion"
+                    onClick={() => setMobileOpen(false)}
+                    className="block px-3 py-2 text-xs font-semibold text-indigo-700 hover:bg-indigo-50 rounded-lg"
+                  >
+                    Mesa de Citas y Recepción
+                  </Link>
+                )}
+                {userRol === 'administrador' && (
+                  <>
+                    <Link
+                      to="/admin/dashboard"
+                      onClick={() => setMobileOpen(false)}
+                      className="block px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 rounded-lg"
+                    >
+                      Dashboard General
+                    </Link>
+                    <Link
+                      to="/agenda/gestion"
+                      onClick={() => setMobileOpen(false)}
+                      className="block px-3 py-2 text-xs font-semibold text-amber-700 hover:bg-slate-50 rounded-lg"
+                    >
+                      Agendas
+                    </Link>
+                    <Link
+                      to="/citas/gestion"
+                      onClick={() => setMobileOpen(false)}
+                      className="block px-3 py-2 text-xs font-semibold text-indigo-700 hover:bg-slate-50 rounded-lg"
+                    >
+                      Citas
+                    </Link>
+                  </>
+                )}
+              </div>
+
+              <div className="pt-2 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="btn-secondary w-full text-red-600 border-red-200"
+                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-red-50 py-2 text-xs font-bold text-red-600"
                 >
                   <LogOut className="h-4 w-4" />
-                  Cerrar sesión
+                  Cerrar Sesión
                 </button>
-              </>
-            ) : (
-              <>
-                <Link
-                  to="/login"
-                  onClick={() => setMobileOpen(false)}
-                  className="btn-secondary w-full"
-                >
-                  Ingresar
-                </Link>
-                <Link
-                  to="/registro"
-                  onClick={() => setMobileOpen(false)}
-                  className="btn-primary w-full"
-                >
-                  Crear Cuenta
-                </Link>
-              </>
-            )}
-          </div>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-2 text-center">
+              <Link
+                to="/login"
+                onClick={() => setMobileOpen(false)}
+                className="btn-primary w-full py-2 text-xs"
+              >
+                Iniciar Sesión
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </header>
   );
 }
-

@@ -51,13 +51,59 @@ class User extends Authenticatable
         return $this->hasMany(Notificacion::class);
     }
 
+    public function isPaciente(): bool
+    {
+        return $this->rol === 'paciente';
+    }
+
+    public function isProfesional(): bool
+    {
+        return in_array($this->rol, ['profesional', 'medico'], true);
+    }
+
+    public function isAgenda(): bool
+    {
+        return in_array($this->rol, ['agenda', 'administrador'], true);
+    }
+
+    public function isCita(): bool
+    {
+        return in_array($this->rol, ['cita', 'administrador'], true);
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->rol === 'administrador';
+    }
+
+    public function hasRole(array|string $roles): bool
+    {
+        $roles = (array) $roles;
+        // Permite tratar 'medico' y 'profesional' de manera equivalente
+        if (in_array('profesional', $roles, true) && ! in_array('medico', $roles, true)) {
+            $roles[] = 'medico';
+        }
+        if (in_array('medico', $roles, true) && ! in_array('profesional', $roles, true)) {
+            $roles[] = 'profesional';
+        }
+
+        return in_array($this->rol, $roles, true);
+    }
+
     public function toFrontendArray(): array
     {
         $this->loadMissing(['paciente', 'medico']);
 
+        $perfilNormalizado = match ($this->rol) {
+            'medico' => 'profesional',
+            default => $this->rol,
+        };
+
         return [
             'id' => $this->id,
-            'rol' => $this->rol,
+            'rol' => $perfilNormalizado,
+            'rol_raw' => $this->rol,
+            'perfil' => $perfilNormalizado,
             'nombre' => $this->nombre,
             'apellido' => $this->apellido,
             'correo' => $this->email,

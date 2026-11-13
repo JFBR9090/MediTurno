@@ -44,28 +44,28 @@ Route::get('/horarios/{medico}', [AgendaController::class, 'horarios']);
 // Rutas protegidas por sesión
 Route::middleware('auth')->group(function () {
     // Especialidades (Admin)
-    Route::post('/especialidades', [CatalogoController::class, 'storeEspecialidad']);
-    Route::put('/especialidades/{especialidad}', [CatalogoController::class, 'updateEspecialidad']);
-    Route::patch('/especialidades/{especialidad}/toggle', [CatalogoController::class, 'toggleEspecialidad']);
+    Route::post('/especialidades', [CatalogoController::class, 'storeEspecialidad'])->middleware('role:administrador');
+    Route::put('/especialidades/{especialidad}', [CatalogoController::class, 'updateEspecialidad'])->middleware('role:administrador');
+    Route::patch('/especialidades/{especialidad}/toggle', [CatalogoController::class, 'toggleEspecialidad'])->middleware('role:administrador');
 
-    // Profesionales y Pacientes (Admin)
-    Route::post('/medicos', [CatalogoController::class, 'storeMedico']);
-    Route::patch('/medicos/{medico}/toggle', [CatalogoController::class, 'toggleMedico']);
-    Route::get('/pacientes', [CatalogoController::class, 'pacientes']);
-    Route::post('/pacientes', [CatalogoController::class, 'storePaciente']);
+    // Profesionales (Admin) y Pacientes (Admin / Citas)
+    Route::post('/medicos', [CatalogoController::class, 'storeMedico'])->middleware('role:administrador');
+    Route::patch('/medicos/{medico}/toggle', [CatalogoController::class, 'toggleMedico'])->middleware('role:administrador');
+    Route::get('/pacientes', [CatalogoController::class, 'pacientes'])->middleware('role:administrador,cita');
+    Route::post('/pacientes', [CatalogoController::class, 'storePaciente'])->middleware('role:administrador,cita');
 
-    // Agendas y Bloqueos (Médico / Admin)
-    Route::post('/horarios/{medico}', [AgendaController::class, 'guardarHorario']);
-    Route::delete('/horarios/bloque/{horario}', [AgendaController::class, 'eliminarHorario']);
-    Route::post('/horarios/{medico}/bloqueos', [AgendaController::class, 'crearBloqueo']);
+    // Agendas y Bloqueos (Agenda / Médico / Admin)
+    Route::post('/horarios/{medico}', [AgendaController::class, 'guardarHorario'])->middleware('role:administrador,agenda,medico,profesional');
+    Route::delete('/horarios/bloque/{horario}', [AgendaController::class, 'eliminarHorario'])->middleware('role:administrador,agenda,medico,profesional');
+    Route::post('/horarios/{medico}/bloqueos', [AgendaController::class, 'crearBloqueo'])->middleware('role:administrador,agenda,medico,profesional');
 
     // Citas Médicas y Reportes
     Route::get('/citas', [CitaController::class, 'index']);
     Route::post('/citas', [CitaController::class, 'store']);
     Route::put('/citas/{cita}/cancelar', [CitaController::class, 'cancelar']);
     Route::put('/citas/{cita}/reprogramar', [CitaController::class, 'reprogramar']);
-    Route::put('/citas/{cita}/estado', [CitaController::class, 'actualizarEstado']);
-    Route::get('/reportes/citas', [CitaController::class, 'reportes']);
+    Route::put('/citas/{cita}/estado', [CitaController::class, 'actualizarEstado'])->middleware('role:administrador,medico,profesional');
+    Route::get('/reportes/citas', [CitaController::class, 'reportes'])->middleware('role:administrador,cita');
 
     // Notificaciones In-App
     Route::get('/notificaciones', [NotificacionController::class, 'index']);

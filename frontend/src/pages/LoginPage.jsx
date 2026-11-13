@@ -1,15 +1,86 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Loader2, Lock, Mail, Shield, Stethoscope, User } from 'lucide-react';
-import { Navbar } from '../components/layout/Navbar';
-import { Footer } from '../components/layout/Footer';
+import {
+  AlertTriangle,
+  CalendarCheck,
+  CheckCircle2,
+  ClipboardList,
+  KeyRound,
+  Loader2,
+  Lock,
+  Mail,
+  Shield,
+  ShieldAlert,
+  ShieldCheck,
+  Stethoscope,
+  User,
+  Users,
+} from 'lucide-react';
 import { Logo } from '../components/common/Logo';
 import { useAuth } from '../context/AuthContext';
 import { useMediTurno } from '../context/MediTurnoContext';
 
+const PROFILES = [
+  {
+    id: 'paciente',
+    name: 'Pacientes',
+    roleKey: 'paciente',
+    icon: User,
+    badge: 'Portal Personal',
+    description: 'Consulta, reserva y gestión de citas médicas de pacientes.',
+    activeClass: 'border-sky-600 bg-sky-50/60 text-sky-950 ring-2 ring-sky-600/20',
+    iconActive: 'bg-sky-600 text-white',
+    demoEmail: 'carlos.mendoza@email.com',
+    demoPass: 'paciente123',
+    demoLabel: 'Carlos Mendoza',
+  },
+  {
+    id: 'profesional',
+    name: 'Profesionales',
+    roleKey: 'profesional',
+    icon: Stethoscope,
+    badge: 'Agenda Clínica',
+    description: 'Agenda diaria médica, citas asignadas y registro de atención.',
+    activeClass: 'border-emerald-600 bg-emerald-50/60 text-emerald-950 ring-2 ring-emerald-600/20',
+    iconActive: 'bg-emerald-600 text-white',
+    demoEmail: 'dr.ramirez@mediturno.com',
+    demoPass: 'medico123',
+    demoLabel: 'Dr. Roberto Ramírez',
+  },
+  {
+    id: 'agenda',
+    name: 'Agendas',
+    roleKey: 'agenda',
+    icon: CalendarCheck,
+    badge: 'Disponibilidad y Turnos',
+    description: 'Configuración de horarios semanales y bloqueos de médicos.',
+    activeClass: 'border-amber-600 bg-amber-50/60 text-amber-950 ring-2 ring-amber-600/20',
+    iconActive: 'bg-amber-600 text-white',
+    demoEmail: 'agendas@mediturno.com',
+    demoPass: 'agenda123',
+    demoLabel: 'Laura Gómez (Agendas)',
+  },
+  {
+    id: 'cita',
+    name: 'Citas',
+    roleKey: 'cita',
+    icon: ClipboardList,
+    badge: 'Recepción y Admisiones',
+    description: 'Mesa de turnos, programación, reprogramación y reportes.',
+    activeClass: 'border-indigo-600 bg-indigo-50/60 text-indigo-950 ring-2 ring-indigo-600/20',
+    iconActive: 'bg-indigo-600 text-white',
+    demoEmail: 'citas@mediturno.com',
+    demoPass: 'citas123',
+    demoLabel: 'Andrés Cárdenas (Citas)',
+  },
+];
+
 const ROLE_DEFAULT_ROUTES = {
   paciente: '/paciente/citas',
+  profesional: '/medico/agenda',
   medico: '/medico/agenda',
+  agenda: '/agenda/gestion',
+  cita: '/citas/gestion',
   administrador: '/admin/dashboard',
 };
 
@@ -20,9 +91,34 @@ export function LoginPage() {
   const [searchParams] = useSearchParams();
   const returnTo = searchParams.get('returnTo');
 
+  const [selectedProfile, setSelectedProfile] = useState('paciente');
   const [form, setForm] = useState({ correo: '', password: '' });
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [lockoutSeconds, setLockoutSeconds] = useState(0);
+
+  const activeProfileData = PROFILES.find((p) => p.id === selectedProfile) || PROFILES[0];
+
+  // Countdown timer para bloqueo temporal por fuerza bruta
+  useEffect(() => {
+    if (lockoutSeconds <= 0) return;
+    const interval = setInterval(() => {
+      setLockoutSeconds((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [lockoutSeconds]);
+
+  const handleProfileChange = (profileId) => {
+    setSelectedProfile(profileId);
+    setErrors({});
+    const prof = PROFILES.find((p) => p.id === profileId);
+    if (prof) {
+      setForm({
+        correo: prof.demoEmail,
+        password: prof.demoPass,
+      });
+    }
+  };
 
   const validateField = (name, value) => {
     if (name === 'correo') {
@@ -46,16 +142,10 @@ export function LoginPage() {
     }
   };
 
-  const handleBlur = (e) => {
-    const { name, value } = e.target;
-    const msg = validateField(name, value);
-    if (msg) {
-      setErrors((prev) => ({ ...prev, [name]: msg }));
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (lockoutSeconds > 0) return;
+
     const correoErr = validateField('correo', form.correo);
     const passErr = validateField('password', form.password);
 
@@ -66,183 +156,318 @@ export function LoginPage() {
 
     setSubmitting(true);
     try {
-      const result = await login(form);
+      const result = await login({
+        correo: form.correo,
+        password: form.password,
+        perfil: selectedProfile,
+      });
       const loggedUser = result?.user;
+
       showToast({
         type: 'success',
-        title: 'Bienvenido a MediTurno',
-        message: `Sesión iniciada como ${loggedUser.nombre} ${loggedUser.apellido}.`,
+        title: 'Acceso Seguro Concedido',
+        message: `Bienvenido(a), ${loggedUser.nombre} ${loggedUser.apellido}.`,
       });
+
+      const destino = ROLE_DEFAULT_ROUTES[loggedUser.rol] || '/';
       if (returnTo && loggedUser.rol === 'paciente') {
         navigate(returnTo, { replace: true });
       } else {
-        navigate(ROLE_DEFAULT_ROUTES[loggedUser.rol] || '/', { replace: true });
+        navigate(destino, { replace: true });
       }
     } catch (err) {
+      // Manejo de Rate Limiting (HTTP 429)
+      if (err.message && err.message.includes('bloqueado temporalmente')) {
+        const match = err.message.match(/(\d+)\s*segundos/);
+        const secs = match ? parseInt(match[1], 10) : 60;
+        setLockoutSeconds(secs);
+      }
       setErrors({ general: err.message || 'No fue posible iniciar sesión.' });
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleQuickDemo = async (roleKey) => {
+  const handleQuickDemo = async (profileId) => {
+    if (lockoutSeconds > 0) return;
     try {
-      const demoUser = await loginDemo(roleKey);
+      const prof = PROFILES.find((p) => p.id === profileId);
+      const demoUser = await loginDemo(prof?.roleKey || profileId);
+      if (!demoUser) return;
+
+      showToast({
+        type: 'info',
+        title: 'Sesión Segura Activada',
+        message: `Ingreso con perfil ${demoUser.rol}: ${demoUser.nombre} ${demoUser.apellido}.`,
+      });
+
+      const destino = ROLE_DEFAULT_ROUTES[demoUser.rol] || '/';
+      navigate(destino, { replace: true });
+    } catch (err) {
+      setErrors({ general: err.message || 'Error al iniciar sesión demo.' });
+    }
+  };
+
+  const handleAdminAccess = async () => {
+    if (lockoutSeconds > 0) return;
+    try {
+      const demoUser = await loginDemo('admin');
       if (!demoUser) return;
       showToast({
         type: 'info',
-        title: 'Acceso Demo Activado',
-        message: `Ingresaste como ${demoUser.nombre} ${demoUser.apellido}.`,
+        title: 'Sesión Administrador Activada',
+        message: `Ingresaste como Administrador: ${demoUser.nombre} ${demoUser.apellido}.`,
       });
-      if (returnTo && demoUser.rol === 'paciente') {
-        navigate(returnTo, { replace: true });
-      } else {
-        navigate(ROLE_DEFAULT_ROUTES[demoUser.rol] || '/', { replace: true });
-      }
+      navigate('/admin/dashboard', { replace: true });
     } catch (err) {
-      setErrors({ general: err.message || 'No fue posible activar la sesión demo.' });
+      setErrors({ general: err.message || 'Error al iniciar sesión de administrador.' });
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
-      <Navbar />
+    <div className="min-h-screen flex flex-col bg-slate-900 text-slate-100">
+      {/* Barra superior de seguridad */}
+      <header className="border-b border-slate-800 bg-slate-950/70 px-4 py-3 backdrop-blur-md">
+        <div className="mx-auto flex max-w-7xl items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Logo size="md" />
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-500/30 bg-sky-500/10 px-3 py-1 text-xs font-semibold text-sky-400">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              Gatekeeper Activo · Acceso Protegido
+            </span>
+          </div>
+        </div>
+      </header>
 
-      <main className="flex-1 flex items-center justify-center px-4 py-12 sm:px-6">
-        <div className="w-full max-w-md card-surface p-6 sm:p-8 space-y-6">
-          <div className="text-center space-y-2">
-            <div className="flex justify-center">
-              <Logo size="lg" showText={false} />
+      {/* Contenedor Principal del Gatekeeper */}
+      <main className="flex-1 flex items-center justify-center px-4 py-8 sm:px-6">
+        <div className="w-full max-w-2xl bg-white text-slate-900 rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
+          {/* Encabezado del Formulario */}
+          <div className="bg-gradient-to-r from-sky-700 via-sky-600 to-teal-600 px-6 sm:px-8 py-6 text-white text-center sm:text-left">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <span className="inline-block rounded-full bg-white/20 px-3 py-0.5 text-xs font-bold uppercase tracking-wider backdrop-blur-sm">
+                  Sistema de Autenticación y Control de Acceso
+                </span>
+                <h1 className="mt-2 text-2xl sm:text-3xl font-display font-bold tracking-tight">
+                  Iniciar Sesión en MediTurno
+                </h1>
+                <p className="mt-1 text-xs sm:text-sm text-sky-100">
+                  Selecciona tu perfil institucional para ingresar a tu panel autorizado.
+                </p>
+              </div>
+              <div className="hidden sm:flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-md border border-white/20">
+                <Shield className="h-7 w-7 text-white" />
+              </div>
             </div>
-            <h1 className="font-display text-2xl font-bold text-slate-900">
-              Iniciar Sesión
-            </h1>
-            <p className="text-sm text-slate-500">
-              {returnTo
-                ? 'Inicia sesión para continuar con tu reserva médica.'
-                : 'Accede a tu portal de pacientes, agenda médica o administración.'}
-            </p>
           </div>
 
-          <form onSubmit={handleSubmit} noValidate className="space-y-4">
+          <div className="p-6 sm:p-8 space-y-6">
+            {/* SELECTOR DE LOS 4 PERFILES DE USUARIO */}
             <div>
-              <label
-                htmlFor="correo"
-                className="block text-xs font-semibold text-slate-700 mb-1.5"
-              >
-                Correo electrónico
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">
+                1. Selecciona tu perfil de usuario:
               </label>
-              <div className="relative">
-                <Mail className="pointer-events-none absolute left-3.5 top-3 h-4 w-4 text-slate-400" />
-                <input
-                  id="correo"
-                  name="correo"
-                  type="email"
-                  autoComplete="email"
-                  value={form.correo}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  placeholder="camila.restrepo@correo.co"
-                  className={`${
-                    errors.correo ? 'input-field-error' : 'input-field'
-                  } pl-10`}
-                />
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                {PROFILES.map((p) => {
+                  const Icon = p.icon;
+                  const isSelected = selectedProfile === p.id;
+
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => handleProfileChange(p.id)}
+                      className={`relative flex flex-col items-center justify-center p-3.5 rounded-2xl border transition-all text-center ${
+                        isSelected
+                          ? p.activeClass
+                          : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100/70'
+                      }`}
+                    >
+                      <div
+                        className={`flex h-10 w-10 items-center justify-center rounded-xl mb-2 transition-transform ${
+                          isSelected ? p.iconActive : 'bg-slate-200 text-slate-600'
+                        }`}
+                      >
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <span className="text-xs font-bold">{p.name}</span>
+                      <span className="text-[10px] text-slate-400 mt-0.5 leading-tight">
+                        {p.badge}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
-              {errors.correo && (
-                <p className="mt-1 text-xs text-red-600">{errors.correo}</p>
-              )}
+
+              {/* Descripción del perfil activo */}
+              <div className="mt-3 rounded-xl bg-slate-50 border border-slate-200/80 px-3.5 py-2 text-xs text-slate-600 flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-sky-600 shrink-0" />
+                <span>
+                  <strong>Perfil {activeProfileData.name}:</strong> {activeProfileData.description}
+                </span>
+              </div>
             </div>
 
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-xs font-semibold text-slate-700 mb-1.5"
-              >
-                Contraseña
-              </label>
-              <div className="relative">
-                <Lock className="pointer-events-none absolute left-3.5 top-3 h-4 w-4 text-slate-400" />
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  value={form.password}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  placeholder="••••••••"
-                  className={`${
-                    errors.password ? 'input-field-error' : 'input-field'
-                  } pl-10`}
-                />
-              </div>
-              {errors.password && (
-                <p className="mt-1 text-xs text-red-600">{errors.password}</p>
-              )}
-            </div>
-
-            {errors.general && (
-              <div className="rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 text-xs font-medium text-red-700">
-                {errors.general}
+            {/* ALERTA DE BLOQUEO TEMPORAL (RATE LIMITING) */}
+            {lockoutSeconds > 0 && (
+              <div className="rounded-2xl border-2 border-red-300 bg-red-50 p-4 text-red-800 space-y-2">
+                <div className="flex items-center gap-2 font-bold text-sm">
+                  <ShieldAlert className="h-5 w-5 text-red-600 shrink-0" />
+                  <span>Protección contra fuerza bruta activada</span>
+                </div>
+                <p className="text-xs text-red-700">
+                  Demasiados intentos fallidos consecutivos. Por política de seguridad institucional,
+                  el acceso ha sido bloqueado temporalmente.
+                </p>
+                <div className="pt-1 flex items-center gap-2 text-xs font-semibold text-red-900">
+                  <span>Reintentando en:</span>
+                  <span className="font-mono text-base font-bold bg-red-200/60 px-2 py-0.5 rounded-md">
+                    {lockoutSeconds}s
+                  </span>
+                </div>
               </div>
             )}
 
-            <button type="submit" disabled={submitting} className="btn-primary w-full py-3">
-              {submitting ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Validando sesión...
-                </>
-              ) : (
-                'Ingresar'
-              )}
-            </button>
-          </form>
+            {/* FORMULARIO DE ACCESO */}
+            <form onSubmit={handleSubmit} noValidate className="space-y-4">
+              <div>
+                <label
+                  htmlFor="correo"
+                  className="block text-xs font-semibold text-slate-700 mb-1.5"
+                >
+                  Correo electrónico institucional o de paciente
+                </label>
+                <div className="relative">
+                  <Mail className="pointer-events-none absolute left-3.5 top-3 h-4 w-4 text-slate-400" />
+                  <input
+                    id="correo"
+                    name="correo"
+                    type="email"
+                    autoComplete="email"
+                    disabled={lockoutSeconds > 0}
+                    value={form.correo}
+                    onChange={handleChange}
+                    placeholder="usuario@mediturno.com"
+                    className={`${
+                      errors.correo ? 'input-field-error' : 'input-field'
+                    } pl-10 text-sm`}
+                  />
+                </div>
+                {errors.correo && (
+                  <p className="mt-1 text-xs text-red-600">{errors.correo}</p>
+                )}
+              </div>
 
-          {/* Auditoría rápida */}
-          <div className="border-t border-slate-100 pt-5 space-y-2.5">
-            <p className="text-center text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-              Ingreso rápido sin contraseña (Auditoría Demo)
-            </p>
-            <div className="grid grid-cols-3 gap-2">
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-xs font-semibold text-slate-700 mb-1.5"
+                >
+                  Contraseña segura
+                </label>
+                <div className="relative">
+                  <Lock className="pointer-events-none absolute left-3.5 top-3 h-4 w-4 text-slate-400" />
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    autoComplete="current-password"
+                    disabled={lockoutSeconds > 0}
+                    value={form.password}
+                    onChange={handleChange}
+                    placeholder="••••••••"
+                    className={`${
+                      errors.password ? 'input-field-error' : 'input-field'
+                    } pl-10 text-sm`}
+                  />
+                </div>
+                {errors.password && (
+                  <p className="mt-1 text-xs text-red-600">{errors.password}</p>
+                )}
+              </div>
+
+              {errors.general && (
+                <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-medium text-red-700 flex items-start gap-2">
+                  <AlertTriangle className="h-4 w-4 text-red-600 shrink-0 mt-0.5" />
+                  <span>{errors.general}</span>
+                </div>
+              )}
+
               <button
-                type="button"
-                onClick={() => handleQuickDemo('paciente')}
-                className="btn-secondary px-2 py-2 text-xs"
+                type="submit"
+                disabled={submitting || lockoutSeconds > 0}
+                className="btn-primary w-full py-3 text-sm shadow-md flex items-center justify-center gap-2"
               >
-                <User className="h-3.5 w-3.5 text-sky-600" />
-                Paciente
+                {submitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Validando credenciales seguras...
+                  </>
+                ) : (
+                  <>
+                    <KeyRound className="h-4 w-4" />
+                    Ingresar como {activeProfileData.name}
+                  </>
+                )}
               </button>
-              <button
-                type="button"
-                onClick={() => handleQuickDemo('medico')}
-                className="btn-secondary px-2 py-2 text-xs"
-              >
-                <Stethoscope className="h-3.5 w-3.5 text-sky-600" />
-                Médico
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickDemo('admin')}
-                className="btn-secondary px-2 py-2 text-xs"
-              >
-                <Shield className="h-3.5 w-3.5 text-sky-600" />
-                Admin
-              </button>
+            </form>
+
+            {/* SECCIÓN DE PRUEBAS RÁPIDAS DE AUDITORÍA */}
+            <div className="border-t border-slate-100 pt-5 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                  Pruebas rápidas de auditoría:
+                </span>
+                <span className="text-[10px] text-slate-400">
+                  1-Click para verificar permisos
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {PROFILES.map((p) => {
+                  const Icon = p.icon;
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      disabled={lockoutSeconds > 0}
+                      onClick={() => handleQuickDemo(p.id)}
+                      className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 hover:text-sky-700 transition-colors"
+                    >
+                      <Icon className="h-3.5 w-3.5 text-sky-600 shrink-0" />
+                      <span className="truncate">{p.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-dashed border-slate-200 text-xs text-slate-500">
+                <span>
+                  ¿Eres paciente nuevo?{' '}
+                  <Link to="/registro" className="font-semibold text-sky-600 hover:underline">
+                    Crear cuenta
+                  </Link>
+                </span>
+                <button
+                  type="button"
+                  onClick={handleAdminAccess}
+                  className="font-medium text-slate-500 hover:text-slate-800 underline"
+                >
+                  Acceso Administrador
+                </button>
+              </div>
             </div>
           </div>
-
-          <p className="text-center text-xs text-slate-500">
-            ¿Eres paciente nuevo?{' '}
-            <Link to="/registro" className="font-semibold text-sky-600 hover:underline">
-              Crea tu cuenta aquí
-            </Link>
-          </p>
         </div>
       </main>
 
-      <Footer />
+      {/* Pie institucional */}
+      <footer className="border-t border-slate-800 py-4 text-center text-xs text-slate-500">
+        MediTurno · Sistema Seguro de Gestión Hospitalaria · SENA ADSO Ficha 3413988
+      </footer>
     </div>
   );
 }
-
