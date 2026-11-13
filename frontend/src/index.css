@@ -3,39 +3,101 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --color-forest-depths: #1c3a13;
+    --color-lime-pulse: #d3fa99;
+    --color-sage-moss: #757c5d;
+    --color-olive-gold: #9f995b;
+    --color-eucalyptus: #698e79;
+    --color-snow-white: #fcfcf7;
+    --color-warm-stone: #eeeee9;
+    --color-frosted-glass: #c4c7c4;
+    --color-ash: #b3b3b3;
+    --color-pewter: #666666;
+    --color-ink: #000000;
+  }
+
   html {
-    font-family: 'Inter', 'Poppins', system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
     scroll-behavior: smooth;
+    background-color: #fcfcf7;
+    color: #1c3a13;
   }
 
   body {
-    @apply bg-slate-50 text-slate-900;
+    background-color: #fcfcf7;
+    color: #1c3a13;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Headings con peso whisper-light característico de Seed (300-350) */
+  h1, h2, h3 {
+    font-weight: 300;
+    letter-spacing: -0.02em;
   }
 }
 
 @layer components {
+  /* Contenedores y Tarjetas Seed: radio 16px, sin sombras (Shadowless) */
   .card-surface {
-    @apply bg-white border border-slate-200/80 shadow-sm rounded-2xl;
+    @apply bg-[#eeeee9] border border-[#eeeee9] rounded-2xl;
   }
 
+  .card-surface-white {
+    @apply bg-[#fcfcf7] border border-[#eeeee9] rounded-2xl;
+  }
+
+  .card-surface-dark {
+    @apply bg-[#1c3a13] text-[#fcfcf7] rounded-2xl;
+  }
+
+  /* Botones Seed en forma de píldora (1000px radius), completamente planos */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:opacity-75 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-[#1c3a13] px-6 py-2.5 text-sm font-normal text-[#fcfcf7] transition-colors hover:bg-[#284f1c] active:bg-[#142a0e] focus:outline-none focus:ring-2 focus:ring-[#1c3a13] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-none border-0;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-[#1c3a13] bg-[#fcfcf7] px-6 py-2.5 text-sm font-normal text-[#1c3a13] transition-colors hover:bg-[#eeeee9] focus:outline-none focus:ring-2 focus:ring-[#1c3a13] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-none;
+  }
+
+  .btn-ghost-dark {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-[#fcfcf7] bg-transparent px-6 py-2.5 text-sm font-normal text-[#fcfcf7] transition-colors hover:bg-[#fcfcf7]/10 focus:outline-none focus:ring-2 focus:ring-[#fcfcf7] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-none;
+  }
+
+  .btn-lime {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-[#d3fa99] px-6 py-2.5 text-sm font-medium text-[#1c3a13] transition-colors hover:bg-[#c3ee83] focus:outline-none focus:ring-2 focus:ring-[#1c3a13] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-none border-0;
   }
 
   .btn-whatsapp {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2;
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-[#1c3a13] border border-[#d3fa99] px-6 py-2.5 text-sm font-medium text-[#d3fa99] transition-colors hover:bg-[#284f1c] focus:outline-none focus:ring-2 focus:ring-[#d3fa99] focus:ring-offset-2 shadow-none;
   }
 
+  /* Badges y Pastillas (Pills 1000px) */
+  .badge-lime {
+    @apply inline-flex items-center gap-1.5 rounded-full bg-[#d3fa99] px-3 py-0.5 text-xs font-mono font-medium text-[#1c3a13];
+  }
+
+  .badge-dark {
+    @apply inline-flex items-center gap-1.5 rounded-full bg-[#1c3a13] px-3 py-0.5 text-xs font-mono font-medium text-[#fcfcf7];
+  }
+
+  .badge-stone {
+    @apply inline-flex items-center gap-1.5 rounded-full bg-[#eeeee9] border border-[#c4c7c4]/80 px-3 py-0.5 text-xs font-mono text-[#1c3a13];
+  }
+
+  /* Campos de entrada con radio de 8px */
   .input-field {
-    @apply w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 transition-colors focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20;
+    @apply w-full rounded-lg border border-[#c4c7c4] bg-[#fcfcf7] px-3.5 py-2.5 text-sm text-[#1c3a13] placeholder:text-[#666666] transition-colors focus:border-[#1c3a13] focus:outline-none focus:ring-1 focus:ring-[#1c3a13];
+  }
+
+  .input-field-dark {
+    @apply w-full rounded-lg border border-[#fcfcf7]/30 bg-transparent px-3.5 py-2.5 text-sm text-[#fcfcf7] placeholder:text-[#fcfcf7]/50 transition-colors focus:border-[#d3fa99] focus:outline-none focus:ring-1 focus:ring-[#d3fa99];
   }
 
   .input-field-error {
-    @apply w-full rounded-xl border border-red-500 bg-red-50/20 px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 transition-colors focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20;
+    @apply w-full rounded-lg border border-red-500 bg-red-50/20 px-3.5 py-2.5 text-sm text-[#1c3a13] placeholder:text-red-400 transition-colors focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600;
   }
 }
+
 

@@ -21,23 +21,23 @@ import { useMediTurno } from '../../context/MediTurnoContext';
 const BADGE_MAP = {
   programada: {
     label: 'Programada',
-    classes: 'bg-sky-50 text-sky-700 border-sky-200',
+    classes: 'bg-[#eeeee9] text-[#1c3a13] border-[#c4c7c4]',
   },
   confirmada: {
     label: 'Confirmada',
-    classes: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    classes: 'bg-[#d3fa99] text-[#1c3a13] border-[#d3fa99]',
   },
   cancelada: {
     label: 'Cancelada',
-    classes: 'bg-red-50 text-red-700 border-red-200',
+    classes: 'bg-red-50 text-red-800 border-red-200',
   },
   completada: {
     label: 'Completada',
-    classes: 'bg-slate-100 text-slate-600 border-slate-200',
+    classes: 'bg-[#1c3a13] text-[#fcfcf7] border-[#1c3a13]',
   },
   no_asistio: {
     label: 'No Asistió',
-    classes: 'bg-amber-50 text-amber-700 border-amber-200',
+    classes: 'bg-[#eeeee9] text-[#666666] border-[#c4c7c4]',
   },
 };
 
@@ -118,18 +118,18 @@ export function MisCitasPage() {
         <button
           type="button"
           onClick={() => setTab('programadas')}
-          className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
+          className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-xs font-mono transition-all ${
             tab === 'programadas'
-              ? 'bg-sky-600 text-white shadow-sm'
-              : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+              ? 'bg-[#1c3a13] text-[#fcfcf7]'
+              : 'bg-[#eeeee9] text-[#1c3a13] border border-[#eeeee9] hover:bg-[#c4c7c4]/40'
           }`}
         >
           Programadas
           <span
-            className={`rounded-full px-2 py-0.5 text-xs ${
+            className={`rounded-full px-2 py-0.5 text-[11px] font-mono ${
               tab === 'programadas'
-                ? 'bg-white/20 text-white'
-                : 'bg-slate-100 text-slate-600'
+                ? 'bg-[#d3fa99] text-[#1c3a13]'
+                : 'bg-[#fcfcf7] text-[#1c3a13]'
             }`}
           >
             {citasProgramadas.length}
@@ -139,18 +139,18 @@ export function MisCitasPage() {
         <button
           type="button"
           onClick={() => setTab('historial')}
-          className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
+          className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-xs font-mono transition-all ${
             tab === 'historial'
-              ? 'bg-sky-600 text-white shadow-sm'
-              : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+              ? 'bg-[#1c3a13] text-[#fcfcf7]'
+              : 'bg-[#eeeee9] text-[#1c3a13] border border-[#eeeee9] hover:bg-[#c4c7c4]/40'
           }`}
         >
           Historial
           <span
-            className={`rounded-full px-2 py-0.5 text-xs ${
+            className={`rounded-full px-2 py-0.5 text-[11px] font-mono ${
               tab === 'historial'
-                ? 'bg-white/20 text-white'
-                : 'bg-slate-100 text-slate-600'
+                ? 'bg-[#d3fa99] text-[#1c3a13]'
+                : 'bg-[#fcfcf7] text-[#1c3a13]'
             }`}
           >
             {citasHistorial.length}
@@ -217,20 +217,20 @@ export function MisCitasPage() {
                     >
                       {badge.label}
                     </span>
-                    <span className="rounded-lg bg-slate-100 px-2.5 py-0.5 font-mono text-xs font-semibold text-slate-700">
+                    <span className="rounded-full bg-[#eeeee9] border border-[#c4c7c4]/80 px-3 py-0.5 font-mono text-xs text-[#1c3a13]">
                       {cita.codigo_reserva}
                     </span>
-                    <span className="text-xs font-semibold text-sky-700">
+                    <span className="text-xs font-mono uppercase text-[#757c5d]">
                       {cita.especialidad}
                     </span>
                   </div>
 
                   <div>
-                    <h3 className="text-base font-bold text-slate-900">
+                    <h3 className="text-base font-medium text-[#1c3a13]">
                       {cita.medico_nombre}
                     </h3>
                     {cita.motivo_consulta && (
-                      <p className="mt-0.5 text-xs text-slate-500">
+                      <p className="mt-0.5 text-xs text-[#666666]">
                         Motivo: {cita.motivo_consulta}
                       </p>
                     )}
@@ -241,17 +241,17 @@ export function MisCitasPage() {
                     )}
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs text-slate-600">
+                  <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs text-[#666666] font-mono">
                     <span className="inline-flex items-center gap-1.5 capitalize">
-                      <Calendar className="h-3.5 w-3.5 text-sky-600" />
+                      <Calendar className="h-3.5 w-3.5 text-[#1c3a13]" />
                       {fechaStr}
                     </span>
-                    <span className="inline-flex items-center gap-1.5 font-medium">
-                      <Clock className="h-3.5 w-3.5 text-sky-600" />
+                    <span className="inline-flex items-center gap-1.5">
+                      <Clock className="h-3.5 w-3.5 text-[#1c3a13]" />
                       {horaStr}
                     </span>
                     <span className="inline-flex items-center gap-1.5">
-                      <MapPin className="h-3.5 w-3.5 text-sky-600" />
+                      <MapPin className="h-3.5 w-3.5 text-[#1c3a13]" />
                       {cita.consultorio}
                     </span>
                   </div>
@@ -264,7 +264,7 @@ export function MisCitasPage() {
                       href={`https://wa.me/573001234567?text=${waText}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="btn-whatsapp text-xs px-3 py-2"
+                      className="btn-whatsapp text-xs px-4 py-2"
                     >
                       <MessageCircle className="h-4 w-4" />
                       WhatsApp
@@ -275,7 +275,7 @@ export function MisCitasPage() {
                         <button
                           type="button"
                           onClick={() => setCitaAReprogramar(cita)}
-                          className="btn-secondary text-xs px-3 py-2 text-sky-700 border-sky-200 hover:bg-sky-50"
+                          className="btn-secondary text-xs px-4 py-2"
                         >
                           <CalendarClock className="h-4 w-4" />
                           Reprogramar
@@ -283,7 +283,7 @@ export function MisCitasPage() {
                         <button
                           type="button"
                           onClick={() => setCitaACancelar(cita)}
-                          className="inline-flex items-center gap-1.5 rounded-xl border border-red-200 bg-white px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors"
+                          className="inline-flex items-center gap-1.5 rounded-full border border-red-300 bg-[#fcfcf7] px-4 py-2 text-xs font-mono text-red-700 hover:bg-red-50 transition-colors"
                         >
                           <XCircle className="h-4 w-4" />
                           Cancelar Cita
@@ -296,7 +296,7 @@ export function MisCitasPage() {
                           disabled
                           title="Límite superado: mínimo 2 horas de anticipación"
                           aria-label="Cancelar Cita deshabilitado: Límite superado: mínimo 2 horas de anticipación"
-                          className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-100 px-3.5 py-2 text-xs font-semibold text-slate-400 cursor-not-allowed"
+                          className="inline-flex items-center gap-1.5 rounded-full border border-[#c4c7c4] bg-[#eeeee9] px-4 py-2 text-xs font-mono text-[#666666] cursor-not-allowed"
                         >
                           <Info className="h-4 w-4" />
                           Cancelar Cita

@@ -30,10 +30,10 @@ const ROLE_LABELS = {
 };
 
 const ROLE_BADGE_COLORS = {
-  paciente: 'bg-sky-50 text-sky-700 border-sky-200',
-  profesional: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  medico: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  administrador: 'bg-purple-50 text-purple-700 border-purple-200',
+  paciente: 'bg-[#eeeee9] text-[#1c3a13] border-[#c4c7c4]/80',
+  profesional: 'bg-[#d3fa99] text-[#1c3a13] border-[#d3fa99]',
+  medico: 'bg-[#d3fa99] text-[#1c3a13] border-[#d3fa99]',
+  administrador: 'bg-[#1c3a13] text-[#fcfcf7] border-[#1c3a13]',
 };
 
 export function Navbar() {
@@ -89,29 +89,29 @@ export function Navbar() {
   const badgeColor = ROLE_BADGE_COLORS[userRol] || 'bg-slate-100 text-slate-700 border-slate-200';
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-[#eeeee9] bg-[#fcfcf7]/95 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
         {/* Marca */}
         <Link
           to={isAuthenticated ? (ROLE_DEFAULT_ROUTES[userRol] || '/') : '/login'}
           className="shrink-0 focus:outline-none"
         >
-          <Logo size="md" />
+          <Logo size="md" variant="light" />
         </Link>
 
         {/* Auditoría Rápida entre los 3 Perfiles (Visible solo si autenticado) */}
         {isAuthenticated && (
-          <div className="hidden lg:flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1">
-            <span className="px-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+          <div className="hidden lg:flex items-center gap-1 rounded-full border border-[#eeeee9] bg-[#eeeee9] p-1">
+            <span className="px-2.5 text-[10px] font-mono uppercase tracking-wider text-[#666666]">
               Perfiles:
             </span>
             <button
               type="button"
               onClick={() => handleDemoSelect('paciente')}
-              className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition-all ${
+              className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-mono transition-all ${
                 userRol === 'paciente'
-                  ? 'bg-sky-600 text-white shadow-sm'
-                  : 'text-slate-600 hover:bg-white hover:text-sky-700'
+                  ? 'bg-[#1c3a13] text-[#fcfcf7]'
+                  : 'text-[#1c3a13] hover:bg-[#fcfcf7]'
               }`}
             >
               <User className="h-3 w-3" />
@@ -120,10 +120,10 @@ export function Navbar() {
             <button
               type="button"
               onClick={() => handleDemoSelect('profesional')}
-              className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition-all ${
+              className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-mono transition-all ${
                 userRol === 'profesional' || userRol === 'medico'
-                  ? 'bg-emerald-600 text-white shadow-sm'
-                  : 'text-slate-600 hover:bg-white hover:text-emerald-700'
+                  ? 'bg-[#1c3a13] text-[#fcfcf7]'
+                  : 'text-[#1c3a13] hover:bg-[#fcfcf7]'
               }`}
             >
               <Stethoscope className="h-3 w-3" />
@@ -132,10 +132,10 @@ export function Navbar() {
             <button
               type="button"
               onClick={() => handleDemoSelect('admin')}
-              className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition-all ${
+              className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-mono transition-all ${
                 userRol === 'administrador'
-                  ? 'bg-purple-600 text-white shadow-sm'
-                  : 'text-slate-600 hover:bg-white hover:text-purple-700'
+                  ? 'bg-[#1c3a13] text-[#fcfcf7]'
+                  : 'text-[#1c3a13] hover:bg-[#fcfcf7]'
               }`}
             >
               <Shield className="h-3 w-3" />
@@ -153,15 +153,15 @@ export function Navbar() {
                 <div className="flex items-center gap-2">
                   <Link
                     to="/paciente/citas"
-                    className="text-xs font-semibold text-slate-700 hover:text-sky-700 px-2.5 py-1.5 rounded-lg hover:bg-slate-50 transition-colors"
+                    className="text-xs font-normal text-[#1c3a13] hover:text-[#284f1c] px-3 py-1.5 rounded-full hover:bg-[#eeeee9] transition-colors"
                   >
                     Mis Citas
                   </Link>
                   <Link
                     to="/paciente/reservar"
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-700 hover:bg-sky-100 transition-colors"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-[#1c3a13] px-4 py-1.5 text-xs font-normal text-[#fcfcf7] hover:bg-[#284f1c] transition-colors"
                   >
-                    <CalendarCheck className="h-4 w-4" />
+                    <CalendarCheck className="h-3.5 w-3.5 text-[#d3fa99]" />
                     Reservar Cita
                   </Link>
                 </div>
@@ -170,9 +170,9 @@ export function Navbar() {
               {(userRol === 'profesional' || userRol === 'medico') && (
                 <Link
                   to="/medico/agenda"
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-[#1c3a13] px-4 py-1.5 text-xs font-normal text-[#fcfcf7] hover:bg-[#284f1c] transition-colors"
                 >
-                  <Stethoscope className="h-4 w-4" />
+                  <Stethoscope className="h-3.5 w-3.5 text-[#d3fa99]" />
                   Mi Agenda Clínica
                 </Link>
               )}
@@ -180,9 +180,9 @@ export function Navbar() {
               {userRol === 'administrador' && (
                 <Link
                   to="/admin/dashboard"
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-purple-50 px-3 py-1.5 text-xs font-semibold text-purple-700 hover:bg-purple-100 transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-[#1c3a13] px-4 py-1.5 text-xs font-normal text-[#fcfcf7] hover:bg-[#284f1c] transition-colors"
                 >
-                  <Shield className="h-4 w-4" />
+                  <Shield className="h-3.5 w-3.5 text-[#d3fa99]" />
                   Dashboard Admin
                 </Link>
               )}
@@ -192,27 +192,27 @@ export function Navbar() {
                 <button
                   type="button"
                   onClick={handleToggleNotif}
-                  className="relative rounded-xl border border-slate-200 p-2 text-slate-500 hover:bg-slate-50 transition-colors"
+                  className="relative rounded-full border border-[#eeeee9] p-2 text-[#1c3a13] hover:bg-[#eeeee9] transition-colors"
                   aria-label="Notificaciones"
                 >
                   <Bell className="h-4 w-4" />
                   {unreadCount > 0 && (
-                    <span className="absolute -right-1 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-emerald-500 px-1 text-[10px] font-bold text-white">
+                    <span className="absolute -right-1 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#d3fa99] px-1 text-[10px] font-mono font-bold text-[#1c3a13]">
                       {unreadCount}
                     </span>
                   )}
                 </button>
 
                 {notifOpen && (
-                  <div className="absolute right-0 mt-2 w-80 rounded-2xl border border-slate-200 bg-white p-3 shadow-xl z-50">
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-2">
-                      <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <div className="absolute right-0 mt-2 w-80 rounded-2xl border border-[#eeeee9] bg-[#fcfcf7] p-3 shadow-none z-50">
+                    <div className="flex items-center justify-between border-b border-[#eeeee9] pb-2 mb-2">
+                      <span className="text-xs font-mono uppercase tracking-wider text-[#666666]">
                         Notificaciones
                       </span>
                       <button
                         type="button"
                         onClick={() => setNotifOpen(false)}
-                        className="text-xs font-medium text-sky-600 hover:underline"
+                        className="text-xs font-mono text-[#1c3a13] hover:underline"
                       >
                         Cerrar
                       </button>
@@ -221,13 +221,13 @@ export function Navbar() {
                       {notificaciones.slice(0, 5).map((n) => (
                         <div
                           key={n.id}
-                          className="rounded-xl bg-slate-50 p-2.5 text-left"
+                          className="rounded-xl bg-[#eeeee9] p-2.5 text-left"
                         >
                           <div className="flex items-center justify-between gap-2">
-                            <p className="text-xs font-semibold text-slate-800">{n.titulo}</p>
-                            <span className="text-[10px] text-slate-400">{n.fecha}</span>
+                            <p className="text-xs font-medium text-[#1c3a13]">{n.titulo}</p>
+                            <span className="text-[10px] font-mono text-[#666666]">{n.fecha}</span>
                           </div>
-                          <p className="mt-0.5 text-xs text-slate-600">{n.mensaje}</p>
+                          <p className="mt-0.5 text-xs text-[#666666]">{n.mensaje}</p>
                         </div>
                       ))}
                     </div>
@@ -236,16 +236,16 @@ export function Navbar() {
               </div>
 
               {/* Badge de Usuario y Perfil */}
-              <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5">
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-sky-600 text-xs font-bold text-white">
+              <div className="flex items-center gap-2 rounded-full border border-[#eeeee9] bg-[#eeeee9] px-3 py-1">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#1c3a13] text-xs font-medium text-[#fcfcf7]">
                   {user.nombre?.[0]}
                   {user.apellido?.[0]}
                 </div>
-                <div className="text-left leading-tight">
-                  <p className="text-xs font-semibold text-slate-900">
+                <div className="text-left leading-tight pr-1">
+                  <p className="text-xs font-normal text-[#1c3a13]">
                     {user.nombre} {user.apellido}
                   </p>
-                  <span className={`inline-block rounded-md border px-1.5 py-0.2 text-[10px] font-bold ${badgeColor}`}>
+                  <span className={`inline-block rounded-full border px-2 py-0.2 text-[9px] font-mono ${badgeColor}`}>
                     {roleLabel}
                   </span>
                 </div>
@@ -255,7 +255,7 @@ export function Navbar() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="rounded-xl border border-slate-200 p-2 text-slate-500 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-colors"
+                className="rounded-full border border-[#eeeee9] p-2 text-[#666666] hover:bg-[#eeeee9] hover:text-[#1c3a13] transition-colors"
                 title="Cerrar sesión segura"
                 aria-label="Cerrar sesión"
               >
@@ -264,11 +264,11 @@ export function Navbar() {
             </>
           ) : (
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-500">
-                <ShieldCheck className="h-3.5 w-3.5 text-sky-600" />
+              <span className="inline-flex items-center gap-1 text-xs font-mono text-[#666666]">
+                <ShieldCheck className="h-3.5 w-3.5 text-[#1c3a13]" />
                 Acceso Restringido
               </span>
-              <Link to="/login" className="btn-primary text-xs py-1.5 px-3">
+              <Link to="/login" className="btn-primary text-xs py-1.5 px-4">
                 Iniciar Sesión
               </Link>
             </div>
@@ -279,7 +279,7 @@ export function Navbar() {
         <button
           type="button"
           onClick={() => setMobileOpen((prev) => !prev)}
-          className="md:hidden rounded-xl border border-slate-200 p-2 text-slate-600 hover:bg-slate-50"
+          className="md:hidden rounded-full border border-[#eeeee9] p-2 text-[#1c3a13] hover:bg-[#eeeee9]"
           aria-label="Abrir menú"
         >
           {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}

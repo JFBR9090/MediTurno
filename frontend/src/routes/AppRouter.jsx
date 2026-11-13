@@ -19,9 +19,9 @@ const ROLE_HOME = {
 
 function FullScreenLoading() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900 gap-3 text-white">
-      <Loader2 className="h-8 w-8 animate-spin text-sky-400" />
-      <p className="text-sm font-medium text-slate-300">Verificando sesión segura...</p>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#fcfcf7] gap-3 text-[#1c3a13]">
+      <Loader2 className="h-8 w-8 animate-spin text-[#1c3a13]" />
+      <p className="text-xs font-mono tracking-wider text-[#666666]">VERIFICANDO SESIÓN SEGURA · SEED...</p>
     </div>
   );
 }
@@ -29,20 +29,20 @@ function FullScreenLoading() {
 function ForbiddenView({ userRole }) {
   const destino = ROLE_HOME[userRole] || '/login';
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <div className="min-h-screen flex flex-col bg-[#fcfcf7] text-[#1c3a13]">
       <Navbar />
       <main className="flex-1 flex items-center justify-center px-4 py-12">
-        <div className="max-w-md w-full card-surface p-8 text-center space-y-4 shadow-xl">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50 text-red-600">
-            <ShieldAlert className="h-8 w-8" />
+        <div className="max-w-md w-full bg-[#eeeee9] border border-[#eeeee9] rounded-2xl p-8 text-center space-y-4">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#1c3a13] text-[#d3fa99]">
+            <ShieldAlert className="h-7 w-7" />
           </div>
-          <span className="inline-block rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-red-700">
-            Error 403 · Acceso Denegado por Perfil
+          <span className="badge-lime font-mono text-[10px]">
+            ERROR 403 · ACCESO DENEGADO POR PERFIL
           </span>
-          <h1 className="font-display text-xl font-bold text-slate-900">
-            No tienes permisos para acceder a este módulo
+          <h1 className="text-xl font-light tracking-[-0.4px] text-[#1c3a13]">
+            Módulo Fuera de Alcance
           </h1>
-          <p className="text-sm text-slate-500">
+          <p className="text-xs text-[#666666] leading-relaxed">
             Tu perfil institucional actual ({userRole}) no está autorizado para visualizar o
             modificar este módulo. Regresa a tu panel correspondiente para continuar.
           </p>

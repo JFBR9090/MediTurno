@@ -27,11 +27,11 @@ export function DashboardLayout({ title, subtitle, actions, children }) {
   const navItems = ROLE_NAV_ITEMS[user?.rol] || [];
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <div className="min-h-screen flex flex-col bg-[#fcfcf7] text-[#1c3a13] font-sans antialiased">
       <Navbar />
 
-      {/* Sub-barra de navegación de módulo */}
-      <div className="border-b border-slate-200/80 bg-white">
+      {/* Sub-barra de navegación de módulo estilo Seed */}
+      <div className="border-b border-[#eeeee9] bg-[#fcfcf7]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-wrap items-center justify-between gap-4 py-3">
             <nav className="flex items-center gap-2" aria-label="Navegación de panel">
@@ -42,14 +42,14 @@ export function DashboardLayout({ title, subtitle, actions, children }) {
                     key={item.to}
                     to={item.to}
                     className={({ isActive }) =>
-                      `inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold transition-all ${
+                      `inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-mono transition-all ${
                         isActive
-                          ? 'bg-sky-600 text-white shadow-sm'
-                          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                          ? 'bg-[#1c3a13] text-[#fcfcf7]'
+                          : 'text-[#1c3a13] hover:bg-[#eeeee9]'
                       }`
                     }
                   >
-                    <Icon className="h-4 w-4" />
+                    <Icon className="h-3.5 w-3.5 text-[#d3fa99]" />
                     {item.label}
                   </NavLink>
                 );
@@ -61,16 +61,18 @@ export function DashboardLayout({ title, subtitle, actions, children }) {
         </div>
       </div>
 
-      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-7 sm:px-6 lg:px-8">
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
         {(title || subtitle) && (
-          <div className="mb-6">
+          <div className="mb-8">
             {title && (
-              <h1 className="font-display text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+              <h1 className="text-3xl sm:text-4xl font-light tracking-[-0.4px] text-[#1c3a13]">
                 {title}
               </h1>
             )}
             {subtitle && (
-              <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
+              <p className="mt-1.5 text-xs sm:text-sm text-[#666666] leading-relaxed">
+                {subtitle}
+              </p>
             )}
           </div>
         )}

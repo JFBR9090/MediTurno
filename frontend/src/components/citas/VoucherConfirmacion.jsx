@@ -38,66 +38,66 @@ export function VoucherConfirmacion({ cita, onNuevaCita }) {
   )}`;
 
   return (
-    <div className="mx-auto max-w-2xl card-surface overflow-hidden animate-fade-in-up">
-      {/* Encabezado Verde Esmeralda */}
-      <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-8 text-center text-white">
-        <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm animate-scale-check">
-          <CheckCircle2 className="h-10 w-10 text-white" />
+    <div className="mx-auto max-w-2xl bg-[#fcfcf7] border border-[#eeeee9] rounded-[32px] overflow-hidden">
+      {/* Encabezado Dark Section Forest Depths #1c3a13 */}
+      <div className="bg-[#1c3a13] px-6 py-8 text-center text-[#fcfcf7]">
+        <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-[#1c3a13] border border-[#d3fa99]/40">
+          <CheckCircle2 className="h-10 w-10 text-[#d3fa99]" />
         </div>
-        <h2 className="font-display text-2xl font-bold tracking-tight">
+        <h2 className="text-2xl sm:text-3xl font-light tracking-[-0.4px] text-[#fcfcf7]">
           ¡Cita Reservada con Éxito!
         </h2>
-        <p className="mt-1 text-sm text-emerald-50">
-          Tu turno quedó protegido y confirmado en la agenda médica.
+        <p className="mt-1.5 text-xs sm:text-sm text-[#eeeee9]/80 font-normal">
+          Tu turno quedó protegido y confirmado en la agenda médica bajo el sistema Seed.
         </p>
       </div>
 
       {/* Detalle del Voucher */}
       <div className="p-6 sm:p-8 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-sky-200 bg-sky-50/60 px-5 py-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-[#eeeee9] bg-[#eeeee9] px-5 py-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-sky-700">
+            <p className="text-[11px] font-mono uppercase tracking-wider text-[#666666]">
               Código Único de Reserva
             </p>
-            <p className="mt-0.5 font-mono text-2xl font-bold tracking-wider text-slate-900">
+            <p className="mt-0.5 font-mono text-2xl font-normal tracking-wider text-[#1c3a13]">
               {cita.codigo_reserva}
             </p>
           </div>
-          <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" />
-            Reserva Activa
+          <span className="badge-lime font-mono text-xs">
+            <span className="h-2 w-2 rounded-full bg-[#1c3a13]" />
+            RESERVA CONFIRMADA
           </span>
         </div>
 
         <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-          <div className="rounded-xl border border-slate-100 bg-slate-50 p-3.5">
-            <dt className="text-xs font-medium text-slate-500 flex items-center gap-1.5">
-              <Stethoscope className="h-3.5 w-3.5 text-sky-600" />
+          <div className="rounded-2xl border border-[#eeeee9] bg-[#eeeee9] p-4">
+            <dt className="text-xs font-mono uppercase text-[#666666] flex items-center gap-1.5">
+              <Stethoscope className="h-3.5 w-3.5 text-[#1c3a13]" />
               Profesional y Especialidad
             </dt>
-            <dd className="mt-1 font-semibold text-slate-900">{cita.medico_nombre}</dd>
-            <dd className="text-xs text-sky-700 font-medium">{cita.especialidad}</dd>
+            <dd className="mt-1 font-medium text-[#1c3a13]">{cita.medico_nombre}</dd>
+            <dd className="text-xs font-mono text-[#757c5d]">{cita.especialidad}</dd>
           </div>
 
-          <div className="rounded-xl border border-slate-100 bg-slate-50 p-3.5">
-            <dt className="text-xs font-medium text-slate-500 flex items-center gap-1.5">
-              <CalendarCheck className="h-3.5 w-3.5 text-sky-600" />
+          <div className="rounded-2xl border border-[#eeeee9] bg-[#eeeee9] p-4">
+            <dt className="text-xs font-mono uppercase text-[#666666] flex items-center gap-1.5">
+              <CalendarCheck className="h-3.5 w-3.5 text-[#1c3a13]" />
               Fecha y Hora del Turno
             </dt>
-            <dd className="mt-1 font-semibold text-slate-900 capitalize">
+            <dd className="mt-1 font-medium text-[#1c3a13] capitalize">
               {fechaFormateada}
             </dd>
-            <dd className="text-xs text-slate-600 font-medium">{horaFormateada} (30 min)</dd>
+            <dd className="text-xs font-mono text-[#666666]">{horaFormateada} (30 min)</dd>
           </div>
 
-          <div className="sm:col-span-2 rounded-xl border border-slate-100 bg-slate-50 p-3.5">
-            <dt className="text-xs font-medium text-slate-500 flex items-center gap-1.5">
-              <MapPin className="h-3.5 w-3.5 text-sky-600" />
+          <div className="sm:col-span-2 rounded-2xl border border-[#eeeee9] bg-[#eeeee9] p-4">
+            <dt className="text-xs font-mono uppercase text-[#666666] flex items-center gap-1.5">
+              <MapPin className="h-3.5 w-3.5 text-[#1c3a13]" />
               Sede y Consultorio
             </dt>
-            <dd className="mt-1 font-semibold text-slate-900">{cita.consultorio}</dd>
+            <dd className="mt-1 font-medium text-[#1c3a13]">{cita.consultorio}</dd>
             {cita.motivo_consulta && (
-              <dd className="mt-1 text-xs text-slate-500">
+              <dd className="mt-1 text-xs text-[#666666]">
                 Motivo: {cita.motivo_consulta}
               </dd>
             )}
@@ -105,12 +105,12 @@ export function VoucherConfirmacion({ cita, onNuevaCita }) {
         </dl>
 
         {/* Acciones de Salida y WhatsApp */}
-        <div className="border-t border-slate-100 pt-5 space-y-3">
+        <div className="border-t border-[#eeeee9] pt-5 space-y-3">
           <a
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-whatsapp w-full py-3 text-base"
+            className="btn-whatsapp w-full py-3.5 text-sm"
           >
             <MessageCircle className="h-5 w-5" />
             Enviar Confirmación por WhatsApp Web
@@ -123,7 +123,7 @@ export function VoucherConfirmacion({ cita, onNuevaCita }) {
               className="btn-secondary w-full"
             >
               <Printer className="h-4 w-4" />
-              Imprimir Resumen
+              Imprimir
             </button>
             <button
               type="button"

@@ -111,36 +111,36 @@ export function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <div className="min-h-screen flex flex-col bg-[#fcfcf7] text-[#1c3a13] font-sans antialiased">
       <Navbar />
 
-      {/* HERO SECTION */}
-      <section className="relative overflow-hidden border-b border-slate-200/80 bg-white">
-        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-sky-600 via-sky-500 to-emerald-500" />
-        <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+      {/* HERO SECTION - Seed Clinical Aesthetic */}
+      <section className="relative overflow-hidden border-b border-[#eeeee9] bg-[#fcfcf7]">
+        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3.5 py-1 text-xs font-semibold text-emerald-700">
-                <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                Disponibilidad médica sincronizada en tiempo real
+              <div className="inline-flex items-center gap-2 rounded-full bg-[#d3fa99] px-3.5 py-1 text-xs font-mono font-medium text-[#1c3a13]">
+                <span className="h-2 w-2 rounded-full bg-[#1c3a13]" />
+                DISPONIBILIDAD MÉDICA EN TIEMPO REAL · SEED ENGINE
               </div>
 
-              <h1 className="font-display text-3xl font-bold tracking-tight text-slate-900 sm:text-5xl leading-[1.12]">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-light tracking-[-0.72px] text-[#1c3a13] leading-[1.08]">
                 Tu salud en minutos:{' '}
-                <span className="text-sky-600">agenda y gestiona citas médicas</span>{' '}
-                sin llamadas
+                <span className="font-normal text-[#1c3a13] underline decoration-[#d3fa99] decoration-4 underline-offset-8">
+                  agenda citas médicas
+                </span>{' '}
+                sin fricción
               </h1>
 
-              <p className="max-w-2xl text-base sm:text-lg text-slate-500 leading-relaxed">
-                Consulta especialistas disponibles al instante, elige el horario que mejor
-                se adapte a tu jornada y recibe confirmación inmediata con código único de
-                reserva.
+              <p className="max-w-2xl text-base sm:text-lg text-[#666666] leading-relaxed font-normal">
+                Consulta especialistas disponibles al instante, elige el horario clínico que mejor
+                se adapte a tu jornada y recibe confirmación inmediata con código único de reserva.
               </p>
 
               {/* Buscador Predictivo de Especialidades */}
               <div className="relative max-w-xl">
-                <div className="flex items-center rounded-2xl border border-slate-200 bg-white p-1.5 shadow-sm focus-within:border-sky-500 focus-within:ring-2 focus-within:ring-sky-500/20">
-                  <Search className="ml-3 h-5 w-5 text-slate-400 shrink-0" />
+                <div className="flex items-center rounded-full border border-[#c4c7c4] bg-[#fcfcf7] p-2 focus-within:border-[#1c3a13]">
+                  <Search className="ml-3 h-5 w-5 text-[#666666] shrink-0" />
                   <input
                     type="text"
                     value={query}
@@ -152,7 +152,7 @@ export function LandingPage() {
                       if (!e.target.value.trim()) setSelectedEspId('all');
                     }}
                     placeholder="Busca especialidad o médico (ej. Cardiología, Pediatría...)"
-                    className="w-full bg-transparent px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
+                    className="w-full bg-transparent px-3 py-2 text-sm text-[#1c3a13] placeholder:text-[#666666] focus:outline-none font-normal"
                     aria-label="Buscador predictivo de especialidades y médicos"
                   />
                   <button
@@ -162,7 +162,7 @@ export function LandingPage() {
                         .getElementById('directorio-medicos')
                         ?.scrollIntoView({ behavior: 'smooth' })
                     }
-                    className="btn-primary shrink-0 px-4 py-2.5"
+                    className="btn-primary shrink-0 px-5 py-2.5 text-xs font-mono"
                   >
                     Buscar
                   </button>

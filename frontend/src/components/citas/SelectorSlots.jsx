@@ -104,25 +104,25 @@ export function SelectorSlots({
                     onSelectDate(d.iso);
                     onSelectSlot(null);
                   }}
-                  className={`flex flex-col items-center justify-center rounded-xl border px-2 py-2.5 text-center transition-all ${
+                  className={`flex flex-col items-center justify-center rounded-2xl border px-3 py-2.5 text-center transition-all ${
                     isSelected
-                      ? 'border-sky-600 bg-sky-600 text-white shadow-sm ring-2 ring-sky-500/20'
-                      : 'border-slate-200 bg-white text-slate-700 hover:border-sky-300 hover:bg-sky-50/40'
+                      ? 'border-[#1c3a13] bg-[#1c3a13] text-[#fcfcf7]'
+                      : 'border-[#eeeee9] bg-[#eeeee9] text-[#1c3a13] hover:border-[#c4c7c4]'
                   }`}
                 >
                   <span
-                    className={`text-[10px] font-semibold uppercase ${
-                      isSelected ? 'text-sky-100' : 'text-slate-400'
+                    className={`text-[10px] font-mono uppercase ${
+                      isSelected ? 'text-[#d3fa99]' : 'text-[#666666]'
                     }`}
                   >
                     {d.isToday ? 'Hoy' : d.dayName}
                   </span>
-                  <span className="mt-0.5 text-base font-bold leading-none">
+                  <span className="mt-0.5 text-base font-mono font-medium leading-none">
                     {d.dayNum}
                   </span>
                   <span
-                    className={`mt-0.5 text-[10px] capitalize ${
-                      isSelected ? 'text-sky-100' : 'text-slate-400'
+                    className={`mt-0.5 text-[10px] font-mono capitalize ${
+                      isSelected ? 'text-[#fcfcf7]/80' : 'text-[#666666]'
                     }`}
                   >
                     {d.monthShort}
@@ -137,17 +137,17 @@ export function SelectorSlots({
       {/* Cuadrícula de Slots Horarios */}
       <div>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <label className="inline-flex items-center gap-2 text-sm font-semibold text-slate-900">
-            <Clock className="h-4 w-4 text-sky-600" />
+          <label className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-[#1c3a13]">
+            <Clock className="h-4 w-4 text-[#1c3a13]" />
             4. Elige una franja horaria ({medico?.duracion_cita_defecto_min || 30} min)
           </label>
-          <div className="flex items-center gap-3 text-xs">
-            <span className="inline-flex items-center gap-1.5 text-emerald-700 font-medium">
-              <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+          <div className="flex items-center gap-3 text-xs font-mono">
+            <span className="inline-flex items-center gap-1.5 text-[#1c3a13]">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#d3fa99] border border-[#1c3a13]" />
               Disponible
             </span>
-            <span className="inline-flex items-center gap-1.5 text-slate-400 font-medium">
-              <span className="h-2.5 w-2.5 rounded-full bg-slate-300" />
+            <span className="inline-flex items-center gap-1.5 text-[#666666]">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#eeeee9] border border-[#c4c7c4]" />
               Ocupada
             </span>
           </div>
@@ -156,11 +156,11 @@ export function SelectorSlots({
         {loadingSlots ? (
           <SkeletonLoader variant="slots" />
         ) : freeSlotsCount === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/80 p-6 text-center">
-            <p className="text-sm font-semibold text-slate-800">
+          <div className="rounded-2xl border border-dashed border-[#c4c7c4] bg-[#eeeee9]/60 p-6 text-center">
+            <p className="text-sm font-medium text-[#1c3a13]">
               No hay horarios disponibles para esta fecha
             </p>
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-1 text-xs text-[#666666]">
               Todos los turnos del día ya pasaron, están bloqueados o fueron reservados.
             </p>
             {nextAvailableDate && (
@@ -170,9 +170,9 @@ export function SelectorSlots({
                   onSelectDate(nextAvailableDate.iso);
                   onSelectSlot(null);
                 }}
-                className="mt-4 inline-flex items-center gap-1.5 rounded-xl border border-sky-200 bg-white px-3.5 py-2 text-xs font-semibold text-sky-700 hover:bg-sky-50 transition-colors"
+                className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-[#1c3a13] bg-[#fcfcf7] px-4 py-2 text-xs font-mono text-[#1c3a13] hover:bg-[#eeeee9] transition-colors"
               >
-                <Sparkles className="h-3.5 w-3.5 text-emerald-500" />
+                <Sparkles className="h-3.5 w-3.5 text-[#d3fa99]" />
                 Saltar al próximo turno disponible: {nextAvailableDate.dayName}{' '}
                 {nextAvailableDate.dayNum} {nextAvailableDate.monthShort}
               </button>
@@ -190,10 +190,10 @@ export function SelectorSlots({
                     type="button"
                     disabled
                     title={`Franja no disponible (${slot.motivo})`}
-                    className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-slate-100 px-3 py-2.5 text-xs font-medium text-slate-400 cursor-not-allowed"
+                    className="flex flex-col items-center justify-center rounded-full border border-[#eeeee9] bg-[#eeeee9] px-3 py-2 text-xs font-mono text-[#666666]/60 cursor-not-allowed"
                   >
                     <span className="line-through">{slot.label}</span>
-                    <span className="text-[10px] text-slate-400">{slot.motivo}</span>
+                    <span className="text-[9px] text-[#666666]">{slot.motivo}</span>
                   </button>
                 );
               }
@@ -203,16 +203,16 @@ export function SelectorSlots({
                   key={slot.inicio}
                   type="button"
                   onClick={() => onSelectSlot(slot)}
-                  className={`flex flex-col items-center justify-center rounded-xl border px-3 py-2.5 text-xs font-semibold transition-all ${
+                  className={`flex flex-col items-center justify-center rounded-full border px-3 py-2 text-xs font-mono transition-all ${
                     isSelected
-                      ? 'border-emerald-600 bg-emerald-500 text-white shadow-sm ring-2 ring-emerald-500/30'
-                      : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border-emerald-300'
+                      ? 'border-[#1c3a13] bg-[#1c3a13] text-[#fcfcf7]'
+                      : 'border-[#1c3a13]/30 bg-[#fcfcf7] text-[#1c3a13] hover:bg-[#d3fa99]/30'
                   }`}
                 >
-                  <span>{slot.label}</span>
+                  <span className="font-medium">{slot.label}</span>
                   <span
-                    className={`text-[10px] font-medium ${
-                      isSelected ? 'text-emerald-50' : 'text-emerald-600'
+                    className={`text-[9px] ${
+                      isSelected ? 'text-[#d3fa99]' : 'text-[#757c5d]'
                     }`}
                   >
                     {isSelected ? 'Seleccionado' : 'Libre'}

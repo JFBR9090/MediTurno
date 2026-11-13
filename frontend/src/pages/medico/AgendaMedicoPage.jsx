@@ -15,11 +15,11 @@ import { useAuth } from '../../context/AuthContext';
 import { useMediTurno } from '../../context/MediTurnoContext';
 
 const ESTADO_BADGE = {
-  programada: { label: 'Programada', classes: 'bg-sky-50 text-sky-700 border-sky-200' },
-  confirmada: { label: 'Confirmada', classes: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-  completada: { label: 'Completada', classes: 'bg-slate-100 text-slate-600 border-slate-200' },
-  no_asistio: { label: 'No Asistió', classes: 'bg-amber-50 text-amber-700 border-amber-200' },
-  cancelada: { label: 'Cancelada', classes: 'bg-red-50 text-red-700 border-red-200' },
+  programada: { label: 'Programada', classes: 'bg-[#eeeee9] text-[#1c3a13] border-[#c4c7c4]' },
+  confirmada: { label: 'Confirmada', classes: 'bg-[#d3fa99] text-[#1c3a13] border-[#d3fa99]' },
+  completada: { label: 'Completada', classes: 'bg-[#1c3a13] text-[#fcfcf7] border-[#1c3a13]' },
+  no_asistio: { label: 'No Asistió', classes: 'bg-[#eeeee9] text-[#666666] border-[#c4c7c4]' },
+  cancelada: { label: 'Cancelada', classes: 'bg-red-50 text-red-800 border-red-200' },
 };
 
 function toLocalISODate(date) {

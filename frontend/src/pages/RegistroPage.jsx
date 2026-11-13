@@ -127,28 +127,27 @@ export function RegistroPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <div className="min-h-screen flex flex-col bg-[#fcfcf7] text-[#1c3a13]">
       <Navbar />
 
-      <main className="flex-1 flex items-center justify-center px-4 py-10 sm:px-6">
-        <div className="w-full max-w-2xl card-surface p-6 sm:p-8 space-y-6">
+      <main className="flex-1 flex items-center justify-center px-4 py-12 sm:px-6">
+        <div className="w-full max-w-2xl bg-[#fcfcf7] border border-[#eeeee9] rounded-[32px] p-6 sm:p-10 space-y-6">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-sky-600">
-              Registro de Pacientes
+            <span className="badge-lime font-mono text-[10px] uppercase">
+              Registro Institucional de Pacientes
             </span>
-            <h1 className="mt-1 font-display text-2xl font-bold text-slate-900">
+            <h1 className="mt-2 text-3xl font-light tracking-[-0.4px] text-[#1c3a13]">
               Crea tu cuenta en MediTurno
             </h1>
-            <p className="mt-1 text-sm text-slate-500">
-              Agenda tus citas médicas en menos de 3 minutos y gestiona tus turnos desde
-              cualquier dispositivo.
+            <p className="mt-1 text-xs sm:text-sm text-[#666666]">
+              Agenda tus citas médicas en menos de 3 minutos y gestiona tus turnos bajo la arquitectura Seed.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} noValidate className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                <label className="block text-xs font-mono uppercase tracking-wider text-[#1c3a13] mb-1.5">
                   Nombre
                 </label>
                 <input
@@ -320,18 +319,18 @@ export function RegistroPage() {
               </div>
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5">
-              <label className="flex items-start gap-2.5 cursor-pointer text-xs text-slate-600">
+            <div className="rounded-2xl border border-[#eeeee9] bg-[#eeeee9] p-4">
+              <label className="flex items-start gap-2.5 cursor-pointer text-xs text-[#1c3a13]">
                 <input
                   name="aceptaPolitica"
                   type="checkbox"
                   checked={form.aceptaPolitica}
                   onChange={handleChange}
-                  className="mt-0.5 h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
+                  className="mt-0.5 h-4 w-4 rounded border-[#c4c7c4] text-[#1c3a13] focus:ring-[#1c3a13]"
                 />
-                <span>
+                <span className="leading-relaxed">
                   Autorizo el tratamiento de mis datos personales conforme a la{' '}
-                  <strong className="text-slate-800">Ley 1581 de 2012 de Colombia</strong>{' '}
+                  <strong className="text-[#1c3a13]">Ley 1581 de 2012 de Colombia</strong>{' '}
                   exclusivamente para la gestión de citas médicas en MediTurno.
                 </span>
               </label>
@@ -341,15 +340,15 @@ export function RegistroPage() {
             </div>
 
             {errors.general && (
-              <div className="rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 text-xs font-medium text-red-700">
+              <div className="rounded-2xl border border-red-300 bg-red-50 px-4 py-3 text-xs text-red-800">
                 {errors.general}
               </div>
             )}
 
-            <button type="submit" disabled={submitting} className="btn-primary w-full py-3">
+            <button type="submit" disabled={submitting} className="btn-primary w-full py-3.5">
               {submitting ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin text-[#d3fa99]" />
                   Registrando paciente...
                 </>
               ) : (
@@ -361,9 +360,9 @@ export function RegistroPage() {
             </button>
           </form>
 
-          <p className="text-center text-xs text-slate-500">
+          <p className="text-center text-xs text-[#666666]">
             ¿Ya tienes una cuenta?{' '}
-            <Link to="/login" className="font-semibold text-sky-600 hover:underline">
+            <Link to="/login" className="font-medium text-[#1c3a13] underline hover:text-[#284f1c]">
               Inicia sesión aquí
             </Link>
           </p>
