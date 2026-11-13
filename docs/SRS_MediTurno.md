@@ -113,15 +113,16 @@ Diseñar e implementar una aplicación web denominada **MediTurno** bajo arquite
 6. Implementar el flujo transaccional de reserva, cancelación (con regla mínima de 2 horas) y reprogramación de citas, garantizando integridad ante concurrencia (`409 Conflict`).
 7. Desarrollar la agenda diaria e historial del profesional médico con actualización de estados (`completada`, `no_asistio`) y trazabilidad permanente.
 8. Implementar un panel administrativo con indicadores clave, reportes filtrables y exportación de datos en formato CSV.
-9. Ejecutar pruebas funcionales y de integración automatizadas con PHPUnit sobre MySQL (`CP-01` a `CP-14`) para validar el cumplimiento integral del sistema.
+9. Ejecutar pruebas funcionales, de integración y seguridad automatizadas con PHPUnit sobre MySQL (`CP-01` a `CP-19`) para validar el cumplimiento integral del sistema.
 
 ### 1.5. Alcances
 
 Con el fin de garantizar claridad frente a las funcionalidades incluidas en el MVP y evitar contradicciones con los requisitos detallados, el alcance de **MediTurno** se clasifica en tres niveles:
 
-#### Incluye (versión inicial MVP v1.0)
-- Registro de pacientes, inicio de sesión, cierre de sesión y acceso rápido de demostración por rol mediante sesiones seguras (`HttpOnly`).
-- Landing page pública con propuesta de valor, buscador predictivo de especialidades/médicos, cuadrícula de especialidades y directorio de profesionales con tarjeta profesional.
+#### Incluye (versión inicial MVP v1.2.0)
+- Pantalla inicial Gatekeeper de acceso seguro obligatorio (`/` y `/login`) con selector interactivo de los tres (3) perfiles institucionales (**Pacientes**, **Profesionales Médicos**, **Administrador**), protección activa contra fuerza bruta (bloqueo temporal con HTTP `429 Too Many Requests` tras 5 intentos fallidos) y botones de auditoría demo de un solo clic.
+- Registro autónomo de pacientes (`/registro`) con validación de documento y correo único bajo la Ley 1581 de 2012.
+- Catálogo de especialidades médicas y directorio de profesionales disponible en el flujo autenticado de reserva de citas y en el panel administrativo.
 - Gestión administrativa de especialidades médicas (crear, editar, activar/desactivar).
 - Gestión administrativa de profesionales médicos (registrar, asociar especialidad, activar/desactivar) y configuración de horarios semanales sin superposición.
 - Gestión administrativa de pacientes (registrar y listar con conteo de citas).
@@ -173,7 +174,7 @@ Con el fin de garantizar claridad frente a las funcionalidades incluidas en el M
 | **Desarrollador Backend** | Implementar modelos Eloquent, servicios de disponibilidad, transacciones y API REST en Laravel |
 | **Desarrollador Frontend** | Implementar interfaces responsivas, formularios con validación y experiencia de usuario |
 | **Diseñador UX/UI** | Definir paleta 60-30-10, identidad visual, flujos de reserva y estados de interfaz |
-| **QA Tester** | Diseñar y ejecutar casos de prueba (`CP-01` a `CP-14`) en PHPUnit y pruebas manuales |
+| **QA Tester** | Diseñar y ejecutar casos de prueba (`CP-01` a `CP-19`) en PHPUnit y pruebas manuales |
 
 ### 1.7. Definiciones, acrónimos y abreviaturas
 
@@ -237,7 +238,7 @@ Con el fin de garantizar claridad frente a las funcionalidades incluidas en el M
 
 ### 1.9. Resumen
 
-Este documento define los requisitos funcionales, no funcionales, historias de usuario, casos de uso, arquitectura e instrumentos de verificación del sistema web **MediTurno**, orientado a resolver la desorganización del agendamiento manual en consultorios médicos y centros de salud pequeños. Frente a los referentes analizados en la sección 1.3.1, MediTurno aporta una solución unificada y ligera que combina catálogo público, control de acceso por roles, generación dinámica de calendarios, prevención transaccional de citas duplicadas en MySQL, autogestión de cancelaciones/reprogramaciones y reportes administrativos.
+Este documento define los requisitos funcionales, no funcionales, historias de usuario, casos de uso, arquitectura e instrumentos de verificación del sistema web **MediTurno**, orientado a resolver la desorganización del agendamiento manual en consultorios médicos y centros de salud pequeños. Frente a los referentes analizados en la sección 1.3.1, MediTurno aporta una solución unificada y robusta que combina acceso seguro inicial mediante Gatekeeper con selección de 3 perfiles institucionales (**Pacientes**, **Profesionales Médicos**, **Administrador**), protección activa contra fuerza bruta, control de acceso estricto por roles (RBAC), generación dinámica de calendarios, prevención transaccional de citas duplicadas en MySQL, autogestión de cancelaciones/reprogramaciones y reportes administrativos.
 
 ---
 
@@ -317,18 +318,18 @@ Cada historia de usuario (`HU`) corresponde de forma directa a un requerimiento 
 
 | HU-02 │ RF2 – Iniciar sesión segura con selección de perfil institucional y protección contra fuerza bruta | |
 | :--- | :--- |
-| **Descripción:** Como usuario registrado quiero iniciar sesión seleccionando mi perfil institucional (**Pacientes**, **Profesionales**, **Agendas** o **Citas**) con correo y contraseña, de modo que el sistema valide mi perfil, prevenga ataques de fuerza bruta y me dirija únicamente a mi módulo autorizado. | |
-| **Criterios de validación**<br>• Selección obligatoria de uno de los 4 perfiles en la pantalla de Gatekeeper.<br>• Verificación estricta de que la cuenta pertenezca al perfil seleccionado (rechazo `403` si un paciente intenta ingresar como profesional, agenda o cita, y viceversa).<br>• Credenciales válidas autentican mediante sesión segura en cookie `HttpOnly` y regeneran el token de sesión.<br>• Protección contra fuerza bruta: tras 5 intentos fallidos se activa un bloqueo temporal devolviendo código HTTP `429 Too Many Requests` y cabecera `Retry-After`.<br>• Redirección automática a la vista correspondiente: `/paciente/citas`, `/medico/agenda`, `/agenda/gestion` o `/citas/gestion`. | **Métricas**<br>Valor: Alto<br>Prioridad: Alta<br>Estimación: 5 pts |
+| **Descripción:** Como usuario registrado quiero iniciar sesión seleccionando mi perfil institucional (**Pacientes**, **Profesionales Médicos** o **Administrador**) con correo y contraseña, de modo que el sistema valide mi perfil, prevenga ataques de fuerza bruta y me dirija únicamente a mi módulo autorizado. | |
+| **Criterios de validación**<br>• Selección obligatoria de uno de los 3 perfiles institucionales en la pantalla Gatekeeper inicial.<br>• Verificación estricta de que la cuenta pertenezca al perfil seleccionado (rechazo con HTTP `403 Forbidden` si un paciente intenta ingresar como profesional o administrador, y viceversa).<br>• Credenciales válidas autentican mediante sesión segura en cookie `HttpOnly` y regeneran el token de sesión.<br>• Protección contra fuerza bruta: tras 5 intentos fallidos consecutivos se activa un bloqueo temporal de 60 segundos devolviendo código HTTP `429 Too Many Requests` y cabecera `Retry-After`.<br>• Redirección automática a la vista correspondiente: `/paciente/citas`, `/medico/agenda` o `/admin/dashboard`. | **Métricas**<br>Valor: Alto<br>Prioridad: Alta<br>Estimación: 5 pts |
 
 | HU-03 │ RF3 – Cerrar sesión de forma segura | |
 | :--- | :--- |
 | **Descripción:** Como usuario autenticado quiero cerrar mi sesión desde la barra de navegación para proteger mi cuenta al finalizar el uso del sistema. | |
-| **Criterios de validación**<br>• Invalidación de la sesión activa en Laravel (`Auth::logout` + `invalidate`).<br>• Limpieza del estado de usuario en cliente.<br>• Redirección a la página pública inicial `/`.<br>• Imposibilidad de acceder a rutas privadas tras cerrar sesión. | **Métricas**<br>Valor: Alto<br>Prioridad: Alta<br>Estimación: 2 pts |
+| **Criterios de validación**<br>• Invalidación de la sesión activa en Laravel (`Auth::logout` + `invalidate` + regeneración de token).<br>• Limpieza del estado de usuario en cliente.<br>• Redirección a la pantalla Gatekeeper inicial `/login`.<br>• Imposibilidad de acceder a rutas privadas tras cerrar sesión. | **Métricas**<br>Valor: Alto<br>Prioridad: Alta<br>Estimación: 2 pts |
 
-| HU-04 │ RF4 – Consultar especialidades y directorio médico público | |
+| HU-04 │ RF4 – Consultar especialidades y directorio médico en agendamiento | |
 | :--- | :--- |
-| **Descripción:** Como visitante o paciente quiero consultar el catálogo de especialidades y médicos activos en la página principal para identificar el profesional adecuado antes de agendar. | |
-| **Criterios de validación**<br>• Buscador predictivo filtra por especialidad, nombre del médico o tarjeta profesional.<br>• Tarjetas de médicos muestran iniciales, especialidad, calificación, tarjeta profesional y consultorio.<br>• El botón "Agendar Cita" preserva el médico/especialidad mediante `returnTo` si no ha iniciado sesión. | **Métricas**<br>Valor: Alto<br>Prioridad: Alta<br>Estimación: 5 pts |
+| **Descripción:** Como paciente o administrador autenticado quiero consultar el catálogo de especialidades y médicos activos en el flujo de reserva o gestión para identificar el profesional adecuado antes de agendar. | |
+| **Criterios de validación**<br>• Buscador interactivo filtra por especialidad médica, nombre del profesional o tarjeta profesional.<br>• Tarjetas de médicos muestran iniciales, especialidad, calificación, tarjeta profesional y consultorio.<br>• Selección directa del profesional para avanzar hacia la selección de fecha y franja horaria disponible. | **Métricas**<br>Valor: Alto<br>Prioridad: Alta<br>Estimación: 5 pts |
 
 | HU-05 │ RF5 – Usar selector rápido de sesión demo para auditoría | |
 | :--- | :--- |
@@ -661,30 +662,30 @@ A continuación, se detallan los 26 requerimientos funcionales del sistema, nume
 | **Manejo de situaciones anormales:**<br>• Campos inválidos o incompletos: resaltar borde rojo y mostrar mensaje descriptivo en línea.<br>• Correo o documento duplicado: retornar HTTP `422` e impedir el registro.<br>• Error de servidor: mostrar alerta sin perder datos ingresados. | | |
 | **Criterios de aceptación:**<br>• El paciente se registra completando todos los campos obligatorios.<br>• No se permiten correos o documentos repetidos en MySQL.<br>• La contraseña se almacena cifrada con hashing seguro (`bcrypt`). | | |
 
-| **Identificador:** RF2 | **Nombre:** Iniciar sesión | |
+| **Identificador:** RF2 | **Nombre:** Iniciar sesión con selección de perfil y protección contra fuerza bruta | |
 | :--- | :--- | :--- |
 | **Tipo:** Necesario | **Requerimiento relacionado:** RF1 (Registrar paciente) / RF3 (Cerrar sesión) | **¿Crítico?** Sí |
-| **Prioridad de desarrollo:** Alta | **Documentos de visualización asociados:** `LoginPage.jsx` / `AuthController::login` | |
-| **Entrada:**<br>• Correo electrónico.<br>• Contraseña. | **Salida:**<br>• Cookie `HttpOnly` cifrada de sesión Laravel.<br>• Objeto de usuario con rol.<br>• Redirección automática al panel del rol (o `returnTo`). | |
-| **Descripción:** El sistema deberá validar las credenciales ingresadas contra la tabla `users`, verificar que la cuenta esté activa y autorizar el acceso según su rol (`paciente`, `medico`, `administrador`). | | |
-| **Manejo de situaciones anormales:**<br>• Credenciales inválidas: retornar HTTP `401` con mensaje *"Credenciales inválidas. Verifica tu correo y contraseña."*<br>• Cuenta desactivada: retornar HTTP `403` e impedir ingreso. | | |
-| **Criterios de aceptación:**<br>• Usuario válido con cuenta activa accede a su panel asignado.<br>• Credenciales erróneas son rechazadas con `401`.<br>• Rutas protegidas redirigen a `/login?returnTo=...` cuando no hay sesión. | | |
+| **Prioridad de desarrollo:** Alta | **Documentos de visualización asociados:** `LoginPage.jsx` / `AuthController::login` / `EnsureUserHasRole` | |
+| **Entrada:**<br>• Correo electrónico.<br>• Contraseña.<br>• Perfil seleccionado (`paciente`, `profesional`/`medico`, `administrador`). | **Salida:**<br>• Cookie `HttpOnly` cifrada de sesión Laravel.<br>• Objeto de usuario con rol normalizado.<br>• Redirección automática al panel correspondiente (`/paciente/citas`, `/medico/agenda` o `/admin/dashboard`). | |
+| **Descripción:** El sistema deberá validar las credenciales ingresadas contra la tabla `users`, verificar que la cuenta esté activa, comprobar que el rol del usuario coincida con el perfil institucional seleccionado, y aplicar control de tasa contra ataques de fuerza bruta. | | |
+| **Manejo de situaciones anormales:**<br>• Credenciales inválidas: retornar HTTP `401 Unauthorized` con mensaje de error.<br>• Discrepancia entre perfil seleccionado y rol real: retornar HTTP `403 Forbidden` prohibiendo el acceso cruzado.<br>• Ataque de fuerza bruta (5 fallos consecutivos): bloquear por 60 segundos y retornar HTTP `429 Too Many Requests` con cabecera `Retry-After`.<br>• Cuenta desactivada: retornar HTTP `403` impidiendo el ingreso. | | |
+| **Criterios de aceptación:**<br>• Usuario válido accede exclusivamente al panel asignado a su perfil.<br>• Intentos cruzados de perfil son bloqueados con `403`.<br>• Quinto fallo consecutivo activa bloqueo temporal por 60s con `429`.<br>• Toda ruta protegida redirige a `/login` si no existe sesión válida. | | |
 
 | **Identificador:** RF3 | **Nombre:** Cerrar sesión | |
 | :--- | :--- | :--- |
 | **Tipo:** Necesario | **Requerimiento relacionado:** RF2 (Iniciar sesión) | **¿Crítico?** Sí |
 | **Prioridad de desarrollo:** Alta | **Documentos de visualización asociados:** `Navbar.jsx` / `AuthController::logout` | |
-| **Entrada:**<br>• Solicitud de cierre de sesión del usuario autenticado. | **Salida:**<br>• Sesión invalidada y token regenerado en servidor.<br>• Redirección a `/`. | |
+| **Entrada:**<br>• Solicitud de cierre de sesión del usuario autenticado. | **Salida:**<br>• Sesión invalidada y token regenerado en servidor.<br>• Redirección a `/login`. | |
 | **Descripción:** El sistema deberá permitir cerrar la sesión activa desde la barra de navegación superior en escritorio y móvil, eliminando la sesión del servidor. | | |
-| **Manejo de situaciones anormales:**<br>• Si la sesión ya expiró en servidor, limpiar igualmente el estado del cliente y redirigir a `/`. | | |
+| **Manejo de situaciones anormales:**<br>• Si la sesión ya expiró en servidor, limpiar igualmente el estado del cliente y redirigir a `/login`. | | |
 | **Criterios de aceptación:**<br>• Al cerrar sesión, las peticiones posteriores a endpoints privados devuelven `401`.<br>• Se muestra toast informativo de cierre seguro. | | |
 
-| **Identificador:** RF4 | **Nombre:** Consultar especialidades y directorio médico público | |
+| **Identificador:** RF4 | **Nombre:** Consultar especialidades y directorio médico en agendamiento | |
 | :--- | :--- | :--- |
 | **Tipo:** Necesario | **Requerimiento relacionado:** RF14 (Calendario) / RF16 (Reservar cita) | **¿Crítico?** Sí |
-| **Prioridad de desarrollo:** Alta | **Documentos de visualización asociados:** `LandingPage.jsx` | |
+| **Prioridad de desarrollo:** Alta | **Documentos de visualización asociados:** `ReservaPage.jsx` / `CatalogoController` | |
 | **Entrada:**<br>• Término de búsqueda en buscador predictivo.<br>• Filtro por especialidad seleccionada. | **Salida:**<br>• Sugerencias predictivas de especialidades y médicos.<br>• Listado filtrado de profesionales activos con tarjeta profesional y consultorio. | |
-| **Descripción:** El sistema deberá exponer públicamente el catálogo de especialidades y médicos activos, permitiendo al usuario filtrar y pulsar "Agendar Cita" con enlace profundo (`deep linking`) hacia el flujo de reserva. | | |
+| **Descripción:** El sistema deberá exponer en el flujo autenticado de reserva y administración el catálogo de especialidades y médicos activos, permitiendo al usuario filtrar y seleccionar el profesional adecuado. | | |
 | **Manejo de situaciones anormales:**<br>• Sin coincidencias: mostrar mensaje amigable y botón para restablecer filtros. | | |
 | **Criterios de aceptación:**<br>• Solo se muestran especialidades y profesionales activos.<br>• El buscador predictivo responde en tiempo real. | | |
 
@@ -906,16 +907,16 @@ A continuación, se detallan los 26 requerimientos funcionales del sistema, nume
 
 | **MediTurno** | | |
 | :--- | :--- | :--- |
-| **Código:** RNF-03 | **Nombre:** Seguridad de autenticación y sesiones | **Grado de necesidad:** Alta |
-| **Descripción:** Protección de credenciales y prevención de robo de sesión en cliente. | | |
-| **Detalle:** Las contraseñas se almacenarán cifradas con algoritmo `bcrypt` y las sesiones se gestionarán mediante cookies `HttpOnly` cifradas transportadas con `credentials: 'include'`, prohibiendo almacenar tokens en `localStorage`. | | |
-| **Efecto Colateral:** Requiere configuración adecuada de cookies de sesión y transporte HTTPS en producción. | | |
+| **Código:** RNF-03 | **Nombre:** Seguridad de autenticación, sesiones y protección contra fuerza bruta | **Grado de necesidad:** Alta |
+| **Descripción:** Protección de credenciales, mitigación de ataques de fuerza bruta y prevención de robo de sesión. | | |
+| **Detalle:** Las contraseñas se almacenarán cifradas con algoritmo `bcrypt` (`cost 12`). Las sesiones se gestionarán mediante cookies `HttpOnly` cifradas transportadas con `credentials: 'include'` y protección CSRF. La arquitectura opera como Gatekeeper inicial estricto (ningún dato o catálogo es accesible sin autenticación previa). La API implementa limitador de tasa (`RateLimiter`) que tras 5 intentos fallidos bloquea la IP por 60 segundos con respuesta HTTP `429 Too Many Requests` y cabecera `Retry-After`. | | |
+| **Efecto Colateral:** Requiere sincronización del temporizador de bloqueo en la interfaz de usuario y manejo del código HTTP `429`. | | |
 
 | **MediTurno** | | |
 | :--- | :--- | :--- |
-| **Código:** RNF-04 | **Nombre:** Autorización estricta por roles (RBAC) | **Grado de necesidad:** Alta |
-| **Descripción:** Aislamiento de datos y operaciones según perfil de usuario. | | |
-| **Detalle:** Cada endpoint del backend y cada ruta del frontend validará el rol autenticado (`administrador`, `medico`, `paciente`), garantizando que un paciente solo acceda a sus citas y un médico solo a su agenda (`403 Forbidden` en accesos indebidos). | | |
+| **Código:** RNF-04 | **Nombre:** Autorización estricta por roles (RBAC) y aislamiento de perfiles | **Grado de necesidad:** Alta |
+| **Descripción:** Aislamiento total de datos y operaciones entre la tríada de perfiles (**Pacientes**, **Profesionales Médicos**, **Administrador**). | | |
+| **Detalle:** Cada endpoint del backend está protegido por el middleware `EnsureUserHasRole` (`role:administrador,profesional,paciente`) y cada ruta de cliente por el componente `ProtectedRoute`. Se prohíbe el cruce de perfiles (un paciente no puede ingresar por la pestaña de profesional ni un profesional como administrador, respondiendo HTTP `403 Forbidden`). Asimismo, un paciente solo puede consultar o modificar sus propias citas y un médico únicamente su agenda asignada. | | |
 | **Efecto Colateral:** Requiere verificación de propiedad de recursos en controladores además de las guardas visuales en React. | | |
 
 | **MediTurno** | | |
@@ -978,7 +979,7 @@ A continuación, se detallan los 26 requerimientos funcionales del sistema, nume
 
 ## 4. Plan de Pruebas y Matriz de Trazabilidad
 
-Las pruebas funcionales del sistema están automatizadas mediante **PHPUnit** sobre la base de datos de pruebas `mediturno_test` en MySQL (`backend/tests/Feature/PlanPruebasMvpTest.php`, `AgendaDisponibilidadTest.php` y `CitaTransaccionalTest.php`), verificando los 14 casos críticos del proyecto:
+Las pruebas funcionales y de seguridad del sistema están automatizadas mediante **PHPUnit** sobre la base de datos de pruebas `mediturno_test` en MySQL (`backend/tests/Feature/PlanPruebasMvpTest.php`, `AgendaDisponibilidadTest.php`, `CitaTransaccionalTest.php` y `SeguridadAutenticacionTest.php`), verificando los 19 casos de prueba críticos del proyecto (`CP-01` a `CP-19`):
 
 | Código | Caso de Prueba | Requerimiento Asociado | Resultado Esperado | Estado |
 | :---: | :--- | :---: | :--- | :---: |
