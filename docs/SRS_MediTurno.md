@@ -17,7 +17,8 @@
 | :---: | :---: | :--- | :--- | :---: |
 | **v1.0.0** | 11/11/2026 | Juan Fernando Bahamón Ramírez | Versión inicial completa del SRS de **MediTurno**, alineada con el boceto funcional del sitio web en Laravel 11, MySQL 8.0, React 18 y Tailwind CSS (módulos de Autenticación RBAC, Pacientes, Profesionales, Especialidades, Agendas/Calendarios, Citas transaccionales, Reprogramación, Cancelación, Reportes CSV y Plan de Pruebas CP-01 a CP-14). | `main` |
 | **v1.0.1** | 11/11/2026 | Juan Fernando Bahamón Ramírez | Actualización del nombre del instructor evaluador en portada y sección 1.6 (Javier Humberto Pinto Díaz). | `main` |
-| **v1.1.0** | 13/11/2026 | Juan Fernando Bahamón Ramírez | Implementación de pantalla Gatekeeper inicial obligatoria (aislamiento total sin sesión previa), arquitectura de 4 perfiles segregados de usuario (**Pacientes**, **Profesionales**, **Agendas**, **Citas**), validación de perfil en login, mitigación de fuerza bruta con Rate Limiting (bloqueo temporal a 5 intentos fallidos, HTTP 429 con `Retry-After`), control de acceso estricto tanto en backend (`EnsureUserHasRole`) como en frontend (`ProtectedRoute`), y suite automatizada de pruebas de seguridad (`SeguridadAutenticacionTest`). | `DEV` |
+| **v1.1.0** | 13/11/2026 | Juan Fernando Bahamón Ramírez | Implementación de pantalla Gatekeeper inicial obligatoria (aislamiento total sin sesión previa), validación de perfil en login, mitigación de fuerza bruta con Rate Limiting (bloqueo temporal a 5 intentos fallidos, HTTP 429 con `Retry-After`), control de acceso estricto tanto en backend (`EnsureUserHasRole`) como en frontend (`ProtectedRoute`), y suite automatizada de pruebas de seguridad (`SeguridadAutenticacionTest`). | `DEV` |
+| **v1.2.0** | 13/11/2026 | Juan Fernando Bahamón Ramírez | Simplificación y consolidación de la arquitectura de perfiles a la tríada estándar del MVP: **Administrador**, **Profesionales Médicos** y **Pacientes**. Eliminación de los roles auxiliares de 'agendas' y 'citas' en favor del panel administrativo integral (`/admin/dashboard`). Actualización de la pantalla Gatekeeper con selector de 3 perfiles institucionales y actualización de la suite de pruebas automatizadas. | `DEV` |
 
 ---
 
@@ -252,15 +253,13 @@ El sistema sigue una arquitectura cliente-servidor en tres capas desacopladas:
 2. **Capa de Lógica de Negocio (Backend API REST):** Implementada en **Laravel 11 (PHP 8.2)** bajo patrón MVC + Capa de Servicios (`AgendaDisponibilidadService`), responsable de la autenticación por cookies `HttpOnly` cifradas, validación de formularios, reglas de negocio (`RN-01` a `RN-13`), control de concurrencia mediante transacciones pesimistas (`lockForUpdate()`) y generación de reportes.
 3. **Capa de Datos (Persistencia):** Base de datos relacional **MySQL 8.0** con integridad referencial mediante llaves foráneas, restricciones de unicidad (`email`, `numero_documento`, `tarjeta_profesional`, `codigo_reserva`), índices compuestos de disponibilidad y tablas de auditoría (`historial_citas`, `notificaciones`).
 
-### 2.2. Características de los usuarios y Perfiles Segregados (v1.1.0)
+### 2.2. Características de los usuarios y Perfiles Institucionales (v1.2.0)
 
-A partir de la versión **v1.1.0**, el sistema implementa una política estricta de **Gatekeeper Inicial Obligatorio** (ningún contenido sensible o módulo operativo es visible sin autenticación previa) y organiza el acceso en **cuatro perfiles de usuario funcionalmente segregados**, además del superusuario de administración:
+A partir de la versión **v1.2.0**, el sistema consolida su arquitectura en torno a la tríada fundamental de usuarios del MVP clínico, manteniendo la política estricta de **Gatekeeper Inicial Obligatorio** (ningún contenido sensible, catálogo ni panel operativo es visible sin autenticación previa):
 
-- **1. Perfil Pacientes (`paciente`):** Usuario final que autogestiona su salud. Puede registrarse, iniciar sesión validando su perfil, consultar disponibilidad de turnos, reservar citas médicas, consultar sus citas activas e histórico, cancelar o reprogramar citas con anticipación mínima de 2 horas y revisar sus notificaciones. Tiene estrictamente restringido el acceso a agendas de otros pacientes, agendas de profesionales médicos y paneles de gestión.
-- **2. Perfil Profesionales Médicos (`profesional` / `medico`):** Personal asistencial de la salud. Accede de forma exclusiva a su agenda cronológica diaria (`/medico/agenda`), visualiza los pacientes asignados a sus turnos con su motivo de consulta y actualiza el estado clínico de la cita a `completada` o `no_asistio`. No tiene acceso a datos de otros profesionales, ni a la configuración estructural de turnos ni a mesas de citas generales.
-- **3. Perfil Agendas (`agenda`):** Coordinación de agendas y disponibilidad médica. Administra el directorio de médicos, configura bloques semanales de horarios de atención (días, horas de inicio y fin, duración de consulta) y registra bloqueos de disponibilidad (permisos, vacaciones, mantenimiento). Tiene expresamente denegado el acceso a la consulta o cancelación de citas privadas de pacientes y al registro de atenciones clínicas.
-- **4. Perfil Citas (`cita`):** Mesa de recepción, admisiones y programación operativa de citas. Consulta el listado general de citas de la sede médica con filtros multicriterio, asiste en la asignación de turnos a pacientes, registra pacientes en ventanilla, cancela y reprograma turnos a petición de pacientes y exporta reportes operativos en CSV. No puede modificar turnos base de los médicos ni marcar atenciones clínicas como completadas.
-- **Superusuario Administrador (`administrador`):** Rol directivo con acceso transversal al panel integral (`/admin/dashboard`), administración de especialidades y habilitación/deshabilitación de profesionales.
+- **1. Perfil Pacientes (`paciente`):** Usuario final que autogestiona su salud. Puede registrarse, iniciar sesión validando su perfil, consultar disponibilidad de turnos, reservar citas médicas, consultar sus citas activas e histórico, cancelar o reprogramar citas con anticipación mínima de 2 horas y revisar sus notificaciones. Tiene estrictamente restringido el acceso a agendas de otros pacientes, agendas de profesionales médicos y paneles administrativos.
+- **2. Perfil Profesionales Médicos (`profesional` / `medico`):** Personal asistencial de la salud. Accede de forma exclusiva a su agenda cronológica diaria (`/medico/agenda`), visualiza los pacientes asignados a sus turnos con su motivo de consulta y actualiza el estado clínico de la cita a `completada` o `no_asistio`. No tiene acceso a datos de otros profesionales ni a módulos administrativos.
+- **3. Perfil Administrador (`administrador`):** Usuario directivo encargado de la gestión integral del centro médico. Dispone de un panel centralizado (`/admin/dashboard`) con pestañas para administración de profesionales (alta, especialidad, activación y configuración de horarios semanales sin solapamiento), especialidades médicas, registro y consulta de pacientes, y reportes operativos filtrados con exportación en CSV.
 
 ### 2.3. Restricciones
 
@@ -285,14 +284,12 @@ A partir de la versión **v1.1.0**, el sistema implementa una política estricta
 
 Las interfaces del sistema mantienen coherencia visual mediante la regla cromática 60-30-10, tipografía legible (`Inter` / `Poppins`), retroalimentación inmediata en formularios (bordes rojos y mensajes descriptivos que se limpian al editar), estados de carga mediante `SkeletonLoader`, estados vacíos con llamado a la acción (`EmptyState`) y notificaciones flotantes (`Toast`) en la esquina superior derecha.
 
-#### 3.1.1. Interfaces de usuario (v1.1.0)
+#### 3.1.1. Interfaces de usuario (v1.2.0)
 
-- **Gatekeeper Inicial Obligatorio:** Pantalla de acceso único (`/` y `/login`). No permite la visualización de ningún contenido clínico, catálogo ni panel administrativo sin previa autenticación exitosa. Incorpora el selector interactivo de cuatro perfiles de usuario (**Pacientes**, **Profesionales**, **Agendas**, **Citas**) con contexto operativo, retroalimentación de bloqueo por fuerza bruta y pruebas rápidas de auditoría de un clic. Formulario de registro de pacientes disponible en `/registro`.
+- **Gatekeeper Inicial Obligatorio:** Pantalla de acceso único (`/` y `/login`). No permite la visualización de ningún contenido clínico, catálogo ni panel administrativo sin previa autenticación exitosa. Incorpora el selector interactivo de tres perfiles de usuario (**Pacientes**, **Profesionales**, **Administrador**) con descripción operativa, retroalimentación de bloqueo por fuerza bruta y pruebas de un clic. Formulario de registro de pacientes disponible en `/registro`.
 - **Módulo Paciente:** Portal personal con reserva guiada de citas (`/paciente/reservar`), voucher digital de confirmación y panel de gestión de citas (`/paciente/citas`) con modales de cancelación y reprogramación.
 - **Módulo Profesional Médico:** Agenda clínica diaria (`/medico/agenda`) con visualización de pacientes citados y registro de atención (`completada` o `no_asistio`).
-- **Módulo Gestión de Agendas:** Panel de disponibilidad (`/agenda/gestion`) con directorio de profesionales, configuración de horarios semanales de atención y registro de periodos de bloqueo.
-- **Módulo Gestión de Citas:** Mesa operativa de recepción (`/citas/gestion`) con listado general de citas, filtros avanzados, registro de pacientes en taquilla, cancelación, reprogramación y exportación de reportes CSV.
-- **Módulo Administrador:** Tablero integral de control (`/admin/dashboard`) para gestión transversal y configuración del sistema.
+- **Módulo Administrador:** Tablero integral de control (`/admin/dashboard`) con 5 tarjetas de KPIs y pestañas independientes para **Profesionales** (con modal de configuración de horarios y bloqueos), **Especialidades**, **Pacientes** y **Reportes y Citas** (con filtros y exportación CSV).
 
 #### 3.1.2. Interfaces de hardware
 
@@ -999,7 +996,7 @@ Las pruebas funcionales del sistema están automatizadas mediante **PHPUnit** so
 | **CP-12** | Acceder o modificar cita de otro paciente | `RNF-04` / `RF20` | Acceso denegado (`403 Forbidden`) | Verificado |
 | **CP-13** | Consultar reportes administrativos filtrados | `RF25` / `HU-25` | Retorna resumen y listado filtrado correcto (`200`) | Verificado |
 | **CP-14** | Reprogramar una cita hacia horario libre | `RF21` / `HU-21` | Fecha/hora actualizadas y trazabilidad en `historial_citas` | Verificado |
-| **CP-15** | Autenticación válida con selección de perfil para Pacientes, Profesionales, Agendas y Citas | `RF2` / `HU-02` | Acceso concedido (`200`) con rol verificado | Verificado |
+| **CP-15** | Autenticación válida con selección de perfil para Pacientes, Profesionales y Administrador | `RF2` / `HU-02` | Acceso concedido (`200`) con rol verificado | Verificado |
 | **CP-16** | Rechazo por cruce de perfiles no autorizados (ej. paciente intentando perfil profesional) | `RF2` / `RNF-04` | Acceso denegado (`403 Forbidden`) | Verificado |
 | **CP-17** | Bloqueo temporal por fuerza bruta tras 5 intentos fallidos consecutivos | `RNF-02` / `RF2` | Bloqueo temporal activado (`429 Too Many Requests` + cabecera `Retry-After`) | Verificado |
 | **CP-18** | Segregación estricta de privilegios por perfil en backend (middleware `EnsureUserHasRole`) | `RNF-04` | Denegación `403` a rutas fuera del alcance del perfil | Verificado |

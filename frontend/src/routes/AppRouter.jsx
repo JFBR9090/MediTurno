@@ -6,8 +6,6 @@ import { RegistroPage } from '../pages/RegistroPage';
 import { ReservarCitaPage } from '../pages/paciente/ReservarCitaPage';
 import { MisCitasPage } from '../pages/paciente/MisCitasPage';
 import { AgendaMedicoPage } from '../pages/medico/AgendaMedicoPage';
-import { GestionAgendasPage } from '../pages/agenda/GestionAgendasPage';
-import { GestionCitasPage } from '../pages/citas/GestionCitasPage';
 import { DashboardAdminPage } from '../pages/admin/DashboardAdminPage';
 import { Navbar } from '../components/layout/Navbar';
 import { Footer } from '../components/layout/Footer';
@@ -16,8 +14,6 @@ const ROLE_HOME = {
   paciente: '/paciente/citas',
   profesional: '/medico/agenda',
   medico: '/medico/agenda',
-  agenda: '/agenda/gestion',
-  cita: '/citas/gestion',
   administrador: '/admin/dashboard',
 };
 
@@ -75,7 +71,6 @@ function ProtectedRoute({ allowedRoles, children }) {
     return <Navigate to={`/login?returnTo=${returnTo}`} replace />;
   }
 
-  // Permitir siempre al administrador o si coincide el rol
   const hasAccess =
     user?.rol === 'administrador' ||
     (allowedRoles && allowedRoles.includes(user?.rol)) ||
@@ -102,7 +97,7 @@ function PublicAuthRoute({ children }) {
   return children;
 }
 
-// Gatekeeper inicial: si no está autenticado, va a Login directamente; si está autenticado, a su home
+// Gatekeeper inicial: ningún contenido visible sin autenticación
 function RootGatekeeper() {
   const { user, loading, isAuthenticated } = useAuth();
 
@@ -123,7 +118,7 @@ export function AppRouter() {
       {/* Entrada principal del sitio: Gatekeeper estricto */}
       <Route path="/" element={<RootGatekeeper />} />
 
-      {/* Pantalla de autenticación y selección de perfiles */}
+      {/* Pantalla de autenticación y selección de los 3 perfiles */}
       <Route
         path="/login"
         element={
@@ -169,27 +164,7 @@ export function AppRouter() {
         }
       />
 
-      {/* 3. Panel de Coordinación de Agendas */}
-      <Route
-        path="/agenda/gestion"
-        element={
-          <ProtectedRoute allowedRoles={['agenda']}>
-            <GestionAgendasPage />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* 4. Panel de Mesa de Citas y Recepción */}
-      <Route
-        path="/citas/gestion"
-        element={
-          <ProtectedRoute allowedRoles={['cita']}>
-            <GestionCitasPage />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* Panel Superior de Administración */}
+      {/* 3. Panel Superior de Administración */}
       <Route
         path="/admin/dashboard"
         element={

@@ -3,14 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   Bell,
   CalendarCheck,
-  ClipboardList,
   LogOut,
   Menu,
   Shield,
   ShieldCheck,
   Stethoscope,
   User,
-  Users,
   X,
 } from 'lucide-react';
 import { Logo } from '../common/Logo';
@@ -21,8 +19,6 @@ const ROLE_DEFAULT_ROUTES = {
   paciente: '/paciente/citas',
   profesional: '/medico/agenda',
   medico: '/medico/agenda',
-  agenda: '/agenda/gestion',
-  cita: '/citas/gestion',
   administrador: '/admin/dashboard',
 };
 
@@ -30,8 +26,6 @@ const ROLE_LABELS = {
   paciente: 'Paciente',
   profesional: 'Profesional Médico',
   medico: 'Profesional Médico',
-  agenda: 'Gestión de Agendas',
-  cita: 'Gestión de Citas',
   administrador: 'Administrador',
 };
 
@@ -39,8 +33,6 @@ const ROLE_BADGE_COLORS = {
   paciente: 'bg-sky-50 text-sky-700 border-sky-200',
   profesional: 'bg-emerald-50 text-emerald-700 border-emerald-200',
   medico: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  agenda: 'bg-amber-50 text-amber-700 border-amber-200',
-  cita: 'bg-indigo-50 text-indigo-700 border-indigo-200',
   administrador: 'bg-purple-50 text-purple-700 border-purple-200',
 };
 
@@ -59,7 +51,7 @@ export function Navbar() {
       setMobileOpen(false);
       showToast({
         type: 'info',
-        title: `Sesión Demo: ${ROLE_LABELS[demoUser.rol] || demoUser.rol}`,
+        title: `Sesión: ${ROLE_LABELS[demoUser.rol] || demoUser.rol}`,
         message: `Ingresaste como ${demoUser.nombre} ${demoUser.apellido}.`,
       });
       navigate(ROLE_DEFAULT_ROUTES[demoUser.rol] || '/');
@@ -100,20 +92,23 @@ export function Navbar() {
     <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
         {/* Marca */}
-        <Link to={isAuthenticated ? (ROLE_DEFAULT_ROUTES[userRol] || '/') : '/login'} className="shrink-0 focus:outline-none">
+        <Link
+          to={isAuthenticated ? (ROLE_DEFAULT_ROUTES[userRol] || '/') : '/login'}
+          className="shrink-0 focus:outline-none"
+        >
           <Logo size="md" />
         </Link>
 
-        {/* Auditoría Rápida entre los 4 Perfiles (Visible solo si autenticado) */}
+        {/* Auditoría Rápida entre los 3 Perfiles (Visible solo si autenticado) */}
         {isAuthenticated && (
-          <div className="hidden xl:flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1">
+          <div className="hidden lg:flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1">
             <span className="px-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
               Perfiles:
             </span>
             <button
               type="button"
               onClick={() => handleDemoSelect('paciente')}
-              className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold transition-all ${
+              className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition-all ${
                 userRol === 'paciente'
                   ? 'bg-sky-600 text-white shadow-sm'
                   : 'text-slate-600 hover:bg-white hover:text-sky-700'
@@ -125,7 +120,7 @@ export function Navbar() {
             <button
               type="button"
               onClick={() => handleDemoSelect('profesional')}
-              className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold transition-all ${
+              className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition-all ${
                 userRol === 'profesional' || userRol === 'medico'
                   ? 'bg-emerald-600 text-white shadow-sm'
                   : 'text-slate-600 hover:bg-white hover:text-emerald-700'
@@ -136,27 +131,15 @@ export function Navbar() {
             </button>
             <button
               type="button"
-              onClick={() => handleDemoSelect('agenda')}
-              className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold transition-all ${
-                userRol === 'agenda'
-                  ? 'bg-amber-600 text-white shadow-sm'
-                  : 'text-slate-600 hover:bg-white hover:text-amber-700'
+              onClick={() => handleDemoSelect('admin')}
+              className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition-all ${
+                userRol === 'administrador'
+                  ? 'bg-purple-600 text-white shadow-sm'
+                  : 'text-slate-600 hover:bg-white hover:text-purple-700'
               }`}
             >
-              <CalendarCheck className="h-3 w-3" />
-              Agendas
-            </button>
-            <button
-              type="button"
-              onClick={() => handleDemoSelect('cita')}
-              className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold transition-all ${
-                userRol === 'cita'
-                  ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'text-slate-600 hover:bg-white hover:text-indigo-700'
-              }`}
-            >
-              <ClipboardList className="h-3 w-3" />
-              Citas
+              <Shield className="h-3 w-3" />
+              Admin
             </button>
           </div>
         )}
@@ -194,47 +177,14 @@ export function Navbar() {
                 </Link>
               )}
 
-              {userRol === 'agenda' && (
-                <Link
-                  to="/agenda/gestion"
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-100 transition-colors"
-                >
-                  <CalendarCheck className="h-4 w-4" />
-                  Gestión de Agendas
-                </Link>
-              )}
-
-              {userRol === 'cita' && (
-                <Link
-                  to="/citas/gestion"
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 transition-colors"
-                >
-                  <ClipboardList className="h-4 w-4" />
-                  Mesa de Citas
-                </Link>
-              )}
-
               {userRol === 'administrador' && (
-                <div className="flex items-center gap-1.5">
-                  <Link
-                    to="/admin/dashboard"
-                    className="text-xs font-semibold text-slate-700 hover:text-sky-700 px-2.5 py-1.5 rounded-lg hover:bg-slate-50"
-                  >
-                    Dashboard
-                  </Link>
-                  <Link
-                    to="/agenda/gestion"
-                    className="text-xs font-semibold text-slate-700 hover:text-amber-700 px-2.5 py-1.5 rounded-lg hover:bg-slate-50"
-                  >
-                    Agendas
-                  </Link>
-                  <Link
-                    to="/citas/gestion"
-                    className="text-xs font-semibold text-slate-700 hover:text-indigo-700 px-2.5 py-1.5 rounded-lg hover:bg-slate-50"
-                  >
-                    Citas
-                  </Link>
-                </div>
+                <Link
+                  to="/admin/dashboard"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-purple-50 px-3 py-1.5 text-xs font-semibold text-purple-700 hover:bg-purple-100 transition-colors"
+                >
+                  <Shield className="h-4 w-4" />
+                  Dashboard Admin
+                </Link>
               )}
 
               {/* Notificaciones */}
@@ -379,48 +329,14 @@ export function Navbar() {
                     Mi Agenda Clínica
                   </Link>
                 )}
-                {userRol === 'agenda' && (
-                  <Link
-                    to="/agenda/gestion"
-                    onClick={() => setMobileOpen(false)}
-                    className="block px-3 py-2 text-xs font-semibold text-amber-700 hover:bg-amber-50 rounded-lg"
-                  >
-                    Gestión de Agendas
-                  </Link>
-                )}
-                {userRol === 'cita' && (
-                  <Link
-                    to="/citas/gestion"
-                    onClick={() => setMobileOpen(false)}
-                    className="block px-3 py-2 text-xs font-semibold text-indigo-700 hover:bg-indigo-50 rounded-lg"
-                  >
-                    Mesa de Citas y Recepción
-                  </Link>
-                )}
                 {userRol === 'administrador' && (
-                  <>
-                    <Link
-                      to="/admin/dashboard"
-                      onClick={() => setMobileOpen(false)}
-                      className="block px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 rounded-lg"
-                    >
-                      Dashboard General
-                    </Link>
-                    <Link
-                      to="/agenda/gestion"
-                      onClick={() => setMobileOpen(false)}
-                      className="block px-3 py-2 text-xs font-semibold text-amber-700 hover:bg-slate-50 rounded-lg"
-                    >
-                      Agendas
-                    </Link>
-                    <Link
-                      to="/citas/gestion"
-                      onClick={() => setMobileOpen(false)}
-                      className="block px-3 py-2 text-xs font-semibold text-indigo-700 hover:bg-slate-50 rounded-lg"
-                    >
-                      Citas
-                    </Link>
-                  </>
+                  <Link
+                    to="/admin/dashboard"
+                    onClick={() => setMobileOpen(false)}
+                    className="block px-3 py-2 text-xs font-semibold text-purple-700 hover:bg-purple-50 rounded-lg"
+                  >
+                    Dashboard Admin
+                  </Link>
                 )}
               </div>
 

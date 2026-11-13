@@ -36,7 +36,7 @@ class DatabaseSeeder extends Seeder
             $especialidades[$esp['nombre']] = Especialidad::create($esp);
         }
 
-        // 2. Administradores y Perfiles de Coordinación
+        // 2. Administradores
         User::create([
             'rol' => 'administrador',
             'nombre' => 'Juan Fernando',
@@ -54,48 +54,6 @@ class DatabaseSeeder extends Seeder
             'name' => 'Administrador MediTurno',
             'email' => 'admin@mediturno.com',
             'password' => 'admin123',
-            'activo' => true,
-        ]);
-
-        // Perfil 3: Gestión de Agendas y Horarios
-        User::create([
-            'rol' => 'agenda',
-            'nombre' => 'Laura',
-            'apellido' => 'Gómez',
-            'name' => 'Laura Gómez (Coordinadora Agendas)',
-            'email' => 'agendas@mediturno.com',
-            'password' => 'agenda123',
-            'activo' => true,
-        ]);
-
-        User::create([
-            'rol' => 'agenda',
-            'nombre' => 'Coordinación',
-            'apellido' => 'de Agendas',
-            'name' => 'Coordinación de Agendas',
-            'email' => 'coordinador.agendas@mediturno.co',
-            'password' => 'Agenda2026*',
-            'activo' => true,
-        ]);
-
-        // Perfil 4: Gestión Operativa de Citas y Recepción
-        User::create([
-            'rol' => 'cita',
-            'nombre' => 'Andrés',
-            'apellido' => 'Cárdenas',
-            'name' => 'Andrés Cárdenas (Gestor Citas)',
-            'email' => 'citas@mediturno.com',
-            'password' => 'citas123',
-            'activo' => true,
-        ]);
-
-        User::create([
-            'rol' => 'cita',
-            'nombre' => 'Recepción',
-            'apellido' => 'de Citas',
-            'name' => 'Recepción de Citas',
-            'email' => 'recepcion.citas@mediturno.co',
-            'password' => 'Citas2026*',
             'activo' => true,
         ]);
 

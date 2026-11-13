@@ -2,9 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   AlertTriangle,
-  CalendarCheck,
   CheckCircle2,
-  ClipboardList,
   KeyRound,
   Loader2,
   Lock,
@@ -14,7 +12,6 @@ import {
   ShieldCheck,
   Stethoscope,
   User,
-  Users,
 } from 'lucide-react';
 import { Logo } from '../components/common/Logo';
 import { useAuth } from '../context/AuthContext';
@@ -27,8 +24,8 @@ const PROFILES = [
     roleKey: 'paciente',
     icon: User,
     badge: 'Portal Personal',
-    description: 'Consulta, reserva y gestión de citas médicas de pacientes.',
-    activeClass: 'border-sky-600 bg-sky-50/60 text-sky-950 ring-2 ring-sky-600/20',
+    description: 'Consulta, reserva y autogestión de citas médicas de pacientes.',
+    activeClass: 'border-sky-600 bg-sky-50/70 text-sky-950 ring-2 ring-sky-600/20',
     iconActive: 'bg-sky-600 text-white',
     demoEmail: 'carlos.mendoza@email.com',
     demoPass: 'paciente123',
@@ -40,38 +37,25 @@ const PROFILES = [
     roleKey: 'profesional',
     icon: Stethoscope,
     badge: 'Agenda Clínica',
-    description: 'Agenda diaria médica, citas asignadas y registro de atención.',
-    activeClass: 'border-emerald-600 bg-emerald-50/60 text-emerald-950 ring-2 ring-emerald-600/20',
+    description: 'Agenda médica diaria, pacientes citados y registro de atención.',
+    activeClass: 'border-emerald-600 bg-emerald-50/70 text-emerald-950 ring-2 ring-emerald-600/20',
     iconActive: 'bg-emerald-600 text-white',
     demoEmail: 'dr.ramirez@mediturno.com',
     demoPass: 'medico123',
     demoLabel: 'Dr. Roberto Ramírez',
   },
   {
-    id: 'agenda',
-    name: 'Agendas',
-    roleKey: 'agenda',
-    icon: CalendarCheck,
-    badge: 'Disponibilidad y Turnos',
-    description: 'Configuración de horarios semanales y bloqueos de médicos.',
-    activeClass: 'border-amber-600 bg-amber-50/60 text-amber-950 ring-2 ring-amber-600/20',
-    iconActive: 'bg-amber-600 text-white',
-    demoEmail: 'agendas@mediturno.com',
-    demoPass: 'agenda123',
-    demoLabel: 'Laura Gómez (Agendas)',
-  },
-  {
-    id: 'cita',
-    name: 'Citas',
-    roleKey: 'cita',
-    icon: ClipboardList,
-    badge: 'Recepción y Admisiones',
-    description: 'Mesa de turnos, programación, reprogramación y reportes.',
-    activeClass: 'border-indigo-600 bg-indigo-50/60 text-indigo-950 ring-2 ring-indigo-600/20',
-    iconActive: 'bg-indigo-600 text-white',
-    demoEmail: 'citas@mediturno.com',
-    demoPass: 'citas123',
-    demoLabel: 'Andrés Cárdenas (Citas)',
+    id: 'administrador',
+    name: 'Administrador',
+    roleKey: 'admin',
+    icon: Shield,
+    badge: 'Gestión Integral',
+    description: 'Supervisión global de profesionales, especialidades, pacientes y reportes.',
+    activeClass: 'border-purple-600 bg-purple-50/70 text-purple-950 ring-2 ring-purple-600/20',
+    iconActive: 'bg-purple-600 text-white',
+    demoEmail: 'admin@mediturno.com',
+    demoPass: 'admin123',
+    demoLabel: 'Administrador MediTurno',
   },
 ];
 
@@ -79,8 +63,6 @@ const ROLE_DEFAULT_ROUTES = {
   paciente: '/paciente/citas',
   profesional: '/medico/agenda',
   medico: '/medico/agenda',
-  agenda: '/agenda/gestion',
-  cita: '/citas/gestion',
   administrador: '/admin/dashboard',
 };
 
@@ -92,7 +74,10 @@ export function LoginPage() {
   const returnTo = searchParams.get('returnTo');
 
   const [selectedProfile, setSelectedProfile] = useState('paciente');
-  const [form, setForm] = useState({ correo: '', password: '' });
+  const [form, setForm] = useState({
+    correo: PROFILES[0].demoEmail,
+    password: PROFILES[0].demoPass,
+  });
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [lockoutSeconds, setLockoutSeconds] = useState(0);
@@ -208,22 +193,6 @@ export function LoginPage() {
     }
   };
 
-  const handleAdminAccess = async () => {
-    if (lockoutSeconds > 0) return;
-    try {
-      const demoUser = await loginDemo('admin');
-      if (!demoUser) return;
-      showToast({
-        type: 'info',
-        title: 'Sesión Administrador Activada',
-        message: `Ingresaste como Administrador: ${demoUser.nombre} ${demoUser.apellido}.`,
-      });
-      navigate('/admin/dashboard', { replace: true });
-    } catch (err) {
-      setErrors({ general: err.message || 'Error al iniciar sesión de administrador.' });
-    }
-  };
-
   return (
     <div className="min-h-screen flex flex-col bg-slate-900 text-slate-100">
       {/* Barra superior de seguridad */}
@@ -243,19 +212,19 @@ export function LoginPage() {
 
       {/* Contenedor Principal del Gatekeeper */}
       <main className="flex-1 flex items-center justify-center px-4 py-8 sm:px-6">
-        <div className="w-full max-w-2xl bg-white text-slate-900 rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
+        <div className="w-full max-w-xl bg-white text-slate-900 rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
           {/* Encabezado del Formulario */}
           <div className="bg-gradient-to-r from-sky-700 via-sky-600 to-teal-600 px-6 sm:px-8 py-6 text-white text-center sm:text-left">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <span className="inline-block rounded-full bg-white/20 px-3 py-0.5 text-xs font-bold uppercase tracking-wider backdrop-blur-sm">
-                  Sistema de Autenticación y Control de Acceso
+                  Autenticación Institucional Segura
                 </span>
                 <h1 className="mt-2 text-2xl sm:text-3xl font-display font-bold tracking-tight">
                   Iniciar Sesión en MediTurno
                 </h1>
                 <p className="mt-1 text-xs sm:text-sm text-sky-100">
-                  Selecciona tu perfil institucional para ingresar a tu panel autorizado.
+                  Selecciona tu perfil de usuario para ingresar a tu panel autorizado.
                 </p>
               </div>
               <div className="hidden sm:flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-md border border-white/20">
@@ -265,12 +234,12 @@ export function LoginPage() {
           </div>
 
           <div className="p-6 sm:p-8 space-y-6">
-            {/* SELECTOR DE LOS 4 PERFILES DE USUARIO */}
+            {/* SELECTOR DE LOS 3 PERFILES DE USUARIO */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">
-                1. Selecciona tu perfil de usuario:
+                1. Selecciona tu perfil institucional:
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {PROFILES.map((p) => {
                   const Icon = p.icon;
                   const isSelected = selectedProfile === p.id;
@@ -280,21 +249,21 @@ export function LoginPage() {
                       key={p.id}
                       type="button"
                       onClick={() => handleProfileChange(p.id)}
-                      className={`relative flex flex-col items-center justify-center p-3.5 rounded-2xl border transition-all text-center ${
+                      className={`relative flex flex-col items-center justify-center p-4 rounded-2xl border transition-all text-center ${
                         isSelected
                           ? p.activeClass
                           : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100/70'
                       }`}
                     >
                       <div
-                        className={`flex h-10 w-10 items-center justify-center rounded-xl mb-2 transition-transform ${
+                        className={`flex h-11 w-11 items-center justify-center rounded-xl mb-2 transition-transform ${
                           isSelected ? p.iconActive : 'bg-slate-200 text-slate-600'
                         }`}
                       >
                         <Icon className="h-5 w-5" />
                       </div>
-                      <span className="text-xs font-bold">{p.name}</span>
-                      <span className="text-[10px] text-slate-400 mt-0.5 leading-tight">
+                      <span className="text-sm font-bold">{p.name}</span>
+                      <span className="text-[11px] text-slate-400 mt-0.5 leading-tight">
                         {p.badge}
                       </span>
                     </button>
@@ -303,7 +272,7 @@ export function LoginPage() {
               </div>
 
               {/* Descripción del perfil activo */}
-              <div className="mt-3 rounded-xl bg-slate-50 border border-slate-200/80 px-3.5 py-2 text-xs text-slate-600 flex items-center gap-2">
+              <div className="mt-3 rounded-xl bg-slate-50 border border-slate-200/80 px-3.5 py-2.5 text-xs text-slate-600 flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-sky-600 shrink-0" />
                 <span>
                   <strong>Perfil {activeProfileData.name}:</strong> {activeProfileData.description}
@@ -366,7 +335,7 @@ export function LoginPage() {
                   htmlFor="password"
                   className="block text-xs font-semibold text-slate-700 mb-1.5"
                 >
-                  Contraseña segura
+                  Contraseña
                 </label>
                 <div className="relative">
                   <Lock className="pointer-events-none absolute left-3.5 top-3 h-4 w-4 text-slate-400" />
@@ -419,14 +388,14 @@ export function LoginPage() {
             <div className="border-t border-slate-100 pt-5 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                  Pruebas rápidas de auditoría:
+                  Acceso de auditoría de un clic:
                 </span>
                 <span className="text-[10px] text-slate-400">
-                  1-Click para verificar permisos
+                  Prueba rápida de roles
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 {PROFILES.map((p) => {
                   const Icon = p.icon;
                   return (
@@ -438,26 +407,17 @@ export function LoginPage() {
                       className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 hover:text-sky-700 transition-colors"
                     >
                       <Icon className="h-3.5 w-3.5 text-sky-600 shrink-0" />
-                      <span className="truncate">{p.name}</span>
+                      <span className="truncate">{p.name} Demo</span>
                     </button>
                   );
                 })}
               </div>
 
-              <div className="flex items-center justify-between pt-2 border-t border-dashed border-slate-200 text-xs text-slate-500">
-                <span>
-                  ¿Eres paciente nuevo?{' '}
-                  <Link to="/registro" className="font-semibold text-sky-600 hover:underline">
-                    Crear cuenta
-                  </Link>
-                </span>
-                <button
-                  type="button"
-                  onClick={handleAdminAccess}
-                  className="font-medium text-slate-500 hover:text-slate-800 underline"
-                >
-                  Acceso Administrador
-                </button>
+              <div className="text-center pt-2 border-t border-dashed border-slate-200 text-xs text-slate-500">
+                ¿Eres paciente nuevo?{' '}
+                <Link to="/registro" className="font-semibold text-sky-600 hover:underline">
+                  Crea tu cuenta aquí
+                </Link>
               </div>
             </div>
           </div>

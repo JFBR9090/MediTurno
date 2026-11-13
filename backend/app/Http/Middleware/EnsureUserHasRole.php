@@ -44,3 +44,4 @@ class EnsureUserHasRole
         ], 403);
     }
 }
+

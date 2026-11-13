@@ -24,14 +24,6 @@ class CitaController extends Controller
             return response()->json(['success' => false, 'error' => 'Autenticación requerida.'], 401);
         }
 
-        // El perfil de agenda solo gestiona disponibilidad de horarios, no citas médicas de pacientes
-        if ($user->rol === 'agenda') {
-            return response()->json([
-                'success' => false,
-                'error' => 'Acceso denegado. El perfil de gestión de agendas no tiene acceso a citas privadas de pacientes.',
-            ], 403);
-        }
-
         $query = Cita::with(['paciente.user', 'medico.user', 'especialidad'])
             ->orderBy('fecha_hora_inicio');
 
@@ -53,7 +45,7 @@ class CitaController extends Controller
 
         $response = ['success' => true, 'data' => $citas];
 
-        if (in_array($user->rol, ['administrador', 'cita'], true)) {
+        if ($user->rol === 'administrador') {
             $hoyInicio = Carbon::now('America/Bogota')->startOfDay();
             $hoyFin = Carbon::now('America/Bogota')->endOfDay();
 
@@ -77,7 +69,7 @@ class CitaController extends Controller
             return response()->json(['success' => false, 'error' => 'Autenticación requerida.'], 401);
         }
 
-        if (! in_array($user->rol, ['paciente', 'cita', 'administrador'], true)) {
+        if (! in_array($user->rol, ['paciente', 'administrador'], true)) {
             return response()->json([
                 'success' => false,
                 'error' => 'No tienes permisos para agendar citas médicas.',
@@ -234,8 +226,7 @@ class CitaController extends Controller
         }
 
         $esDuenio = $user->rol === 'paciente' && $user->paciente?->id === $cita->paciente_id;
-        $esGestor = in_array($user->rol, ['cita', 'administrador'], true);
-        if (! $esDuenio && ! $esGestor) {
+        if (! $esDuenio && $user->rol !== 'administrador') {
             return response()->json(['success' => false, 'error' => 'No tienes permisos para cancelar esta cita.'], 403);
         }
 
@@ -300,8 +291,7 @@ class CitaController extends Controller
         }
 
         $esDuenio = $user->rol === 'paciente' && $user->paciente?->id === $cita->paciente_id;
-        $esGestor = in_array($user->rol, ['cita', 'administrador'], true);
-        if (! $esDuenio && ! $esGestor) {
+        if (! $esDuenio && $user->rol !== 'administrador') {
             return response()->json(['success' => false, 'error' => 'No tienes permisos para reprogramar esta cita.'], 403);
         }
 
@@ -455,7 +445,7 @@ class CitaController extends Controller
     public function reportes(Request $request): JsonResponse
     {
         $user = $request->user();
-        if (! $user || ! in_array($user->rol, ['administrador', 'cita'], true)) {
+        if (! $user || $user->rol !== 'administrador') {
             return response()->json(['success' => false, 'error' => 'Permisos insuficientes.'], 403);
         }
 

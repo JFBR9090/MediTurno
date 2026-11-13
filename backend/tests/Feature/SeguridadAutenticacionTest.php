@@ -24,7 +24,7 @@ class SeguridadAutenticacionTest extends TestCase
         RateLimiter::clear('login:carlos.mendoza@email.com|127.0.0.1');
     }
 
-    public function test_login_exitoso_para_los_cuatro_perfiles_con_validacion_de_perfil(): void
+    public function test_login_exitoso_para_los_tres_perfiles_con_validacion_de_perfil(): void
     {
         // 1. Perfil Paciente
         $resPac = $this->postJson('/api/auth/login', [
@@ -46,25 +46,15 @@ class SeguridadAutenticacionTest extends TestCase
             ->assertJsonPath('success', true)
             ->assertJsonPath('user.rol', 'profesional');
 
-        // 3. Perfil Agendas
-        $resAge = $this->postJson('/api/auth/login', [
-            'correo' => 'agendas@mediturno.com',
-            'password' => 'agenda123',
-            'perfil' => 'agenda',
+        // 3. Perfil Administrador
+        $resAdm = $this->postJson('/api/auth/login', [
+            'correo' => 'admin@mediturno.com',
+            'password' => 'admin123',
+            'perfil' => 'administrador',
         ]);
-        $resAge->assertOk()
+        $resAdm->assertOk()
             ->assertJsonPath('success', true)
-            ->assertJsonPath('user.rol', 'agenda');
-
-        // 4. Perfil Citas
-        $resCit = $this->postJson('/api/auth/login', [
-            'correo' => 'citas@mediturno.com',
-            'password' => 'citas123',
-            'perfil' => 'cita',
-        ]);
-        $resCit->assertOk()
-            ->assertJsonPath('success', true)
-            ->assertJsonPath('user.rol', 'cita');
+            ->assertJsonPath('user.rol', 'administrador');
     }
 
     public function test_rechazo_cuando_las_credenciales_no_coinciden_con_el_perfil_seleccionado(): void
@@ -80,11 +70,11 @@ class SeguridadAutenticacionTest extends TestCase
             ->assertJsonPath('success', false);
         $this->assertStringContainsString('no coincide con el perfil seleccionado', $res->json('error'));
 
-        // Usuario Profesional intentando ingresar por el perfil de Citas
+        // Usuario Profesional intentando ingresar por el perfil de Administrador
         $res2 = $this->postJson('/api/auth/login', [
             'correo' => 'dr.ramirez@mediturno.com',
             'password' => 'medico123',
-            'perfil' => 'cita',
+            'perfil' => 'administrador',
         ]);
 
         $res2->assertStatus(403)
@@ -122,7 +112,6 @@ class SeguridadAutenticacionTest extends TestCase
         $this->assertStringContainsString('Demasiados intentos fallidos', $resBloqueado->json('error'));
         $this->assertTrue($resBloqueado->headers->has('Retry-After'));
 
-        // Limpiar para siguientes tests
         RateLimiter::clear($throttleKey);
     }
 
@@ -130,13 +119,12 @@ class SeguridadAutenticacionTest extends TestCase
     {
         $pacienteUser = User::where('email', 'carlos.mendoza@email.com')->firstOrFail();
         $profesionalUser = User::where('email', 'dr.ramirez@mediturno.com')->firstOrFail();
-        $agendaUser = User::where('email', 'agendas@mediturno.com')->firstOrFail();
-        $citaUser = User::where('email', 'citas@mediturno.com')->firstOrFail();
+        $adminUser = User::where('email', 'admin@mediturno.com')->firstOrFail();
 
         $medico = Medico::firstOrFail();
         $cita = Cita::firstOrFail();
 
-        // 1. Paciente NO puede ver pacientes ni reportes admin
+        // 1. Paciente NO puede ver pacientes ni reportes admin (403)
         $this->actingAs($pacienteUser)->getJson('/api/pacientes')->assertStatus(403);
         $this->actingAs($pacienteUser)->getJson('/api/reportes/citas')->assertStatus(403);
 
@@ -144,32 +132,26 @@ class SeguridadAutenticacionTest extends TestCase
         $this->actingAs($profesionalUser)->getJson('/api/pacientes')->assertStatus(403);
         $this->actingAs($profesionalUser)->getJson('/api/reportes/citas')->assertStatus(403);
 
-        // 3. Agenda NO puede consultar el listado de citas de pacientes (403)
-        $this->actingAs($agendaUser)->getJson('/api/citas')->assertStatus(403);
-
-        // 4. Agenda SÍ puede configurar horarios semanales
-        $resAgenda = $this->actingAs($agendaUser)->postJson("/api/horarios/{$medico->id}", [
-            'dia_semana' => 7, // Domingo
+        // 3. Paciente NO puede configurar horarios de médicos
+        $this->actingAs($pacienteUser)->postJson("/api/horarios/{$medico->id}", [
+            'dia_semana' => 7,
             'hora_inicio' => '10:00',
             'hora_fin' => '12:00',
-        ]);
-        $resAgenda->assertCreated();
-
-        // 5. Citas NO puede configurar horarios de médicos (403)
-        $this->actingAs($citaUser)->postJson("/api/horarios/{$medico->id}", [
-            'dia_semana' => 7,
-            'hora_inicio' => '14:00',
-            'hora_fin' => '16:00',
         ])->assertStatus(403);
 
-        // 6. Citas NO puede actualizar el estado de atención clínica (403)
-        $this->actingAs($citaUser)->putJson("/api/citas/{$cita->id}/estado", [
-            'estado' => 'completada',
-        ])->assertStatus(403);
+        // 4. Profesional NO puede configurar horarios de otro médico
+        $otroMedico = Medico::where('id', '!=', $profesionalUser->medico?->id)->first();
+        if ($otroMedico) {
+            $this->actingAs($profesionalUser)->postJson("/api/horarios/{$otroMedico->id}", [
+                'dia_semana' => 7,
+                'hora_inicio' => '14:00',
+                'hora_fin' => '16:00',
+            ])->assertStatus(403);
+        }
 
-        // 7. Citas SÍ puede ver reportes y consultar citas globales
-        $this->actingAs($citaUser)->getJson('/api/reportes/citas')->assertOk();
-        $this->actingAs($citaUser)->getJson('/api/citas')->assertOk();
+        // 5. Administrador SÍ puede ver reportes y gestionar pacientes
+        $this->actingAs($adminUser)->getJson('/api/reportes/citas')->assertOk();
+        $this->actingAs($adminUser)->getJson('/api/pacientes')->assertOk();
     }
 
     public function test_cierre_de_sesion_seguro(): void

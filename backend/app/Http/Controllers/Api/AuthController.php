@@ -19,8 +19,6 @@ class AuthController extends Controller
         'paciente' => 'carlos.mendoza@email.com',
         'profesional' => 'dr.ramirez@mediturno.com',
         'medico' => 'dr.ramirez@mediturno.com',
-        'agenda' => 'agendas@mediturno.com',
-        'cita' => 'citas@mediturno.com',
         'admin' => 'admin@mediturno.com',
         'administrador' => 'admin@mediturno.com',
     ];
@@ -43,7 +41,7 @@ class AuthController extends Controller
         $data = $request->validate([
             'correo' => ['required', 'email'],
             'password' => ['required', 'string', 'min:6'],
-            'perfil' => ['nullable', 'string', 'in:paciente,profesional,medico,agenda,cita,administrador,admin'],
+            'perfil' => ['nullable', 'string', 'in:paciente,profesional,medico,administrador,admin'],
         ]);
 
         $correo = mb_strtolower(trim($data['correo']));
@@ -82,7 +80,7 @@ class AuthController extends Controller
             ], 403);
         }
 
-        // 4. Verificación de Perfil de Acceso Seleccionado
+        // 4. Verificación de Perfil de Acceso Seleccionado (Pacientes, Profesionales, Administrador)
         if (! empty($data['perfil'])) {
             $perfilSolicitado = match ($data['perfil']) {
                 'medico' => 'profesional',
@@ -93,8 +91,6 @@ class AuthController extends Controller
             $esPerfilValido = match ($perfilSolicitado) {
                 'paciente' => $user->isPaciente(),
                 'profesional' => $user->isProfesional(),
-                'agenda' => $user->isAgenda(),
-                'cita' => $user->isCita(),
                 'administrador' => $user->isAdmin(),
                 default => false,
             };
@@ -105,9 +101,8 @@ class AuthController extends Controller
                 $nombresPerfiles = [
                     'paciente' => 'Pacientes',
                     'profesional' => 'Profesionales Médicos',
-                    'agenda' => 'Gestión de Agendas',
-                    'cita' => 'Gestión de Citas',
-                    'administrador' => 'Administración',
+                    'medico' => 'Profesionales Médicos',
+                    'administrador' => 'Administrador',
                 ];
 
                 $perfilUsuarioTxt = $nombresPerfiles[$user->rol] ?? $user->rol;
@@ -179,7 +174,7 @@ class AuthController extends Controller
     public function demoLogin(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'role' => ['required', 'string', 'in:paciente,medico,profesional,agenda,cita,admin,administrador'],
+            'role' => ['required', 'string', 'in:paciente,medico,profesional,admin,administrador'],
         ]);
 
         $roleKey = match ($data['role']) {
