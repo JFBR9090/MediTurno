@@ -19,6 +19,7 @@
 | **v1.0.1** | 11/11/2026 | Juan Fernando Bahamón Ramírez | Actualización del nombre del instructor evaluador en portada y sección 1.6 (Javier Humberto Pinto Díaz). | `main` |
 | **v1.1.0** | 13/11/2026 | Juan Fernando Bahamón Ramírez | Implementación de pantalla Gatekeeper inicial obligatoria (aislamiento total sin sesión previa), validación de perfil en login, mitigación de fuerza bruta con Rate Limiting (bloqueo temporal a 5 intentos fallidos, HTTP 429 con `Retry-After`), control de acceso estricto tanto en backend (`EnsureUserHasRole`) como en frontend (`ProtectedRoute`), y suite automatizada de pruebas de seguridad (`SeguridadAutenticacionTest`). | `DEV` |
 | **v1.2.0** | 13/11/2026 | Juan Fernando Bahamón Ramírez | Simplificación y consolidación de la arquitectura de perfiles a la tríada estándar del MVP: **Administrador**, **Profesionales Médicos** y **Pacientes**. Eliminación de los roles auxiliares de 'agendas' y 'citas' en favor del panel administrativo integral (`/admin/dashboard`). Actualización de la pantalla Gatekeeper con selector de 3 perfiles institucionales y actualización de la suite de pruebas automatizadas. | `DEV` |
+| **v1.3.0** | 18/11/2026 | Juan Fernando Bahamón Ramírez | Incorporación de **Modo Oscuro Universal persistente (Seed Dark)** para los tres roles institucionales (Paciente, Profesional Médico, Administrador) con retención en `localStorage`, garantizando accesibilidad y ergonomía visual en entornos clínicos; e implementación del **Mini Calendario Desplegable interactivo** en el flujo de reserva de citas (Paso 3 de selección de fecha hábil), con navegación intermensual, bloqueo de fechas pasadas y enlace dinámico a la disponibilidad de franjas en MySQL. | `DEV` |
 
 ---
 
@@ -29,6 +30,7 @@
    - 1.2. [Propósito](#12-propósito)
    - 1.3. [Justificación](#13-justificación)
    - 1.3.1. [Vigilancia tecnológica y referentes de mercado](#131-vigilancia-tecnológica-y-referentes-de-mercado)
+   - 1.3.2. [Justificación de mejoras de experiencia de usuario, accesibilidad y agendamiento (v1.3.0)](#132-justificación-de-mejoras-de-experiencia-de-usuario-accesibilidad-y-agendamiento-v130)
    - 1.4. [Objetivo general](#14-objetivo-general)
    - 1.4.1. [Objetivos específicos](#141-objetivos-específicos)
    - 1.5. [Alcances](#15-alcances)
@@ -44,9 +46,9 @@
    - 2.4. [Suposiciones y dependencias](#24-suposiciones-y-dependencias)
 3. [Requisitos específicos](#3-requisitos-específicos)
    - 3.1. [Requisitos comunes de las interfaces](#31-requisitos-comunes-de-las-interfaces)
-   - 3.2. [Historias de Usuario (HU-01 a HU-26)](#32-historias-de-usuario)
-   - 3.2.1. [Diagramas de Casos de Uso (CU-01 a CU-26)](#321-diagramas-de-casos-de-uso)
-   - 3.3. [Requerimientos Funcionales (RF1 a RF26)](#33-requerimientos-funcionales)
+   - 3.2. [Historias de Usuario (HU-01 a HU-27)](#32-historias-de-usuario)
+   - 3.2.1. [Diagramas de Casos de Uso (CU-01 a CU-27)](#321-diagramas-de-casos-de-uso)
+   - 3.3. [Requerimientos Funcionales (RF1 a RF27)](#33-requerimientos-funcionales)
    - 3.4. [Requerimientos no Funcionales (RNF-01 a RNF-12)](#34-requerimientos-no-funcionales)
 4. [Plan de Pruebas y Matriz de Trazabilidad](#4-plan-de-pruebas-y-matriz-de-trazabilidad)
 
@@ -99,6 +101,21 @@ Como parte del análisis previo al diseño del sistema, se realizó una revisió
 
 De esta comparación se concluye que ninguna de las alternativas gratuitas o genéricas analizadas integra en una sola solución ligera: directorio verificado con tarjeta profesional, cálculo de franjas por especialidad, bloqueo transaccional en MySQL contra reservas simultáneas, regla de anticipación de 2 horas, agenda diaria inmutable del médico y reportes administrativos por rol. Esto sustenta la pertinencia de construir **MediTurno**.
 
+#### 1.3.2. Justificación de mejoras de experiencia de usuario, accesibilidad y agendamiento (v1.3.0)
+
+En la evolución del sistema a la versión **v1.3.0**, se identificaron dos oportunidades críticas de optimización centradas en la experiencia de usuario (UX), la accesibilidad visual y la eficiencia del agendamiento clínico:
+
+1. **Justificación del Modo Oscuro Universal (Seed Dark Theme):**
+   - **Ergonomía visual y fatiga ocular en el sector salud:** En consultorios médicos, salas de recepción y áreas administrativas con turnos extensos o guardias nocturnas, los profesionales de la salud y el personal administrativo permanecen horas prolongadas frente a pantallas monitoreando agendas y pacientes. La emisión continua de luz de fondo blanca con alta luminancia genera astenopía (fatiga visual digital), cefalea y deslumbramiento. Un tema oscuro con luminancia reducida disminuye drásticamente el estrés ocular y favorece la concentración continuada.
+   - **Comodidad para el paciente en horarios no convencionales:** Los pacientes suelen gestionar o consultar sus citas médicas en horas de la noche o en las primeras horas de la mañana desde dispositivos móviles en ambientes con luz tenue. El modo oscuro reduce el impacto lumínico brusco y ahorra batería en pantallas OLED y AMOLED.
+   - **Armonía cromática y cumplimiento de accesibilidad (WCAG 2.1 AA):** La implementación respeta la identidad de marca botánica Seed, trasladando los fondos claros a tonos de bosque profundo (`#0d170a`, `#162812`, `#284520`) con acentos lima (`#d3fa99`) y textos en blanco suave (`#fcfcf7`), asegurando un ratio de contraste superior a 4.5:1 en textos, botones, formularios, tablas y distintivos de estado de cita.
+   - **Persistencia sin fricción:** La elección del usuario se almacena en el cliente mediante `localStorage ('mediturno_theme')` y se sincroniza con las preferencias del sistema operativo (`prefers-color-scheme`), recordando el estado en visitas posteriores sin requerir autenticaciones adicionales.
+
+2. **Justificación del Mini Calendario Desplegable en la Sección de Paciente:**
+   - **Superación del límite de proyección lineal (carrusel de 10 días):** El carrusel horizontal de accesos rápidos es conveniente para agendamientos inmediatos (dentro de los primeros días hábiles), pero resulta insuficiente y rígido para pacientes que requieren programar citas de control postoperatorio a mediano plazo (ej. a 2, 3 o 4 semanas), coordinar según sus días libres o seleccionar un día médico específico.
+   - **Prevención proactiva de errores y citas anacrónicas:** El mini calendario emergente desactiva automáticamente todas las fechas anteriores al día actual (`cursor-not-allowed` y estilo atenuado), guiando al paciente de manera inequívoca y previniendo selecciones erróneas en fechas pasadas.
+   - **Minimización de carga cognitiva y sincronización en tiempo real:** El paciente visualiza el mes completo con su distribución habitual (Lunes a Domingo), navega ágilmente entre meses con botones intuitivos (`ChevronLeft` / `ChevronRight`), salta a "Hoy" en un clic y, al seleccionar una fecha, el sistema actualiza automáticamente el campo del formulario y dispara la consulta atómica de franjas horarias libres en MySQL sin recargar la página.
+
 ### 1.4. Objetivo general
 
 Diseñar e implementar una aplicación web denominada **MediTurno** bajo arquitectura cliente-servidor (Laravel + MySQL), que centralice la administración de pacientes, profesionales de la salud, especialidades y agendas de disponibilidad, facilitando la reserva, consulta, cancelación, reprogramación y seguimiento de citas médicas sin duplicidades y con reportes administrativos para el centro de salud.
@@ -113,20 +130,23 @@ Diseñar e implementar una aplicación web denominada **MediTurno** bajo arquite
 6. Implementar el flujo transaccional de reserva, cancelación (con regla mínima de 2 horas) y reprogramación de citas, garantizando integridad ante concurrencia (`409 Conflict`).
 7. Desarrollar la agenda diaria e historial del profesional médico con actualización de estados (`completada`, `no_asistio`) y trazabilidad permanente.
 8. Implementar un panel administrativo con indicadores clave, reportes filtrables y exportación de datos en formato CSV.
-9. Ejecutar pruebas funcionales, de integración y seguridad automatizadas con PHPUnit sobre MySQL (`CP-01` a `CP-19`) para validar el cumplimiento integral del sistema.
+9. Integrar un modo oscuro universal persistente y un mini calendario desplegable adaptativo para elevar la ergonomía visual y la precisión del agendamiento médico.
+10. Ejecutar pruebas funcionales, de integración y seguridad automatizadas con PHPUnit sobre MySQL (`CP-01` a `CP-21`) para validar el cumplimiento integral del sistema.
 
 ### 1.5. Alcances
 
 Con el fin de garantizar claridad frente a las funcionalidades incluidas en el MVP y evitar contradicciones con los requisitos detallados, el alcance de **MediTurno** se clasifica en tres niveles:
 
-#### Incluye (versión inicial MVP v1.2.0)
+#### Incluye (versión actual MVP v1.3.0)
 - Pantalla inicial Gatekeeper de acceso seguro obligatorio (`/` y `/login`) con selector interactivo de los tres (3) perfiles institucionales (**Pacientes**, **Profesionales Médicos**, **Administrador**), protección activa contra fuerza bruta (bloqueo temporal con HTTP `429 Too Many Requests` tras 5 intentos fallidos) y botones de auditoría demo de un solo clic.
+- Soporte de **Modo Oscuro Universal persistente (Seed Dark)** para todos los perfiles de usuario (Paciente, Profesional Médico y Administrador) mediante conmutador en cabecera con retención en `localStorage` y preservación de contraste WCAG 2.1 AA en todas las vistas del sistema.
 - Registro autónomo de pacientes (`/registro`) con validación de documento y correo único bajo la Ley 1581 de 2012.
 - Catálogo de especialidades médicas y directorio de profesionales disponible en el flujo autenticado de reserva de citas y en el panel administrativo.
 - Gestión administrativa de especialidades médicas (crear, editar, activar/desactivar).
 - Gestión administrativa de profesionales médicos (registrar, asociar especialidad, activar/desactivar) y configuración de horarios semanales sin superposición.
 - Gestión administrativa de pacientes (registrar y listar con conteo de citas).
 - Generación dinámica de calendarios hábiles y consulta de franjas horarias libres vs. ocupadas/bloqueadas.
+- **Mini Calendario Desplegable interactivo** en el flujo de reserva de citas del paciente (`SelectorSlots.jsx`), con navegación mensual, bloqueo de fechas pasadas, selección de día exacto y sincronización reactiva con las franjas horarias de MySQL.
 - Reserva atómica de citas con código único (`MT-YYYYMM-XXXX`), prevención de duplicidades (`409 Conflict`) y voucher de confirmación con enlace dinámico a WhatsApp Web.
 - Consulta de citas del paciente (programadas e historial), cancelación y reprogramación con validación estricta de mínimo 2 horas de anticipación.
 - Agenda médica diaria e historial del profesional con transición a estados finales (`completada`, `no_asistio`) e inmutabilidad.
@@ -250,7 +270,7 @@ Este documento define los requisitos funcionales, no funcionales, historias de u
 
 El sistema sigue una arquitectura cliente-servidor en tres capas desacopladas:
 
-1. **Capa de Presentación (Frontend):** Aplicación web responsiva SPA construida con React 18, Vite 5 y Tailwind CSS 3 (compilada y servida por Laravel en producción), siguiendo la regla cromática clínica 60-30-10 (`#F8FAFC` superficie neutra, `#0284C7` azul zafiro clínico y `#10B981` verde esmeralda para disponibilidad, confirmación y WhatsApp).
+1. **Capa de Presentación (Frontend):** Aplicación web responsiva SPA construida con React 18, Vite 5 y Tailwind CSS 3 (compilada y servida por Laravel en producción), siguiendo la regla cromática botánica Seed (`#fcfcf7` Snow White de fondo neutro, `#1c3a13` Forest Depths de contraste y `#d3fa99` Lime Pulse para acentos e interacciones clave), con soporte nativo de **Modo Oscuro Universal persistente** (`#0d170a` fondo noche, `#162812` superficies y `#284520` bordes) conmutable para todos los roles.
 2. **Capa de Lógica de Negocio (Backend API REST):** Implementada en **Laravel 11 (PHP 8.2)** bajo patrón MVC + Capa de Servicios (`AgendaDisponibilidadService`), responsable de la autenticación por cookies `HttpOnly` cifradas, validación de formularios, reglas de negocio (`RN-01` a `RN-13`), control de concurrencia mediante transacciones pesimistas (`lockForUpdate()`) y generación de reportes.
 3. **Capa de Datos (Persistencia):** Base de datos relacional **MySQL 8.0** con integridad referencial mediante llaves foráneas, restricciones de unicidad (`email`, `numero_documento`, `tarjeta_profesional`, `codigo_reserva`), índices compuestos de disponibilidad y tablas de auditoría (`historial_citas`, `notificaciones`).
 
@@ -285,11 +305,12 @@ A partir de la versión **v1.2.0**, el sistema consolida su arquitectura en torn
 
 Las interfaces del sistema mantienen coherencia visual mediante la regla cromática 60-30-10, tipografía legible (`Inter` / `Poppins`), retroalimentación inmediata en formularios (bordes rojos y mensajes descriptivos que se limpian al editar), estados de carga mediante `SkeletonLoader`, estados vacíos con llamado a la acción (`EmptyState`) y notificaciones flotantes (`Toast`) en la esquina superior derecha.
 
-#### 3.1.1. Interfaces de usuario (v1.2.0)
+#### 3.1.1. Interfaces de usuario (v1.3.0)
 
-- **Gatekeeper Inicial Obligatorio:** Pantalla de acceso único (`/` y `/login`). No permite la visualización de ningún contenido clínico, catálogo ni panel administrativo sin previa autenticación exitosa. Incorpora el selector interactivo de tres perfiles de usuario (**Pacientes**, **Profesionales**, **Administrador**) con descripción operativa, retroalimentación de bloqueo por fuerza bruta y pruebas de un clic. Formulario de registro de pacientes disponible en `/registro`.
-- **Módulo Paciente:** Portal personal con reserva guiada de citas (`/paciente/reservar`), voucher digital de confirmación y panel de gestión de citas (`/paciente/citas`) con modales de cancelación y reprogramación.
-- **Módulo Profesional Médico:** Agenda clínica diaria (`/medico/agenda`) con visualización de pacientes citados y registro de atención (`completada` o `no_asistio`).
+- **Conmutador de Modo Oscuro Universal (Seed Dark):** Control visible tipo switch/botón (`ThemeToggle.jsx`) ubicado en la barra de navegación principal (escritorio y cajón móvil) y en la cabecera del Gatekeeper de acceso. Permite a cualquier usuario (Paciente, Médico o Administrador) alternar instantáneamente entre modo claro y modo oscuro. Su elección se persiste en `localStorage ('mediturno_theme')`, aplicando dinámicamente la clase `.dark` sobre el elemento raíz `<html>` y preservando el contraste según directrices WCAG 2.1 AA en formularios, botones, tablas y tarjetas.
+- **Gatekeeper Inicial Obligatorio:** Pantalla de acceso único (`/` y `/login`). No permite la visualización de ningún contenido clínico, catálogo ni panel administrativo sin previa autenticación exitosa. Incorpora el selector interactivo de tres perfiles de usuario (**Pacientes**, **Profesionales**, **Administrador**) con descripción operativa, retroalimentación de bloqueo por fuerza bruta, conmutador de tema visual y pruebas de un clic. Formulario de registro de pacientes disponible en `/registro`.
+- **Módulo Paciente y Reserva con Mini Calendario Desplegable:** Portal personal con reserva guiada de citas (`/paciente/reservar`), dotado de un **Mini Calendario Desplegable interactivo** (`MiniCalendarioDesplegable.jsx`) en el Paso 3 (*"Selecciona una fecha hábil"*), que permite navegar entre meses, deshabilita días pasados y actualiza la consulta de franjas horarias libres en tiempo real; voucher digital de confirmación y panel de gestión de citas (`/paciente/citas`) con modales de cancelación y reprogramación compatibles con modo oscuro.
+- **Módulo Profesional Médico:** Agenda clínica diaria (`/medico/agenda`) con visualización de pacientes citados y registro de atención (`completada` o `no_asistio`), totalmente optimizada para baja luminosidad en consultorio.
 - **Módulo Administrador:** Tablero integral de control (`/admin/dashboard`) con 5 tarjetas de KPIs y pestañas independientes para **Profesionales** (con modal de configuración de horarios y bloqueos), **Especialidades**, **Pacientes** y **Reportes y Citas** (con filtros y exportación CSV).
 
 #### 3.1.2. Interfaces de hardware
@@ -376,10 +397,10 @@ Cada historia de usuario (`HU`) corresponde de forma directa a un requerimiento 
 | **Descripción:** Como administrador o profesional médico quiero registrar bloqueos temporales de agenda para inhabilitar reservas durante descansos, incapacidades o vacaciones. | |
 | **Criterios de validación**<br>• Registrar `fecha_hora_inicio`, `fecha_hora_fin` (`fin > inicio`), tipo y motivo.<br>• El cálculo de disponibilidad marca las franjas coincidentes como `Bloqueado` e impide reservas sobre ellas. | **Métricas**<br>Valor: Medio<br>Prioridad: Media<br>Estimación: 3 pts |
 
-| HU-14 │ RF14 – Generar calendario de fechas hábiles por profesional | |
+| HU-14 │ RF14 – Generar calendario de fechas hábiles y selección por mini calendario interactivo | |
 | :--- | :--- |
-| **Descripción:** Como paciente quiero visualizar únicamente los días hábiles en los que atiende el médico seleccionado junto con la disponibilidad diaria para escoger fecha rápidamente. | |
-| **Criterios de validación**<br>• `AgendaDisponibilidadService::generarCalendario()` consulta las jornadas activas del profesional.<br>• Retorna fechas próximas indicando cantidad total de turnos y turnos libres por día.<br>• No incluye días sin jornada configurada. | **Métricas**<br>Valor: Alto<br>Prioridad: Alta<br>Estimación: 5 pts |
+| **Descripción:** Como paciente quiero visualizar los días hábiles del médico seleccionado mediante un carrusel de accesos rápidos y un mini calendario desplegable con navegación mensual para escoger con precisión la fecha de mi consulta médica. | |
+| **Criterios de validación**<br>• `AgendaDisponibilidadService::generarCalendario()` consulta las jornadas activas del profesional y retorna las fechas próximas indicando cupos libres.<br>• El mini calendario desplegable (`MiniCalendarioDesplegable.jsx`) permite navegar libremente entre meses con etiquetas en español (`Enero` a `Diciembre`).<br>• Se deshabilitan de forma determinística las fechas pasadas (`cursor-not-allowed`) para evitar selecciones anacrónicas.<br>• Al seleccionar un día, el campo de fecha se actualiza y sincroniza en tiempo real la disponibilidad de franjas horarias en MySQL.<br>• Permite volver rápidamente a la fecha actual mediante el botón *"Hoy"*. | **Métricas**<br>Valor: Alto<br>Prioridad: Alta<br>Estimación: 5 pts |
 
 | HU-15 │ RF15 – Consultar franjas horarias disponibles en tiempo real | |
 | :--- | :--- |
@@ -441,11 +462,16 @@ Cada historia de usuario (`HU`) corresponde de forma directa a un requerimiento 
 | **Descripción:** Como usuario autenticado quiero recibir y revisar avisos internos sobre reservas, cancelaciones, reprogramaciones y atenciones para mantenerme informado en todo momento. | |
 | **Criterios de validación**<br>• La campana en la barra superior muestra el contador de notificaciones no leídas.<br>• Al abrir la bandeja, las notificaciones se marcan como leídas mediante `POST /api/notificaciones/leer`. | **Métricas**<br>Valor: Medio<br>Prioridad: Media<br>Estimación: 2 pts |
 
+| HU-27 │ RF27 – Alternar y persistir modo visual claro / modo oscuro universal | |
+| :--- | :--- |
+| **Descripción:** Como usuario del sistema (Paciente, Profesional Médico o Administrador) quiero poder alternar entre modo claro y modo oscuro desde un control accesible en la interfaz, recordando mi preferencia de forma persistente para reducir la fatiga visual en turnos prolongados o entornos de baja iluminación. | |
+| **Criterios de validación**<br>• Conmutador visible en la barra de navegación (`ThemeToggle.jsx`) y en la cabecera del Gatekeeper (`LoginPage.jsx`).<br>• Alterna la clase `.dark` sobre el elemento raíz del DOM (`<html>`) y actualiza el atributo `colorScheme`.<br>• Persiste la elección del usuario en `localStorage` (`mediturno_theme`).<br>• Si no existe preferencia previa, adopta la configuración del sistema operativo (`prefers-color-scheme`).<br>• Mantiene legibilidad y contraste óptimo (WCAG 2.1 AA $\ge 4.5:1$) en textos, formularios, botones, tablas y badges de estado en todas las vistas de los 3 perfiles. | **Métricas**<br>Valor: Alto<br>Prioridad: Alta<br>Estimación: 3 pts |
+
 ---
 
 ### 3.2.1. Diagramas de Casos de Uso
 
-Los siguientes diagramas representan los 26 casos de uso del sistema (`CU-01` a `CU-26`) con sus actores e interacciones (`<<include>>` y `<<extend>>`):
+Los siguientes diagramas representan los 27 casos de uso del sistema (`CU-01` a `CU-27`) con sus actores e interacciones (`<<include>>` y `<<extend>>`):
 
 #### CU-01 — Registrar paciente en la plataforma
 ```mermaid
@@ -545,10 +571,11 @@ flowchart LR
   CU13 --- S([Sistema])
 ```
 
-#### CU-14 — Generar calendario de fechas hábiles por profesional
+#### CU-14 — Generar calendario de fechas hábiles y selección por mini calendario interactivo
 ```mermaid
 flowchart LR
-  P([Paciente]) --- CU14((CU-14: Generar calendario hábil))
+  P([Paciente]) --- CU14((CU-14: Seleccionar fecha hábil / Mini Calendario))
+  CU14 -. "<<extend>>" .-> CAL((Navegación mensual y bloqueo de pasados))
   CU14 --- S([Sistema])
 ```
 
@@ -647,11 +674,19 @@ flowchart LR
   CU26 --- S([Sistema])
 ```
 
+#### CU-27 — Alternar y persistir modo visual claro / modo oscuro universal
+```mermaid
+flowchart LR
+  U([Usuario de cualquier rol]) --- CU27((CU-27: Alternar Modo Claro / Modo Oscuro))
+  CU27 -. "<<include>>" .-> STO((Persistir en localStorage))
+  CU27 --- S([Sistema])
+```
+
 ---
 
 ### 3.3. Requerimientos Funcionales
 
-A continuación, se detallan los 26 requerimientos funcionales del sistema, numerados de forma correlativa y correspondientes 1 a 1 con las Historias de Usuario (`RF ↔ HU`).
+A continuación, se detallan los 27 requerimientos funcionales del sistema, numerados de forma correlativa y correspondientes 1 a 1 con las Historias de Usuario (`RF ↔ HU`).
 
 | **Identificador:** RF1 | **Nombre:** Registrar paciente | |
 | :--- | :--- | :--- |
@@ -770,14 +805,14 @@ A continuación, se detallan los 26 requerimientos funcionales del sistema, nume
 | **Manejo de situaciones anormales:**<br>• Médico intentando bloquear agenda ajena: rechazar con HTTP `403`. | | |
 | **Criterios de aceptación:**<br>• Las franjas cubiertas por un bloqueo aparecen no disponibles (`Bloqueado`) y no pueden reservarse. | | |
 
-| **Identificador:** RF14 | **Nombre:** Generar calendario de días hábiles | |
+| **Identificador:** RF14 | **Nombre:** Generar calendario de días hábiles y selección por mini calendario interactivo | |
 | :--- | :--- | :--- |
 | **Tipo:** Necesario | **Requerimiento relacionado:** RF12 (Horarios) / RF15 (Slots) | **¿Crítico?** Sí |
-| **Prioridad de desarrollo:** Alta | **Documentos de visualización asociados:** `SelectorSlots.jsx` / `AgendaDisponibilidadService::generarCalendario` | |
-| **Entrada:**<br>• Identificador del médico y cantidad de días hábiles a proyectar. | **Salida:**<br>• Arreglo de fechas hábiles (`iso`, `dayName`, `dayNum`, `monthShort`, `total_slots`, `slots_libres`). | |
-| **Descripción:** El servicio de agendas deberá generar dinámicamente los próximos días hábiles de atención según la configuración semanal del profesional en MySQL. | | |
-| **Manejo de situaciones anormales:**<br>• Médico sin jornadas activas: retornar calendario vacío con mensaje informativo. | | |
-| **Criterios de aceptación:**<br>• Solo incluye días con al menos una jornada configurada.<br>• Indica correctamente cuántos cupos libres existen por día. | | |
+| **Prioridad de desarrollo:** Alta | **Documentos de visualización asociados:** `SelectorSlots.jsx` / `MiniCalendarioDesplegable.jsx` / `AgendaDisponibilidadService::generarCalendario` | |
+| **Entrada:**<br>• Identificador del médico, proyección de días hábiles y/o interacción con el mini calendario desplegable. | **Salida:**<br>• Carrusel rápido de días hábiles (`iso`, `dayName`, `dayNum`, `monthShort`, `total_slots`, `slots_libres`).<br>• Desplegable mensual interactivo con navegación entre meses y selección de día exacto. | |
+| **Descripción:** El sistema deberá exponer la disponibilidad semanal del profesional mediante un carrusel de accesos rápidos y un mini calendario emergente interactivo que permite elegir cualquier fecha hábil futura del mes o meses posteriores, inhabilitando fechas pasadas. | | |
+| **Manejo de situaciones anormales:**<br>• Médico sin jornadas activas: retornar calendario vacío con aviso informativo.<br>• Fechas pasadas en el mini calendario: aparecer deshabilitadas con `cursor-not-allowed` e impedir el clic. | | |
+| **Criterios de aceptación:**<br>• El mini calendario permite avanzar y retroceder de mes en español.<br>• Al seleccionar un día en el mini calendario, se actualiza el estado de la fecha y se solicitan inmediatamente los slots a MySQL.<br>• Solo se ofrecen turnos sobre días con jornadas de atención activas. | | |
 
 | **Identificador:** RF15 | **Nombre:** Consultar franjas horarias disponibles | |
 | :--- | :--- | :--- |
@@ -887,6 +922,15 @@ A continuación, se detallan los 26 requerimientos funcionales del sistema, nume
 | **Manejo de situaciones anormales:**<br>• Usuario sin notificaciones: mostrar bandeja vacía sin errores. | | |
 | **Criterios de aceptación:**<br>• El contador rojo/verde de no leídas disminuye a cero al abrir la bandeja. | | |
 
+| **Identificador:** RF27 | **Nombre:** Alternar y persistir modo visual claro / modo oscuro universal | |
+| :--- | :--- | :--- |
+| **Tipo:** Necesario | **Requerimiento relacionado:** RNF-02 (Usabilidad y Accesibilidad) / RF2 (Login) | **¿Crítico?** No |
+| **Prioridad de desarrollo:** Media | **Documentos de visualización asociados:** `ThemeToggle.jsx` / `ThemeContext.jsx` / `tailwind.config.js` | |
+| **Entrada:**<br>• Interacción del usuario con el botón/switch de modo visual en cualquier pantalla. | **Salida:**<br>• Conmutación reactiva de estilos claros y oscuros en la interfaz.<br>• Actualización del valor `'light'` o `'dark'` en `localStorage ('mediturno_theme')`. | |
+| **Descripción:** El sistema ofrecerá un conmutador de tema visual accesible para todos los roles (Paciente, Médico, Administrador) y visitantes en el Gatekeeper, adaptando paleta, contrastes y fondos sin recargar la aplicación ni alterar datos de sesión. | | |
+| **Manejo de situaciones anormales:**<br>• Si `localStorage` no está disponible o está bloqueado: aplicar el tema en memoria durante la sesión activa y consultar `window.matchMedia('(prefers-color-scheme: dark)')`. | | |
+| **Criterios de aceptación:**<br>• El cambio de tema es instantáneo y se mantiene al navegar entre rutas o volver a entrar al sitio.<br>• Los colores de texto, botones, tablas y estados cumplen con una relación de contraste accesible mínima de 4.5:1. | | |
+
 ---
 
 ### 3.4. Requerimientos no Funcionales
@@ -900,10 +944,10 @@ A continuación, se detallan los 26 requerimientos funcionales del sistema, nume
 
 | **MediTurno** | | |
 | :--- | :--- | :--- |
-| **Código:** RNF-02 | **Nombre:** Usabilidad | **Grado de necesidad:** Alta |
-| **Descripción:** Facilidad de uso e interacción intuitiva para pacientes, médicos y administradores. | | |
-| **Detalle:** La interfaz seguirá una jerarquía visual 60-30-10 clara, validaciones en línea por campo, esqueletos de carga (`SkeletonLoader`) y estados vacíos orientados a la acción (`EmptyState`), permitiendo reservar una cita en menos de 3 minutos. | | |
-| **Efecto Colateral:** Requiere pruebas de usabilidad con usuarios piloto y diseño guiado paso a paso. | | |
+| **Código:** RNF-02 | **Nombre:** Usabilidad, Accesibilidad y Ergonomía Visual (Modo Oscuro) | **Grado de necesidad:** Alta |
+| **Descripción:** Facilidad de uso, ergonomía visual y accesibilidad cromática para pacientes, médicos y administradores. | | |
+| **Detalle:** La interfaz seguirá una jerarquía visual 60-30-10 clara, validaciones en línea por campo, esqueletos de carga (`SkeletonLoader`), estados vacíos orientados a la acción (`EmptyState`) y soporte dual de Modo Claro y Modo Oscuro persistente (Seed Dark). El contraste cromático se mantendrá por encima de 4.5:1 (conforme a las directrices WCAG 2.1 AA) en textos, formularios y badges de estado para mitigar la fatiga visual en jornadas clínicas prolongadas y turnos nocturnos. El agendamiento guiado mediante carrusel y mini calendario desplegable permite completar una reserva en menos de 3 minutos. | | |
+| **Efecto Colateral:** Requiere pruebas de usabilidad con usuarios piloto, diseño guiado paso a paso y mantenimiento de variables de color conmutables en Tailwind (`dark:`). | | |
 
 | **MediTurno** | | |
 | :--- | :--- | :--- |
@@ -942,10 +986,10 @@ A continuación, se detallan los 26 requerimientos funcionales del sistema, nume
 
 | **MediTurno** | | |
 | :--- | :--- | :--- |
-| **Código:** RNF-08 | **Nombre:** Adaptabilidad (Diseño Responsivo) | **Grado de necesidad:** Alta |
-| **Descripción:** Ajuste visual automático a escritorio, tableta y móvil. | | |
-| **Detalle:** Todas las pantallas (Landing, Reserva, Mis Citas, Agenda Médica y Dashboard Admin) deberán adaptarse sin desbordamientos horizontales desde resoluciones móviles (375 px) hasta escritorio. | | |
-| **Efecto Colateral:** Uso sistemático de rejillas responsivas Tailwind (`sm:`, `md:`, `lg:`) y tablas con desplazamiento horizontal controlado. | | |
+| **Código:** RNF-08 | **Nombre:** Adaptabilidad (Diseño Responsivo y Componentes Flotantes) | **Grado de necesidad:** Alta |
+| **Descripción:** Ajuste visual y de interacción automático a escritorio, tableta y móvil. | | |
+| **Detalle:** Todas las pantallas (Landing/Gatekeeper, Reserva, Mis Citas, Agenda Médica y Dashboard Admin) y componentes flotantes interactivos (como el `MiniCalendarioDesplegable`, modales de reprogramación/cancelación y menús de usuario) deberán adaptarse sin desbordamientos horizontales desde resoluciones móviles (375 px) hasta escritorio, contando con soporte para eventos táctiles, teclado (`Escape`) y detección de clics externos para su cierre seguro. | | |
+| **Efecto Colateral:** Uso sistemático de rejillas responsivas Tailwind (`sm:`, `md:`, `lg:`), capas modales (`z-50`), `useRef` para click-outside y tablas con desplazamiento horizontal controlado. | | |
 
 | **MediTurno** | | |
 | :--- | :--- | :--- |
@@ -979,7 +1023,7 @@ A continuación, se detallan los 26 requerimientos funcionales del sistema, nume
 
 ## 4. Plan de Pruebas y Matriz de Trazabilidad
 
-Las pruebas funcionales y de seguridad del sistema están automatizadas mediante **PHPUnit** sobre la base de datos de pruebas `mediturno_test` en MySQL (`backend/tests/Feature/PlanPruebasMvpTest.php`, `AgendaDisponibilidadTest.php`, `CitaTransaccionalTest.php` y `SeguridadAutenticacionTest.php`), verificando los 19 casos de prueba críticos del proyecto (`CP-01` a `CP-19`):
+Las pruebas funcionales y de seguridad del sistema están automatizadas mediante **PHPUnit** sobre la base de datos de pruebas `mediturno_test` en MySQL (`backend/tests/Feature/PlanPruebasMvpTest.php`, `AgendaDisponibilidadTest.php`, `CitaTransaccionalTest.php` y `SeguridadAutenticacionTest.php`), complementadas con verificación de frontend en React, cubriendo los 21 casos de prueba críticos del proyecto (`CP-01` a `CP-21`):
 
 | Código | Caso de Prueba | Requerimiento Asociado | Resultado Esperado | Estado |
 | :---: | :--- | :---: | :--- | :---: |
@@ -1002,3 +1046,5 @@ Las pruebas funcionales y de seguridad del sistema están automatizadas mediante
 | **CP-17** | Bloqueo temporal por fuerza bruta tras 5 intentos fallidos consecutivos | `RNF-02` / `RF2` | Bloqueo temporal activado (`429 Too Many Requests` + cabecera `Retry-After`) | Verificado |
 | **CP-18** | Segregación estricta de privilegios por perfil en backend (middleware `EnsureUserHasRole`) | `RNF-04` | Denegación `403` a rutas fuera del alcance del perfil | Verificado |
 | **CP-19** | Cierre de sesión seguro con destrucción de sesión e invalidación de token | `RNF-02` | Sesión destruida (`200`) y rechazo subsiguiente `401` | Verificado |
+| **CP-20** | Alternancia y persistencia de Modo Oscuro Universal en todos los perfiles | `RF27` / `HU-27` / `RNF-02` | Conmuta estilos claros/oscuros (`.dark`), persiste en `localStorage` y mantiene contraste WCAG 2.1 AA | Verificado |
+| **CP-21** | Navegación mensual y selección de fecha hábil en Mini Calendario Desplegable | `RF14` / `HU-14` / `RNF-08` | Abre popover, bloquea días pasados, navega entre meses y sincroniza franjas en MySQL al seleccionar | Verificado |
