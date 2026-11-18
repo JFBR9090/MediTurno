@@ -22,7 +22,7 @@
         } catch (e) {}
       })();
     </script>
-    <script type="module" crossorigin src="/assets/index-B2Lb8FTv.js"></script>
+    <script type="module" crossorigin src="/assets/index-D6AITnNo.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-BSXPtvsw.css">
   </head>
   <body class="bg-[#fcfcf7] dark:bg-[#0d170a] text-[#1c3a13] dark:text-[#fcfcf7] antialiased selection:bg-[#d3fa99] selection:text-[#1c3a13] transition-colors duration-200">

@@ -4,8 +4,6 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  RotateCcw,
-  Sparkles,
 } from 'lucide-react';
 
 const WEEKDAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
