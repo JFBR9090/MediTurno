@@ -14,8 +14,10 @@ import {
   User,
 } from 'lucide-react';
 import { Logo } from '../components/common/Logo';
+import { ThemeToggle } from '../components/common/ThemeToggle';
 import { useAuth } from '../context/AuthContext';
 import { useMediTurno } from '../context/MediTurnoContext';
+import { useTheme } from '../context/ThemeContext';
 
 const PROFILES = [
   {
@@ -69,6 +71,7 @@ const ROLE_DEFAULT_ROUTES = {
 export function LoginPage() {
   const { login, loginDemo } = useAuth();
   const { showToast } = useMediTurno();
+  const { isDark } = useTheme();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const returnTo = searchParams.get('returnTo');
@@ -194,27 +197,28 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#fcfcf7] text-[#1c3a13] font-sans antialiased">
+    <div className="min-h-screen flex flex-col bg-[#fcfcf7] dark:bg-[#0d170a] text-[#1c3a13] dark:text-[#fcfcf7] font-sans antialiased transition-colors duration-200">
       {/* Barra superior de navegación y auditoría Gatekeeper */}
-      <header className="border-b border-[#eeeee9] bg-[#fcfcf7]/95 px-4 py-3.5 backdrop-blur-md sticky top-0 z-30">
+      <header className="border-b border-[#eeeee9] dark:border-[#284520] bg-[#fcfcf7]/95 dark:bg-[#0d170a]/95 px-4 py-3.5 backdrop-blur-md sticky top-0 z-30 transition-colors">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <div className="flex items-center gap-3">
-            <Logo size="md" variant="light" />
+            <Logo size="md" variant={isDark ? 'dark' : 'light'} />
           </div>
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-3">
             <span className="badge-lime font-mono text-[11px]">
               <ShieldCheck className="h-3.5 w-3.5" />
               GATEKEEPER ACTIVO · ACCESO SEGURO
             </span>
+            <ThemeToggle />
           </div>
         </div>
       </header>
 
       {/* Contenedor Principal del Gatekeeper con estética Seed */}
       <main className="flex-1 flex items-center justify-center px-4 py-10 sm:px-6">
-        <div className="w-full max-w-xl bg-[#fcfcf7] rounded-[32px] border border-[#eeeee9] overflow-hidden">
+        <div className="w-full max-w-xl bg-[#fcfcf7] dark:bg-[#12210e] rounded-[32px] border border-[#eeeee9] dark:border-[#284520] overflow-hidden transition-colors shadow-none">
           {/* Encabezado del Formulario (Dark Section con Forest Depths #1c3a13) */}
-          <div className="bg-[#1c3a13] px-6 sm:px-8 py-7 text-[#fcfcf7]">
+          <div className="bg-[#1c3a13] dark:bg-[#162812] px-6 sm:px-8 py-7 text-[#fcfcf7] transition-colors border-b dark:border-[#284520]">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <span className="badge-lime font-mono text-[10px] uppercase">
@@ -236,7 +240,7 @@ export function LoginPage() {
           <div className="p-6 sm:p-8 space-y-6">
             {/* SELECTOR DE LOS 3 PERFILES DE USUARIO */}
             <div>
-              <label className="block text-xs font-mono uppercase tracking-wider text-[#666666] mb-3">
+              <label className="block text-xs font-mono uppercase tracking-wider text-[#666666] dark:text-[#8ca388] mb-3">
                 1. Selecciona tu perfil institucional:
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -251,15 +255,15 @@ export function LoginPage() {
                       onClick={() => handleProfileChange(p.id)}
                       className={`relative flex flex-col items-center justify-center p-4 rounded-2xl border transition-all text-center ${
                         isSelected
-                          ? 'border-[#1c3a13] bg-[#1c3a13] text-[#fcfcf7]'
-                          : 'border-[#eeeee9] bg-[#eeeee9] text-[#1c3a13] hover:border-[#c4c7c4]'
+                          ? 'border-[#1c3a13] bg-[#1c3a13] text-[#fcfcf7] dark:border-[#d3fa99] dark:bg-[#d3fa99] dark:text-[#1c3a13]'
+                          : 'border-[#eeeee9] bg-[#eeeee9] text-[#1c3a13] hover:border-[#c4c7c4] dark:border-[#284520] dark:bg-[#162812] dark:text-[#fcfcf7] dark:hover:border-[#3a5e30]'
                       }`}
                     >
                       <div
                         className={`flex h-10 w-10 items-center justify-center rounded-full mb-2 transition-transform ${
                           isSelected
-                            ? 'bg-[#d3fa99] text-[#1c3a13]'
-                            : 'bg-[#fcfcf7] text-[#1c3a13]'
+                            ? 'bg-[#d3fa99] text-[#1c3a13] dark:bg-[#1c3a13] dark:text-[#d3fa99]'
+                            : 'bg-[#fcfcf7] dark:bg-[#12210e] text-[#1c3a13] dark:text-[#fcfcf7]'
                         }`}
                       >
                         <Icon className="h-4 w-4" />
@@ -267,7 +271,9 @@ export function LoginPage() {
                       <span className="text-sm font-medium">{p.name}</span>
                       <span
                         className={`text-[11px] mt-0.5 leading-tight font-mono ${
-                          isSelected ? 'text-[#d3fa99]' : 'text-[#666666]'
+                          isSelected
+                            ? 'text-[#d3fa99] dark:text-[#1c3a13]'
+                            : 'text-[#666666] dark:text-[#8ca388]'
                         }`}
                       >
                         {p.badge}
@@ -278,8 +284,8 @@ export function LoginPage() {
               </div>
 
               {/* Descripción del perfil activo */}
-              <div className="mt-3 rounded-2xl bg-[#eeeee9] border border-[#eeeee9] px-4 py-2.5 text-xs text-[#1c3a13] flex items-center gap-2.5">
-                <CheckCircle2 className="h-4 w-4 text-[#1c3a13] shrink-0" />
+              <div className="mt-3 rounded-2xl bg-[#eeeee9] dark:bg-[#162812] border border-[#eeeee9] dark:border-[#284520] px-4 py-2.5 text-xs text-[#1c3a13] dark:text-[#fcfcf7] flex items-center gap-2.5">
+                <CheckCircle2 className="h-4 w-4 text-[#1c3a13] dark:text-[#d3fa99] shrink-0" />
                 <span>
                   <strong>Perfil {activeProfileData.name}:</strong> {activeProfileData.description}
                 </span>
@@ -288,16 +294,16 @@ export function LoginPage() {
 
             {/* ALERTA DE BLOQUEO TEMPORAL (RATE LIMITING) */}
             {lockoutSeconds > 0 && (
-              <div className="rounded-2xl border border-red-500/50 bg-red-50 p-4 text-[#1c3a13] space-y-2">
-                <div className="flex items-center gap-2 font-medium text-sm text-red-800">
+              <div className="rounded-2xl border border-red-500/50 bg-red-50 dark:bg-red-950/30 p-4 text-[#1c3a13] dark:text-red-200 space-y-2">
+                <div className="flex items-center gap-2 font-medium text-sm text-red-800 dark:text-red-400">
                   <ShieldAlert className="h-5 w-5 text-red-600 shrink-0" />
                   <span>Protección contra fuerza bruta activada</span>
                 </div>
-                <p className="text-xs text-red-700 leading-relaxed">
+                <p className="text-xs text-red-700 dark:text-red-300 leading-relaxed">
                   Demasiados intentos fallidos consecutivos. Por política de seguridad institucional,
                   el acceso ha sido bloqueado temporalmente.
                 </p>
-                <div className="pt-1 flex items-center gap-2 text-xs font-mono text-red-900">
+                <div className="pt-1 flex items-center gap-2 text-xs font-mono text-red-900 dark:text-red-200">
                   <span>Reintentando en:</span>
                   <span className="font-mono text-sm px-3 py-0.5 rounded-full bg-[#1c3a13] text-[#d3fa99]">
                     {lockoutSeconds}s
@@ -311,12 +317,12 @@ export function LoginPage() {
               <div>
                 <label
                   htmlFor="correo"
-                  className="block text-xs font-mono uppercase tracking-wider text-[#1c3a13] mb-1.5"
+                  className="block text-xs font-mono uppercase tracking-wider text-[#1c3a13] dark:text-[#fcfcf7] mb-1.5"
                 >
                   Correo electrónico institucional o de paciente
                 </label>
                 <div className="relative">
-                  <Mail className="pointer-events-none absolute left-3.5 top-3 h-4 w-4 text-[#666666]" />
+                  <Mail className="pointer-events-none absolute left-3.5 top-3 h-4 w-4 text-[#666666] dark:text-[#8ca388]" />
                   <input
                     id="correo"
                     name="correo"
@@ -332,19 +338,19 @@ export function LoginPage() {
                   />
                 </div>
                 {errors.correo && (
-                  <p className="mt-1 text-xs text-red-600">{errors.correo}</p>
+                  <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.correo}</p>
                 )}
               </div>
 
               <div>
                 <label
                   htmlFor="password"
-                  className="block text-xs font-mono uppercase tracking-wider text-[#1c3a13] mb-1.5"
+                  className="block text-xs font-mono uppercase tracking-wider text-[#1c3a13] dark:text-[#fcfcf7] mb-1.5"
                 >
                   Contraseña
                 </label>
                 <div className="relative">
-                  <Lock className="pointer-events-none absolute left-3.5 top-3 h-4 w-4 text-[#666666]" />
+                  <Lock className="pointer-events-none absolute left-3.5 top-3 h-4 w-4 text-[#666666] dark:text-[#8ca388]" />
                   <input
                     id="password"
                     name="password"
@@ -360,12 +366,12 @@ export function LoginPage() {
                   />
                 </div>
                 {errors.password && (
-                  <p className="mt-1 text-xs text-red-600">{errors.password}</p>
+                  <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.password}</p>
                 )}
               </div>
 
               {errors.general && (
-                <div className="rounded-2xl border border-red-300 bg-red-50 p-3.5 text-xs text-red-800 flex items-start gap-2">
+                <div className="rounded-2xl border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 p-3.5 text-xs text-red-800 dark:text-red-300 flex items-start gap-2">
                   <AlertTriangle className="h-4 w-4 text-red-600 shrink-0 mt-0.5" />
                   <span>{errors.general}</span>
                 </div>
@@ -378,7 +384,7 @@ export function LoginPage() {
               >
                 {submitting ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin text-[#d3fa99]" />
+                    <Loader2 className="h-4 w-4 animate-spin text-[#d3fa99] dark:text-[#1c3a13]" />
                     Validando credenciales seguras...
                   </>
                 ) : (
@@ -391,12 +397,12 @@ export function LoginPage() {
             </form>
 
             {/* SECCIÓN DE PRUEBAS RÁPIDAS DE AUDITORÍA */}
-            <div className="border-t border-[#eeeee9] pt-5 space-y-3">
+            <div className="border-t border-[#eeeee9] dark:border-[#284520] pt-5 space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-mono uppercase tracking-wider text-[#666666]">
+                <span className="text-[11px] font-mono uppercase tracking-wider text-[#666666] dark:text-[#8ca388]">
                   Acceso de auditoría de un clic:
                 </span>
-                <span className="text-[10px] font-mono text-[#666666]">
+                <span className="text-[10px] font-mono text-[#666666] dark:text-[#8ca388]">
                   Prueba rápida de roles
                 </span>
               </div>
@@ -410,18 +416,18 @@ export function LoginPage() {
                       type="button"
                       disabled={lockoutSeconds > 0}
                       onClick={() => handleQuickDemo(p.id)}
-                      className="inline-flex items-center justify-center gap-1.5 rounded-full border border-[#c4c7c4]/60 bg-[#eeeee9] px-3 py-2 text-xs font-mono text-[#1c3a13] hover:bg-[#d3fa99] hover:border-[#d3fa99] transition-colors"
+                      className="inline-flex items-center justify-center gap-1.5 rounded-full border border-[#c4c7c4]/60 dark:border-[#284520] bg-[#eeeee9] dark:bg-[#162812] px-3 py-2 text-xs font-mono text-[#1c3a13] dark:text-[#fcfcf7] hover:bg-[#d3fa99] dark:hover:bg-[#d3fa99] hover:border-[#d3fa99] dark:hover:text-[#1c3a13] transition-colors"
                     >
-                      <Icon className="h-3.5 w-3.5 text-[#1c3a13] shrink-0" />
+                      <Icon className="h-3.5 w-3.5 text-[#1c3a13] dark:text-[#d3fa99]" />
                       <span className="truncate">{p.name} Demo</span>
                     </button>
                   );
                 })}
               </div>
 
-              <div className="text-center pt-3 border-t border-dashed border-[#eeeee9] text-xs text-[#666666]">
+              <div className="text-center pt-3 border-t border-dashed border-[#eeeee9] dark:border-[#284520] text-xs text-[#666666] dark:text-[#8ca388]">
                 ¿Eres paciente nuevo?{' '}
-                <Link to="/registro" className="font-medium text-[#1c3a13] underline hover:text-[#284f1c]">
+                <Link to="/registro" className="font-medium text-[#1c3a13] dark:text-[#d3fa99] underline hover:text-[#284f1c]">
                   Crea tu cuenta aquí
                 </Link>
               </div>
@@ -431,7 +437,7 @@ export function LoginPage() {
       </main>
 
       {/* Pie institucional Seed */}
-      <footer className="border-t border-[#eeeee9] py-4 text-center text-xs font-mono text-[#666666]">
+      <footer className="border-t border-[#eeeee9] dark:border-[#284520] py-4 text-center text-xs font-mono text-[#666666] dark:text-[#8ca388] transition-colors">
         MediTurno · Sistema de Gestión Clínica · Estándar Seed · SENA ADSO Ficha 3413988
       </footer>
     </div>

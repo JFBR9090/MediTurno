@@ -263,14 +263,14 @@ export function DashboardAdminPage() {
               return (
                 <div key={m.label} className="card-surface p-5">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-slate-500">{m.label}</span>
+                    <span className="text-xs font-mono uppercase text-[#666666] dark:text-[#8ca388]">{m.label}</span>
                     <div
-                      className={`flex h-9 w-9 items-center justify-center rounded-xl ${m.accent}`}
+                      className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#eeeee9] dark:bg-[#12210e] text-[#1c3a13] dark:text-[#d3fa99] border border-[#c4c7c4]/50 dark:border-[#284520]"
                     >
                       <Icon className="h-5 w-5" />
                     </div>
                   </div>
-                  <p className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
+                  <p className="mt-3 text-3xl font-mono text-[#1c3a13] dark:text-[#fcfcf7]">
                     {m.value}
                   </p>
                 </div>
@@ -285,10 +285,10 @@ export function DashboardAdminPage() {
         <button
           type="button"
           onClick={() => setActiveTab('medicos')}
-          className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
+          className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-mono transition-all ${
             activeTab === 'medicos'
-              ? 'bg-sky-600 text-white shadow-sm'
-              : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+              ? 'bg-[#1c3a13] text-[#fcfcf7] dark:bg-[#d3fa99] dark:text-[#1c3a13]'
+              : 'bg-[#eeeee9] dark:bg-[#162812] text-[#1c3a13] dark:text-[#fcfcf7] border border-[#eeeee9] dark:border-[#284520] hover:bg-[#e4e4dd] dark:hover:bg-[#20361a]'
           }`}
         >
           <Stethoscope className="h-4 w-4" />
@@ -298,10 +298,10 @@ export function DashboardAdminPage() {
         <button
           type="button"
           onClick={() => setActiveTab('especialidades')}
-          className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
+          className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-mono transition-all ${
             activeTab === 'especialidades'
-              ? 'bg-sky-600 text-white shadow-sm'
-              : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+              ? 'bg-[#1c3a13] text-[#fcfcf7] dark:bg-[#d3fa99] dark:text-[#1c3a13]'
+              : 'bg-[#eeeee9] dark:bg-[#162812] text-[#1c3a13] dark:text-[#fcfcf7] border border-[#eeeee9] dark:border-[#284520] hover:bg-[#e4e4dd] dark:hover:bg-[#20361a]'
           }`}
         >
           Especialidades ({listaEspecialidades.length})
@@ -310,10 +310,10 @@ export function DashboardAdminPage() {
         <button
           type="button"
           onClick={() => setActiveTab('pacientes')}
-          className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
+          className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-mono transition-all ${
             activeTab === 'pacientes'
-              ? 'bg-sky-600 text-white shadow-sm'
-              : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+              ? 'bg-[#1c3a13] text-[#fcfcf7] dark:bg-[#d3fa99] dark:text-[#1c3a13]'
+              : 'bg-[#eeeee9] dark:bg-[#162812] text-[#1c3a13] dark:text-[#fcfcf7] border border-[#eeeee9] dark:border-[#284520] hover:bg-[#e4e4dd] dark:hover:bg-[#20361a]'
           }`}
         >
           <Users className="h-4 w-4" />
@@ -323,10 +323,10 @@ export function DashboardAdminPage() {
         <button
           type="button"
           onClick={() => setActiveTab('reportes')}
-          className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
+          className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-mono transition-all ${
             activeTab === 'reportes'
-              ? 'bg-sky-600 text-white shadow-sm'
-              : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+              ? 'bg-[#1c3a13] text-[#fcfcf7] dark:bg-[#d3fa99] dark:text-[#1c3a13]'
+              : 'bg-[#eeeee9] dark:bg-[#162812] text-[#1c3a13] dark:text-[#fcfcf7] border border-[#eeeee9] dark:border-[#284520] hover:bg-[#e4e4dd] dark:hover:bg-[#20361a]'
           }`}
         >
           <BarChart3 className="h-4 w-4" />
@@ -358,7 +358,7 @@ export function DashboardAdminPage() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
-                <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <thead className="bg-[#eeeee9] dark:bg-[#162812] text-xs font-mono uppercase tracking-wider text-[#666666] dark:text-[#8ca388]">
                   <tr>
                     <th className="px-6 py-3.5">Profesional</th>
                     <th className="px-6 py-3.5">Especialidad</th>
@@ -368,42 +368,42 @@ export function DashboardAdminPage() {
                     <th className="px-6 py-3.5 text-right">Acciones</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 bg-white">
+                <tbody className="divide-y divide-[#eeeee9] dark:divide-[#284520] bg-[#fcfcf7] dark:bg-[#12210e]">
                   {medicos.map((med) => (
-                    <tr key={med.id} className="hover:bg-slate-50/70 transition-colors">
+                    <tr key={med.id} className="hover:bg-[#eeeee9]/40 dark:hover:bg-[#162812]/50 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div
-                            className={`flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold shrink-0 ${med.colorAvatar}`}
+                            className={`flex h-9 w-9 items-center justify-center rounded-full text-xs font-mono font-bold shrink-0 ${med.colorAvatar}`}
                           >
                             {med.iniciales}
                           </div>
                           <div>
-                            <p className="font-semibold text-slate-900">{med.nombre}</p>
-                            <p className="text-xs text-slate-500">{med.correo}</p>
+                            <p className="font-medium text-[#1c3a13] dark:text-[#fcfcf7]">{med.nombre}</p>
+                            <p className="text-xs text-[#666666] dark:text-[#8ca388]">{med.correo}</p>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex rounded-full bg-sky-50 px-2.5 py-0.5 text-xs font-semibold text-sky-700">
+                        <span className="inline-flex rounded-full bg-[#eeeee9] dark:bg-[#162812] border border-[#c4c7c4]/60 dark:border-[#284520] px-2.5 py-0.5 text-xs font-mono text-[#1c3a13] dark:text-[#d3fa99]">
                           {med.especialidad}
                         </span>
                       </td>
-                      <td className="px-6 py-4 font-mono text-xs text-slate-700">
+                      <td className="px-6 py-4 font-mono text-xs text-[#666666] dark:text-[#8ca388]">
                         {med.tarjeta_profesional}
                       </td>
-                      <td className="px-6 py-4 text-xs text-slate-600">{med.consultorio}</td>
+                      <td className="px-6 py-4 text-xs text-[#666666] dark:text-[#8ca388]">{med.consultorio}</td>
                       <td className="px-6 py-4">
                         <span
-                          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-mono ${
                             med.activo
-                              ? 'bg-emerald-50 text-emerald-700'
-                              : 'bg-slate-100 text-slate-500'
+                              ? 'bg-[#d3fa99] text-[#1c3a13]'
+                              : 'bg-[#eeeee9] dark:bg-[#162812] text-[#666666] dark:text-[#8ca388]'
                           }`}
                         >
                           <span
                             className={`h-1.5 w-1.5 rounded-full ${
-                              med.activo ? 'bg-emerald-500' : 'bg-slate-400'
+                              med.activo ? 'bg-[#1c3a13]' : 'bg-[#757c5d]'
                             }`}
                           />
                           {med.activo ? 'Activo' : 'Inactivo'}
@@ -414,9 +414,9 @@ export function DashboardAdminPage() {
                           <button
                             type="button"
                             onClick={() => setMedicoHorarios(med)}
-                            className="btn-secondary px-3 py-1.5 text-xs text-sky-700 border-sky-200 hover:bg-sky-50"
+                            className="btn-secondary px-3 py-1 text-xs"
                           >
-                            <Clock className="h-3.5 w-3.5" />
+                            <Clock className="h-3.5 w-3.5 text-[#d3fa99]" />
                             Horarios
                           </button>
                           <button
@@ -431,7 +431,7 @@ export function DashboardAdminPage() {
                                 }.`,
                               });
                             }}
-                            className="btn-secondary px-3 py-1.5 text-xs"
+                            className="btn-secondary px-3 py-1 text-xs"
                           >
                             {med.activo ? 'Desactivar' : 'Activar'}
                           </button>

@@ -22,6 +22,12 @@
     scroll-behavior: smooth;
     background-color: #fcfcf7;
     color: #1c3a13;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  html.dark {
+    background-color: #0d170a;
+    color: #fcfcf7;
   }
 
   body {
@@ -29,6 +35,12 @@
     color: #1c3a13;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+  }
+
+  html.dark body {
+    background-color: #0d170a;
+    color: #fcfcf7;
   }
 
   /* Headings con peso whisper-light característico de Seed (300-350) */
@@ -41,36 +53,36 @@
 @layer components {
   /* Contenedores y Tarjetas Seed: radio 16px, sin sombras (Shadowless) */
   .card-surface {
-    @apply bg-[#eeeee9] border border-[#eeeee9] rounded-2xl;
+    @apply bg-[#eeeee9] border border-[#eeeee9] rounded-2xl dark:bg-[#162812] dark:border-[#284520] dark:text-[#fcfcf7];
   }
 
   .card-surface-white {
-    @apply bg-[#fcfcf7] border border-[#eeeee9] rounded-2xl;
+    @apply bg-[#fcfcf7] border border-[#eeeee9] rounded-2xl dark:bg-[#12210e] dark:border-[#284520] dark:text-[#fcfcf7];
   }
 
   .card-surface-dark {
-    @apply bg-[#1c3a13] text-[#fcfcf7] rounded-2xl;
+    @apply bg-[#1c3a13] text-[#fcfcf7] rounded-2xl dark:bg-[#162812] dark:border dark:border-[#284520];
   }
 
   /* Botones Seed en forma de píldora (1000px radius), completamente planos */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-full bg-[#1c3a13] px-6 py-2.5 text-sm font-normal text-[#fcfcf7] transition-colors hover:bg-[#284f1c] active:bg-[#142a0e] focus:outline-none focus:ring-2 focus:ring-[#1c3a13] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-none border-0;
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-[#1c3a13] px-6 py-2.5 text-sm font-normal text-[#fcfcf7] transition-all hover:bg-[#284f1c] active:bg-[#142a0e] focus:outline-none focus:ring-2 focus:ring-[#1c3a13] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-none border-0 dark:bg-[#d3fa99] dark:text-[#1c3a13] dark:hover:bg-[#c3ee83] dark:focus:ring-[#d3fa99] dark:focus:ring-offset-[#0d170a];
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-full border border-[#1c3a13] bg-[#fcfcf7] px-6 py-2.5 text-sm font-normal text-[#1c3a13] transition-colors hover:bg-[#eeeee9] focus:outline-none focus:ring-2 focus:ring-[#1c3a13] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-none;
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-[#1c3a13] bg-[#fcfcf7] px-6 py-2.5 text-sm font-normal text-[#1c3a13] transition-all hover:bg-[#eeeee9] focus:outline-none focus:ring-2 focus:ring-[#1c3a13] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-none dark:border-[#284520] dark:bg-[#162812] dark:text-[#fcfcf7] dark:hover:bg-[#20361a] dark:focus:ring-[#d3fa99] dark:focus:ring-offset-[#0d170a];
   }
 
   .btn-ghost-dark {
-    @apply inline-flex items-center justify-center gap-2 rounded-full border border-[#fcfcf7] bg-transparent px-6 py-2.5 text-sm font-normal text-[#fcfcf7] transition-colors hover:bg-[#fcfcf7]/10 focus:outline-none focus:ring-2 focus:ring-[#fcfcf7] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-none;
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-[#fcfcf7] bg-transparent px-6 py-2.5 text-sm font-normal text-[#fcfcf7] transition-all hover:bg-[#fcfcf7]/10 focus:outline-none focus:ring-2 focus:ring-[#fcfcf7] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-none dark:border-[#d3fa99]/60 dark:text-[#d3fa99] dark:hover:bg-[#d3fa99]/10;
   }
 
   .btn-lime {
-    @apply inline-flex items-center justify-center gap-2 rounded-full bg-[#d3fa99] px-6 py-2.5 text-sm font-medium text-[#1c3a13] transition-colors hover:bg-[#c3ee83] focus:outline-none focus:ring-2 focus:ring-[#1c3a13] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-none border-0;
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-[#d3fa99] px-6 py-2.5 text-sm font-medium text-[#1c3a13] transition-all hover:bg-[#c3ee83] focus:outline-none focus:ring-2 focus:ring-[#1c3a13] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-none border-0;
   }
 
   .btn-whatsapp {
-    @apply inline-flex items-center justify-center gap-2 rounded-full bg-[#1c3a13] border border-[#d3fa99] px-6 py-2.5 text-sm font-medium text-[#d3fa99] transition-colors hover:bg-[#284f1c] focus:outline-none focus:ring-2 focus:ring-[#d3fa99] focus:ring-offset-2 shadow-none;
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-[#1c3a13] border border-[#d3fa99] px-6 py-2.5 text-sm font-medium text-[#d3fa99] transition-all hover:bg-[#284f1c] focus:outline-none focus:ring-2 focus:ring-[#d3fa99] focus:ring-offset-2 shadow-none dark:bg-[#162812] dark:border-[#d3fa99] dark:hover:bg-[#20361a];
   }
 
   /* Badges y Pastillas (Pills 1000px) */
@@ -79,25 +91,23 @@
   }
 
   .badge-dark {
-    @apply inline-flex items-center gap-1.5 rounded-full bg-[#1c3a13] px-3 py-0.5 text-xs font-mono font-medium text-[#fcfcf7];
+    @apply inline-flex items-center gap-1.5 rounded-full bg-[#1c3a13] px-3 py-0.5 text-xs font-mono font-medium text-[#fcfcf7] dark:bg-[#d3fa99] dark:text-[#1c3a13];
   }
 
   .badge-stone {
-    @apply inline-flex items-center gap-1.5 rounded-full bg-[#eeeee9] border border-[#c4c7c4]/80 px-3 py-0.5 text-xs font-mono text-[#1c3a13];
+    @apply inline-flex items-center gap-1.5 rounded-full bg-[#eeeee9] border border-[#c4c7c4]/80 px-3 py-0.5 text-xs font-mono text-[#1c3a13] dark:bg-[#162812] dark:border-[#284520] dark:text-[#d3fa99];
   }
 
   /* Campos de entrada con radio de 8px */
   .input-field {
-    @apply w-full rounded-lg border border-[#c4c7c4] bg-[#fcfcf7] px-3.5 py-2.5 text-sm text-[#1c3a13] placeholder:text-[#666666] transition-colors focus:border-[#1c3a13] focus:outline-none focus:ring-1 focus:ring-[#1c3a13];
+    @apply w-full rounded-lg border border-[#c4c7c4] bg-[#fcfcf7] px-3.5 py-2.5 text-sm text-[#1c3a13] placeholder:text-[#666666] transition-colors focus:border-[#1c3a13] focus:outline-none focus:ring-1 focus:ring-[#1c3a13] dark:border-[#284520] dark:bg-[#12210e] dark:text-[#fcfcf7] dark:placeholder-[#757c5d] dark:focus:border-[#d3fa99] dark:focus:ring-[#d3fa99];
   }
 
   .input-field-dark {
-    @apply w-full rounded-lg border border-[#fcfcf7]/30 bg-transparent px-3.5 py-2.5 text-sm text-[#fcfcf7] placeholder:text-[#fcfcf7]/50 transition-colors focus:border-[#d3fa99] focus:outline-none focus:ring-1 focus:ring-[#d3fa99];
+    @apply w-full rounded-lg border border-[#fcfcf7]/30 bg-transparent px-3.5 py-2.5 text-sm text-[#fcfcf7] placeholder:text-[#fcfcf7]/50 transition-colors focus:border-[#d3fa99] focus:outline-none focus:ring-1 focus:ring-[#d3fa99] dark:border-[#284520] dark:bg-[#12210e];
   }
 
   .input-field-error {
-    @apply w-full rounded-lg border border-red-500 bg-red-50/20 px-3.5 py-2.5 text-sm text-[#1c3a13] placeholder:text-red-400 transition-colors focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600;
+    @apply w-full rounded-lg border border-red-500 bg-red-50/20 px-3.5 py-2.5 text-sm text-[#1c3a13] placeholder:text-red-400 transition-colors focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600 dark:bg-red-950/20 dark:border-red-700 dark:text-red-200;
   }
 }
-
-

@@ -172,12 +172,12 @@ export function ReservarCitaPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <label
                 htmlFor="select-especialidad"
-                className="inline-flex items-center gap-2 text-sm font-semibold text-slate-900"
+                className="inline-flex items-center gap-2 text-sm font-medium text-[#1c3a13] dark:text-[#fcfcf7]"
               >
-                <Stethoscope className="h-4 w-4 text-sky-600" />
+                <Stethoscope className="h-4 w-4 text-[#1c3a13] dark:text-[#d3fa99]" />
                 1. Especialidad Médica
               </label>
-              <span className="text-xs text-slate-500">
+              <span className="text-xs font-mono text-[#666666] dark:text-[#8ca388]">
                 {especialidades.length} áreas disponibles
               </span>
             </div>
@@ -203,10 +203,10 @@ export function ReservarCitaPage() {
                     key={esp.id}
                     type="button"
                     onClick={() => setEspecialidadId(String(esp.id))}
-                    className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                    className={`rounded-full px-3 py-1 text-xs font-mono transition-colors ${
                       active
-                        ? 'bg-sky-600 text-white'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        ? 'bg-[#1c3a13] text-[#fcfcf7] dark:bg-[#d3fa99] dark:text-[#1c3a13]'
+                        : 'bg-[#eeeee9] dark:bg-[#162812] text-[#1c3a13] dark:text-[#fcfcf7] hover:bg-[#e4e4dd] dark:hover:bg-[#20361a]'
                     }`}
                   >
                     {esp.nombre}
@@ -219,10 +219,10 @@ export function ReservarCitaPage() {
           {/* Paso 2: Selección de Médico */}
           <section className="card-surface p-5 sm:p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-slate-900">
+              <h2 className="text-sm font-medium text-[#1c3a13] dark:text-[#fcfcf7]">
                 2. Selecciona el Profesional
               </h2>
-              <span className="text-xs text-slate-500">
+              <span className="text-xs font-mono text-[#666666] dark:text-[#8ca388]">
                 {medicosPorEspecialidad.length} médico(s) activo(s)
               </span>
             </div>
@@ -230,7 +230,7 @@ export function ReservarCitaPage() {
             {loadingMedicos ? (
               <SkeletonLoader variant="cards" count={2} />
             ) : medicosPorEspecialidad.length === 0 ? (
-              <p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-500">
+              <p className="rounded-xl bg-[#eeeee9] dark:bg-[#12210e] p-4 text-sm text-[#666666] dark:text-[#8ca388]">
                 No hay médicos activos en esta especialidad actualmente.
               </p>
             ) : (
@@ -247,33 +247,33 @@ export function ReservarCitaPage() {
                       }}
                       className={`relative flex items-start gap-3.5 rounded-2xl border p-4 text-left transition-all ${
                         isSelected
-                          ? 'border-sky-600 bg-sky-50/40 ring-2 ring-sky-500/20'
-                          : 'border-slate-200 bg-white hover:border-sky-300'
+                          ? 'border-[#1c3a13] bg-[#eeeee9] dark:border-[#d3fa99] dark:bg-[#162812] ring-2 ring-[#d3fa99]/50'
+                          : 'border-[#eeeee9] bg-[#fcfcf7] hover:border-[#c4c7c4] dark:border-[#284520] dark:bg-[#12210e] dark:hover:border-[#3a5e30]'
                       }`}
                     >
                       <div
-                        className={`flex h-11 w-11 items-center justify-center rounded-full text-xs font-bold shrink-0 ${med.colorAvatar}`}
+                        className={`flex h-11 w-11 items-center justify-center rounded-full text-xs font-mono font-bold shrink-0 ${med.colorAvatar}`}
                       >
                         {med.iniciales}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-bold text-slate-900 truncate">
+                        <p className="text-sm font-medium text-[#1c3a13] dark:text-[#fcfcf7] truncate">
                           {med.nombre}
                         </p>
-                        <p className="text-xs font-medium text-sky-700">
+                        <p className="text-xs font-mono text-[#757c5d] dark:text-[#d3fa99]">
                           {med.especialidad}
                         </p>
-                        <p className="mt-1.5 flex items-center gap-1 text-[11px] text-slate-500">
-                          <Award className="h-3 w-3 text-slate-400 shrink-0" />
+                        <p className="mt-1.5 flex items-center gap-1 text-[11px] font-mono text-[#666666] dark:text-[#8ca388]">
+                          <Award className="h-3 w-3 text-[#757c5d] shrink-0" />
                           {med.tarjeta_profesional}
                         </p>
-                        <p className="mt-0.5 flex items-center gap-1 text-[11px] text-slate-500 truncate">
-                          <MapPin className="h-3 w-3 text-slate-400 shrink-0" />
+                        <p className="mt-0.5 flex items-center gap-1 text-[11px] font-mono text-[#666666] dark:text-[#8ca388] truncate">
+                          <MapPin className="h-3 w-3 text-[#757c5d] shrink-0" />
                           {med.consultorio}
                         </p>
                       </div>
                       {isSelected && (
-                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-sky-600 text-white shrink-0">
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#1c3a13] dark:bg-[#d3fa99] text-[#d3fa99] dark:text-[#1c3a13] shrink-0">
                           <Check className="h-3 w-3" />
                         </span>
                       )}
@@ -303,41 +303,41 @@ export function ReservarCitaPage() {
         {/* Columna Derecha: Resumen y Confirmación */}
         <aside className="lg:col-span-4 card-surface p-5 sm:p-6 lg:sticky lg:top-24 space-y-5">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-sky-600">
+            <span className="text-xs font-mono uppercase tracking-wider text-[#757c5d] dark:text-[#d3fa99]">
               Paso Final
             </span>
-            <h2 className="mt-0.5 text-lg font-bold text-slate-900">
+            <h2 className="mt-0.5 text-lg font-medium text-[#1c3a13] dark:text-[#fcfcf7]">
               Resumen de tu Cita
             </h2>
           </div>
 
-          <div className="space-y-3 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm">
+          <div className="space-y-3 rounded-2xl border border-[#eeeee9] dark:border-[#284520] bg-[#eeeee9]/60 dark:bg-[#12210e] p-4 text-sm">
             <div>
-              <p className="text-xs text-slate-500">Paciente</p>
-              <p className="font-semibold text-slate-900">
+              <p className="text-xs font-mono text-[#666666] dark:text-[#8ca388]">Paciente</p>
+              <p className="font-medium text-[#1c3a13] dark:text-[#fcfcf7]">
                 {user?.nombre} {user?.apellido}
               </p>
             </div>
 
-            <div className="border-t border-slate-200/70 pt-2.5">
-              <p className="text-xs text-slate-500">Especialidad y Profesional</p>
-              <p className="font-semibold text-slate-900">
+            <div className="border-t border-[#eeeee9] dark:border-[#284520] pt-2.5">
+              <p className="text-xs font-mono text-[#666666] dark:text-[#8ca388]">Especialidad y Profesional</p>
+              <p className="font-medium text-[#1c3a13] dark:text-[#fcfcf7]">
                 {medicoSeleccionado?.nombre || 'Por seleccionar'}
               </p>
-              <p className="text-xs font-medium text-sky-700">
+              <p className="text-xs font-mono text-[#757c5d] dark:text-[#d3fa99]">
                 {medicoSeleccionado?.especialidad}
               </p>
             </div>
 
-            <div className="border-t border-slate-200/70 pt-2.5">
-              <p className="text-xs text-slate-500">Fecha y Horario</p>
+            <div className="border-t border-[#eeeee9] dark:border-[#284520] pt-2.5">
+              <p className="text-xs font-mono text-[#666666] dark:text-[#8ca388]">Fecha y Horario</p>
               {selectedSlot ? (
-                <p className="font-semibold text-emerald-700">
+                <p className="font-mono font-medium text-[#1c3a13] dark:text-[#d3fa99]">
                   {selectedDate} · {selectedSlot.label}
                 </p>
               ) : (
-                <p className="text-xs italic text-slate-400">
-                  Selecciona una franja verde disponible
+                <p className="text-xs italic text-[#666666] dark:text-[#8ca388]">
+                  Selecciona una franja disponible
                 </p>
               )}
             </div>

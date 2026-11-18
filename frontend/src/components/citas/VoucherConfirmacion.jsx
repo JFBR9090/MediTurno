@@ -38,10 +38,10 @@ export function VoucherConfirmacion({ cita, onNuevaCita }) {
   )}`;
 
   return (
-    <div className="mx-auto max-w-2xl bg-[#fcfcf7] border border-[#eeeee9] rounded-[32px] overflow-hidden">
+    <div className="mx-auto max-w-2xl bg-[#fcfcf7] dark:bg-[#12210e] border border-[#eeeee9] dark:border-[#284520] rounded-[32px] overflow-hidden transition-colors shadow-none">
       {/* Encabezado Dark Section Forest Depths #1c3a13 */}
-      <div className="bg-[#1c3a13] px-6 py-8 text-center text-[#fcfcf7]">
-        <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-[#1c3a13] border border-[#d3fa99]/40">
+      <div className="bg-[#1c3a13] dark:bg-[#162812] px-6 py-8 text-center text-[#fcfcf7] border-b dark:border-[#284520]">
+        <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-[#1c3a13] dark:bg-[#12210e] border border-[#d3fa99]/40">
           <CheckCircle2 className="h-10 w-10 text-[#d3fa99]" />
         </div>
         <h2 className="text-2xl sm:text-3xl font-light tracking-[-0.4px] text-[#fcfcf7]">
@@ -54,12 +54,12 @@ export function VoucherConfirmacion({ cita, onNuevaCita }) {
 
       {/* Detalle del Voucher */}
       <div className="p-6 sm:p-8 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-[#eeeee9] bg-[#eeeee9] px-5 py-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-[#eeeee9] dark:border-[#284520] bg-[#eeeee9] dark:bg-[#162812] px-5 py-4">
           <div>
-            <p className="text-[11px] font-mono uppercase tracking-wider text-[#666666]">
+            <p className="text-[11px] font-mono uppercase tracking-wider text-[#666666] dark:text-[#8ca388]">
               Código Único de Reserva
             </p>
-            <p className="mt-0.5 font-mono text-2xl font-normal tracking-wider text-[#1c3a13]">
+            <p className="mt-0.5 font-mono text-2xl font-normal tracking-wider text-[#1c3a13] dark:text-[#d3fa99]">
               {cita.codigo_reserva}
             </p>
           </div>
@@ -70,34 +70,34 @@ export function VoucherConfirmacion({ cita, onNuevaCita }) {
         </div>
 
         <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-          <div className="rounded-2xl border border-[#eeeee9] bg-[#eeeee9] p-4">
-            <dt className="text-xs font-mono uppercase text-[#666666] flex items-center gap-1.5">
-              <Stethoscope className="h-3.5 w-3.5 text-[#1c3a13]" />
+          <div className="rounded-2xl border border-[#eeeee9] dark:border-[#284520] bg-[#eeeee9] dark:bg-[#162812] p-4">
+            <dt className="text-xs font-mono uppercase text-[#666666] dark:text-[#8ca388] flex items-center gap-1.5">
+              <Stethoscope className="h-3.5 w-3.5 text-[#1c3a13] dark:text-[#d3fa99]" />
               Profesional y Especialidad
             </dt>
-            <dd className="mt-1 font-medium text-[#1c3a13]">{cita.medico_nombre}</dd>
-            <dd className="text-xs font-mono text-[#757c5d]">{cita.especialidad}</dd>
+            <dd className="mt-1 font-medium text-[#1c3a13] dark:text-[#fcfcf7]">{cita.medico_nombre}</dd>
+            <dd className="text-xs font-mono text-[#757c5d] dark:text-[#d3fa99]">{cita.especialidad}</dd>
           </div>
 
-          <div className="rounded-2xl border border-[#eeeee9] bg-[#eeeee9] p-4">
-            <dt className="text-xs font-mono uppercase text-[#666666] flex items-center gap-1.5">
-              <CalendarCheck className="h-3.5 w-3.5 text-[#1c3a13]" />
+          <div className="rounded-2xl border border-[#eeeee9] dark:border-[#284520] bg-[#eeeee9] dark:bg-[#162812] p-4">
+            <dt className="text-xs font-mono uppercase text-[#666666] dark:text-[#8ca388] flex items-center gap-1.5">
+              <CalendarCheck className="h-3.5 w-3.5 text-[#1c3a13] dark:text-[#d3fa99]" />
               Fecha y Hora del Turno
             </dt>
-            <dd className="mt-1 font-medium text-[#1c3a13] capitalize">
+            <dd className="mt-1 font-medium text-[#1c3a13] dark:text-[#fcfcf7] capitalize">
               {fechaFormateada}
             </dd>
-            <dd className="text-xs font-mono text-[#666666]">{horaFormateada} (30 min)</dd>
+            <dd className="text-xs font-mono text-[#666666] dark:text-[#8ca388]">{horaFormateada} (30 min)</dd>
           </div>
 
-          <div className="sm:col-span-2 rounded-2xl border border-[#eeeee9] bg-[#eeeee9] p-4">
-            <dt className="text-xs font-mono uppercase text-[#666666] flex items-center gap-1.5">
-              <MapPin className="h-3.5 w-3.5 text-[#1c3a13]" />
+          <div className="sm:col-span-2 rounded-2xl border border-[#eeeee9] dark:border-[#284520] bg-[#eeeee9] dark:bg-[#162812] p-4">
+            <dt className="text-xs font-mono uppercase text-[#666666] dark:text-[#8ca388] flex items-center gap-1.5">
+              <MapPin className="h-3.5 w-3.5 text-[#1c3a13] dark:text-[#d3fa99]" />
               Sede y Consultorio
             </dt>
-            <dd className="mt-1 font-medium text-[#1c3a13]">{cita.consultorio}</dd>
+            <dd className="mt-1 font-medium text-[#1c3a13] dark:text-[#fcfcf7]">{cita.consultorio}</dd>
             {cita.motivo_consulta && (
-              <dd className="mt-1 text-xs text-[#666666]">
+              <dd className="mt-1 text-xs text-[#666666] dark:text-[#8ca388]">
                 Motivo: {cita.motivo_consulta}
               </dd>
             )}
@@ -105,7 +105,7 @@ export function VoucherConfirmacion({ cita, onNuevaCita }) {
         </dl>
 
         {/* Acciones de Salida y WhatsApp */}
-        <div className="border-t border-[#eeeee9] pt-5 space-y-3">
+        <div className="border-t border-[#eeeee9] dark:border-[#284520] pt-5 space-y-3">
           <a
             href={whatsappUrl}
             target="_blank"

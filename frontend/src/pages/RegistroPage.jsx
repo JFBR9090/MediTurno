@@ -127,19 +127,19 @@ export function RegistroPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#fcfcf7] text-[#1c3a13]">
+    <div className="min-h-screen flex flex-col bg-[#fcfcf7] dark:bg-[#0d170a] text-[#1c3a13] dark:text-[#fcfcf7] transition-colors duration-200">
       <Navbar />
 
       <main className="flex-1 flex items-center justify-center px-4 py-12 sm:px-6">
-        <div className="w-full max-w-2xl bg-[#fcfcf7] border border-[#eeeee9] rounded-[32px] p-6 sm:p-10 space-y-6">
+        <div className="w-full max-w-2xl bg-[#fcfcf7] dark:bg-[#12210e] border border-[#eeeee9] dark:border-[#284520] rounded-[32px] p-6 sm:p-10 space-y-6">
           <div>
             <span className="badge-lime font-mono text-[10px] uppercase">
               Registro Institucional de Pacientes
             </span>
-            <h1 className="mt-2 text-3xl font-light tracking-[-0.4px] text-[#1c3a13]">
+            <h1 className="mt-2 text-3xl font-light tracking-[-0.4px] text-[#1c3a13] dark:text-[#fcfcf7]">
               Crea tu cuenta en MediTurno
             </h1>
-            <p className="mt-1 text-xs sm:text-sm text-[#666666]">
+            <p className="mt-1 text-xs sm:text-sm text-[#666666] dark:text-[#8ca388]">
               Agenda tus citas médicas en menos de 3 minutos y gestiona tus turnos bajo la arquitectura Seed.
             </p>
           </div>
@@ -319,28 +319,28 @@ export function RegistroPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-[#eeeee9] bg-[#eeeee9] p-4">
-              <label className="flex items-start gap-2.5 cursor-pointer text-xs text-[#1c3a13]">
+            <div className="rounded-2xl border border-[#eeeee9] dark:border-[#284520] bg-[#eeeee9] dark:bg-[#162812] p-4">
+              <label className="flex items-start gap-2.5 cursor-pointer text-xs text-[#1c3a13] dark:text-[#fcfcf7]">
                 <input
                   name="aceptaPolitica"
                   type="checkbox"
                   checked={form.aceptaPolitica}
                   onChange={handleChange}
-                  className="mt-0.5 h-4 w-4 rounded border-[#c4c7c4] text-[#1c3a13] focus:ring-[#1c3a13]"
+                  className="mt-0.5 h-4 w-4 rounded border-[#c4c7c4] dark:border-[#284520] text-[#1c3a13] dark:text-[#d3fa99] focus:ring-[#1c3a13] dark:focus:ring-[#d3fa99]"
                 />
                 <span className="leading-relaxed">
                   Autorizo el tratamiento de mis datos personales conforme a la{' '}
-                  <strong className="text-[#1c3a13]">Ley 1581 de 2012 de Colombia</strong>{' '}
+                  <strong className="text-[#1c3a13] dark:text-[#d3fa99]">Ley 1581 de 2012 de Colombia</strong>{' '}
                   exclusivamente para la gestión de citas médicas en MediTurno.
                 </span>
               </label>
               {errors.aceptaPolitica && (
-                <p className="mt-1.5 text-xs text-red-600">{errors.aceptaPolitica}</p>
+                <p className="mt-1.5 text-xs text-red-600 dark:text-red-400">{errors.aceptaPolitica}</p>
               )}
             </div>
 
             {errors.general && (
-              <div className="rounded-2xl border border-red-300 bg-red-50 px-4 py-3 text-xs text-red-800">
+              <div className="rounded-2xl border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-4 py-3 text-xs text-red-800 dark:text-red-300">
                 {errors.general}
               </div>
             )}
@@ -348,7 +348,7 @@ export function RegistroPage() {
             <button type="submit" disabled={submitting} className="btn-primary w-full py-3.5">
               {submitting ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin text-[#d3fa99]" />
+                  <Loader2 className="h-4 w-4 animate-spin text-[#d3fa99] dark:text-[#1c3a13]" />
                   Registrando paciente...
                 </>
               ) : (
@@ -360,9 +360,9 @@ export function RegistroPage() {
             </button>
           </form>
 
-          <p className="text-center text-xs text-[#666666]">
+          <p className="text-center text-xs text-[#666666] dark:text-[#8ca388]">
             ¿Ya tienes una cuenta?{' '}
-            <Link to="/login" className="font-medium text-[#1c3a13] underline hover:text-[#284f1c]">
+            <Link to="/login" className="font-medium text-[#1c3a13] dark:text-[#d3fa99] underline hover:text-[#284f1c]">
               Inicia sesión aquí
             </Link>
           </p>

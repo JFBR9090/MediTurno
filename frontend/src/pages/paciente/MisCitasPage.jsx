@@ -21,23 +21,23 @@ import { useMediTurno } from '../../context/MediTurnoContext';
 const BADGE_MAP = {
   programada: {
     label: 'Programada',
-    classes: 'bg-[#eeeee9] text-[#1c3a13] border-[#c4c7c4]',
+    classes: 'bg-[#eeeee9] text-[#1c3a13] border-[#c4c7c4] dark:bg-[#162812] dark:text-[#d3fa99] dark:border-[#284520]',
   },
   confirmada: {
     label: 'Confirmada',
-    classes: 'bg-[#d3fa99] text-[#1c3a13] border-[#d3fa99]',
+    classes: 'bg-[#d3fa99] text-[#1c3a13] border-[#d3fa99] dark:bg-[#d3fa99] dark:text-[#1c3a13]',
   },
   cancelada: {
     label: 'Cancelada',
-    classes: 'bg-red-50 text-red-800 border-red-200',
+    classes: 'bg-red-50 text-red-800 border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-800',
   },
   completada: {
     label: 'Completada',
-    classes: 'bg-[#1c3a13] text-[#fcfcf7] border-[#1c3a13]',
+    classes: 'bg-[#1c3a13] text-[#fcfcf7] border-[#1c3a13] dark:bg-[#284520] dark:text-[#fcfcf7] dark:border-[#3a5e30]',
   },
   no_asistio: {
     label: 'No Asistió',
-    classes: 'bg-[#eeeee9] text-[#666666] border-[#c4c7c4]',
+    classes: 'bg-[#eeeee9] text-[#666666] border-[#c4c7c4] dark:bg-[#162812] dark:text-[#8ca388] dark:border-[#284520]',
   },
 };
 
@@ -120,16 +120,16 @@ export function MisCitasPage() {
           onClick={() => setTab('programadas')}
           className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-xs font-mono transition-all ${
             tab === 'programadas'
-              ? 'bg-[#1c3a13] text-[#fcfcf7]'
-              : 'bg-[#eeeee9] text-[#1c3a13] border border-[#eeeee9] hover:bg-[#c4c7c4]/40'
+              ? 'bg-[#1c3a13] text-[#fcfcf7] dark:bg-[#d3fa99] dark:text-[#1c3a13]'
+              : 'bg-[#eeeee9] text-[#1c3a13] border border-[#eeeee9] hover:bg-[#c4c7c4]/40 dark:bg-[#162812] dark:text-[#fcfcf7] dark:border-[#284520] dark:hover:bg-[#20361a]'
           }`}
         >
           Programadas
           <span
             className={`rounded-full px-2 py-0.5 text-[11px] font-mono ${
               tab === 'programadas'
-                ? 'bg-[#d3fa99] text-[#1c3a13]'
-                : 'bg-[#fcfcf7] text-[#1c3a13]'
+                ? 'bg-[#d3fa99] text-[#1c3a13] dark:bg-[#1c3a13] dark:text-[#d3fa99]'
+                : 'bg-[#fcfcf7] text-[#1c3a13] dark:bg-[#12210e] dark:text-[#fcfcf7]'
             }`}
           >
             {citasProgramadas.length}
@@ -141,16 +141,16 @@ export function MisCitasPage() {
           onClick={() => setTab('historial')}
           className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-xs font-mono transition-all ${
             tab === 'historial'
-              ? 'bg-[#1c3a13] text-[#fcfcf7]'
-              : 'bg-[#eeeee9] text-[#1c3a13] border border-[#eeeee9] hover:bg-[#c4c7c4]/40'
+              ? 'bg-[#1c3a13] text-[#fcfcf7] dark:bg-[#d3fa99] dark:text-[#1c3a13]'
+              : 'bg-[#eeeee9] text-[#1c3a13] border border-[#eeeee9] hover:bg-[#c4c7c4]/40 dark:bg-[#162812] dark:text-[#fcfcf7] dark:border-[#284520] dark:hover:bg-[#20361a]'
           }`}
         >
           Historial
           <span
             className={`rounded-full px-2 py-0.5 text-[11px] font-mono ${
               tab === 'historial'
-                ? 'bg-[#d3fa99] text-[#1c3a13]'
-                : 'bg-[#fcfcf7] text-[#1c3a13]'
+                ? 'bg-[#d3fa99] text-[#1c3a13] dark:bg-[#1c3a13] dark:text-[#d3fa99]'
+                : 'bg-[#fcfcf7] text-[#1c3a13] dark:bg-[#12210e] dark:text-[#fcfcf7]'
             }`}
           >
             {citasHistorial.length}
@@ -217,41 +217,41 @@ export function MisCitasPage() {
                     >
                       {badge.label}
                     </span>
-                    <span className="rounded-full bg-[#eeeee9] border border-[#c4c7c4]/80 px-3 py-0.5 font-mono text-xs text-[#1c3a13]">
+                    <span className="rounded-full bg-[#eeeee9] dark:bg-[#12210e] border border-[#c4c7c4]/80 dark:border-[#284520] px-3 py-0.5 font-mono text-xs text-[#1c3a13] dark:text-[#d3fa99]">
                       {cita.codigo_reserva}
                     </span>
-                    <span className="text-xs font-mono uppercase text-[#757c5d]">
+                    <span className="text-xs font-mono uppercase text-[#757c5d] dark:text-[#8ca388]">
                       {cita.especialidad}
                     </span>
                   </div>
 
                   <div>
-                    <h3 className="text-base font-medium text-[#1c3a13]">
+                    <h3 className="text-base font-medium text-[#1c3a13] dark:text-[#fcfcf7]">
                       {cita.medico_nombre}
                     </h3>
                     {cita.motivo_consulta && (
-                      <p className="mt-0.5 text-xs text-[#666666]">
+                      <p className="mt-0.5 text-xs text-[#666666] dark:text-[#8ca388]">
                         Motivo: {cita.motivo_consulta}
                       </p>
                     )}
                     {cita.motivo_cancelacion && cita.estado === 'cancelada' && (
-                      <p className="mt-0.5 text-xs text-red-600">
+                      <p className="mt-0.5 text-xs text-red-600 dark:text-red-400">
                         Motivo de cancelación: {cita.motivo_cancelacion}
                       </p>
                     )}
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs text-[#666666] font-mono">
+                  <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs text-[#666666] dark:text-[#8ca388] font-mono">
                     <span className="inline-flex items-center gap-1.5 capitalize">
-                      <Calendar className="h-3.5 w-3.5 text-[#1c3a13]" />
+                      <Calendar className="h-3.5 w-3.5 text-[#1c3a13] dark:text-[#d3fa99]" />
                       {fechaStr}
                     </span>
                     <span className="inline-flex items-center gap-1.5">
-                      <Clock className="h-3.5 w-3.5 text-[#1c3a13]" />
+                      <Clock className="h-3.5 w-3.5 text-[#1c3a13] dark:text-[#d3fa99]" />
                       {horaStr}
                     </span>
                     <span className="inline-flex items-center gap-1.5">
-                      <MapPin className="h-3.5 w-3.5 text-[#1c3a13]" />
+                      <MapPin className="h-3.5 w-3.5 text-[#1c3a13] dark:text-[#d3fa99]" />
                       {cita.consultorio}
                     </span>
                   </div>

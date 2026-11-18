@@ -10,10 +10,22 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap"
       rel="stylesheet"
     />
-    <script type="module" crossorigin src="/assets/index-DSMYbaux.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-CGrwNyOu.css">
+    <script>
+      (function() {
+        try {
+          const theme = localStorage.getItem('mediturno_theme');
+          if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <script type="module" crossorigin src="/assets/index-B2Lb8FTv.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BSXPtvsw.css">
   </head>
-  <body class="bg-[#fcfcf7] text-[#1c3a13] antialiased selection:bg-[#d3fa99] selection:text-[#1c3a13]">
+  <body class="bg-[#fcfcf7] dark:bg-[#0d170a] text-[#1c3a13] dark:text-[#fcfcf7] antialiased selection:bg-[#d3fa99] selection:text-[#1c3a13] transition-colors duration-200">
     <div id="root"></div>
   </body>
 </html>

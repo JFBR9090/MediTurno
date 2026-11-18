@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -17,6 +18,11 @@ export default {
           depths: '#1c3a13',
           hover: '#284f1c',
           dark: '#142a0e',
+          night: '#0d170a',
+          surface: '#162812',
+          border: '#284520',
+          card: '#1a2e16',
+          muted: '#8ca388',
         },
         lime: {
           DEFAULT: '#d3fa99',

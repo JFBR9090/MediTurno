@@ -42,20 +42,20 @@ export function ModalCancelar({ cita, isOpen, onClose, onConfirm }) {
       aria-modal="true"
       aria-labelledby="modal-cancelar-titulo"
     >
-      <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl animate-fade-in-up">
+      <div className="w-full max-w-md rounded-2xl border border-[#eeeee9] dark:border-[#284520] bg-[#fcfcf7] dark:bg-[#12210e] text-[#1c3a13] dark:text-[#fcfcf7] p-6 shadow-2xl animate-fade-in-up">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-red-600 shrink-0">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 shrink-0">
               <AlertTriangle className="h-5 w-5" />
             </div>
             <div>
               <h3
                 id="modal-cancelar-titulo"
-                className="text-base font-bold text-slate-900"
+                className="text-base font-medium text-[#1c3a13] dark:text-[#fcfcf7]"
               >
                 Cancelar Cita Médica
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs font-mono text-[#666666] dark:text-[#8ca388]">
                 Código {cita.codigo_reserva}
               </p>
             </div>
@@ -64,15 +64,15 @@ export function ModalCancelar({ cita, isOpen, onClose, onConfirm }) {
             type="button"
             onClick={onClose}
             disabled={submitting}
-            className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+            className="rounded-full p-1 text-[#666666] hover:bg-[#eeeee9] dark:hover:bg-[#162812] dark:text-[#8ca388] transition-colors"
             aria-label="Cerrar modal"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="mt-4 rounded-xl bg-slate-50 p-3.5 text-sm space-y-1">
-          <p className="font-semibold text-slate-900">{cita.medico_nombre}</p>
+        <div className="mt-4 rounded-xl border border-[#eeeee9] dark:border-[#284520] bg-[#eeeee9] dark:bg-[#162812] p-3.5 text-sm space-y-1">
+          <p className="font-medium text-[#1c3a13] dark:text-[#fcfcf7]">{cita.medico_nombre}</p>
           <p className="text-xs text-sky-700 font-medium">{cita.especialidad}</p>
           <p className="text-xs text-slate-600 capitalize">
             {fechaStr} — {horaStr}

@@ -15,11 +15,11 @@ import { useAuth } from '../../context/AuthContext';
 import { useMediTurno } from '../../context/MediTurnoContext';
 
 const ESTADO_BADGE = {
-  programada: { label: 'Programada', classes: 'bg-[#eeeee9] text-[#1c3a13] border-[#c4c7c4]' },
-  confirmada: { label: 'Confirmada', classes: 'bg-[#d3fa99] text-[#1c3a13] border-[#d3fa99]' },
-  completada: { label: 'Completada', classes: 'bg-[#1c3a13] text-[#fcfcf7] border-[#1c3a13]' },
-  no_asistio: { label: 'No Asistió', classes: 'bg-[#eeeee9] text-[#666666] border-[#c4c7c4]' },
-  cancelada: { label: 'Cancelada', classes: 'bg-red-50 text-red-800 border-red-200' },
+  programada: { label: 'Programada', classes: 'bg-[#eeeee9] text-[#1c3a13] border-[#c4c7c4] dark:bg-[#162812] dark:text-[#d3fa99] dark:border-[#284520]' },
+  confirmada: { label: 'Confirmada', classes: 'bg-[#d3fa99] text-[#1c3a13] border-[#d3fa99] dark:bg-[#d3fa99] dark:text-[#1c3a13]' },
+  completada: { label: 'Completada', classes: 'bg-[#1c3a13] text-[#fcfcf7] border-[#1c3a13] dark:bg-[#284520] dark:text-[#fcfcf7] dark:border-[#3a5e30]' },
+  no_asistio: { label: 'No Asistió', classes: 'bg-[#eeeee9] text-[#666666] border-[#c4c7c4] dark:bg-[#162812] dark:text-[#8ca388] dark:border-[#284520]' },
+  cancelada: { label: 'Cancelada', classes: 'bg-red-50 text-red-800 border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-800' },
 };
 
 function toLocalISODate(date) {
@@ -108,10 +108,10 @@ export function AgendaMedicoPage() {
               setModoFiltro('fecha');
               setFechaFiltro(toLocalISODate(new Date()));
             }}
-            className={`rounded-xl px-3 py-2 text-xs font-semibold transition-all ${
+            className={`rounded-full px-4 py-1.5 text-xs font-mono transition-all ${
               modoFiltro === 'fecha' && fechaFiltro === toLocalISODate(new Date())
-                ? 'bg-sky-600 text-white'
-                : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
+                ? 'bg-[#1c3a13] text-[#fcfcf7] dark:bg-[#d3fa99] dark:text-[#1c3a13]'
+                : 'bg-[#fcfcf7] dark:bg-[#162812] border border-[#eeeee9] dark:border-[#284520] text-[#1c3a13] dark:text-[#fcfcf7] hover:bg-[#eeeee9] dark:hover:bg-[#20361a]'
             }`}
           >
             Hoy
@@ -119,16 +119,16 @@ export function AgendaMedicoPage() {
           <button
             type="button"
             onClick={() => setModoFiltro('todas')}
-            className={`rounded-xl px-3 py-2 text-xs font-semibold transition-all ${
+            className={`rounded-full px-4 py-1.5 text-xs font-mono transition-all ${
               modoFiltro === 'todas'
-                ? 'bg-sky-600 text-white'
-                : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
+                ? 'bg-[#1c3a13] text-[#fcfcf7] dark:bg-[#d3fa99] dark:text-[#1c3a13]'
+                : 'bg-[#fcfcf7] dark:bg-[#162812] border border-[#eeeee9] dark:border-[#284520] text-[#1c3a13] dark:text-[#fcfcf7] hover:bg-[#eeeee9] dark:hover:bg-[#20361a]'
             }`}
           >
             Historial Completo
           </button>
-          <div className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-2.5 py-1.5">
-            <CalendarDays className="h-3.5 w-3.5 text-sky-600" />
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-[#eeeee9] dark:border-[#284520] bg-[#fcfcf7] dark:bg-[#162812] px-3 py-1 text-xs font-mono">
+            <CalendarDays className="h-3.5 w-3.5 text-[#1c3a13] dark:text-[#d3fa99]" />
             <input
               type="date"
               value={fechaFiltro}
@@ -136,7 +136,7 @@ export function AgendaMedicoPage() {
                 setFechaFiltro(e.target.value);
                 setModoFiltro('fecha');
               }}
-              className="text-xs font-medium text-slate-700 focus:outline-none"
+              className="bg-transparent text-xs font-mono text-[#1c3a13] dark:text-[#fcfcf7] focus:outline-none"
               aria-label="Filtrar agenda por fecha"
             />
           </div>
@@ -146,22 +146,22 @@ export function AgendaMedicoPage() {
       {/* Resumen rápido */}
       <div className="mb-6 grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="card-surface p-4">
-          <p className="text-xs font-medium text-slate-500">
+          <p className="text-xs font-mono uppercase text-[#666666] dark:text-[#8ca388]">
             {modoFiltro === 'todas' ? 'Total en Historial' : 'Turnos de la Fecha'}
           </p>
-          <p className="mt-1 text-2xl font-bold text-slate-900">{resumen.total}</p>
+          <p className="mt-1 text-2xl font-mono text-[#1c3a13] dark:text-[#fcfcf7]">{resumen.total}</p>
         </div>
         <div className="card-surface p-4">
-          <p className="text-xs font-medium text-slate-500">Por Atender</p>
-          <p className="mt-1 text-2xl font-bold text-sky-600">{resumen.pendientes}</p>
+          <p className="text-xs font-mono uppercase text-[#666666] dark:text-[#8ca388]">Por Atender</p>
+          <p className="mt-1 text-2xl font-mono text-[#1c3a13] dark:text-[#d3fa99]">{resumen.pendientes}</p>
         </div>
         <div className="card-surface p-4">
-          <p className="text-xs font-medium text-slate-500">Atendidas</p>
-          <p className="mt-1 text-2xl font-bold text-emerald-600">{resumen.atendidas}</p>
+          <p className="text-xs font-mono uppercase text-[#666666] dark:text-[#8ca388]">Atendidas</p>
+          <p className="mt-1 text-2xl font-mono text-[#757c5d] dark:text-[#d3fa99]">{resumen.atendidas}</p>
         </div>
         <div className="card-surface p-4">
-          <p className="text-xs font-medium text-slate-500">Inasistencias</p>
-          <p className="mt-1 text-2xl font-bold text-amber-600">{resumen.inasistencias}</p>
+          <p className="text-xs font-mono uppercase text-[#666666] dark:text-[#8ca388]">Inasistencias</p>
+          <p className="mt-1 text-2xl font-mono text-amber-600 dark:text-amber-400">{resumen.inasistencias}</p>
         </div>
       </div>
 
@@ -204,17 +204,17 @@ export function AgendaMedicoPage() {
               <article
                 key={cita.id}
                 className={`card-surface p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 transition-all ${
-                  esInmutable ? 'bg-slate-50/70' : ''
+                  esInmutable ? 'opacity-90' : ''
                 }`}
               >
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4 flex-1">
                   {/* Bloque horario */}
-                  <div className="rounded-xl border border-sky-200 bg-sky-50/70 px-4 py-3 text-center shrink-0 min-w-[155px]">
-                    <div className="flex items-center justify-center gap-1.5 text-xs font-semibold text-sky-700">
+                  <div className="rounded-2xl border border-[#eeeee9] dark:border-[#284520] bg-[#fcfcf7] dark:bg-[#12210e] px-4 py-3 text-center shrink-0 min-w-[155px]">
+                    <div className="flex items-center justify-center gap-1.5 text-xs font-mono text-[#1c3a13] dark:text-[#d3fa99]">
                       <Clock className="h-3.5 w-3.5" />
                       {fechaLabel}
                     </div>
-                    <p className="mt-1 text-xs font-bold text-slate-900">{horaStr}</p>
+                    <p className="mt-1 text-xs font-mono font-medium text-[#1c3a13] dark:text-[#fcfcf7]">{horaStr}</p>
                   </div>
 
                   {/* Información del paciente */}
@@ -225,24 +225,24 @@ export function AgendaMedicoPage() {
                       >
                         {badge.label}
                       </span>
-                      <span className="rounded-md bg-slate-100 px-2 py-0.5 font-mono text-xs font-semibold text-slate-600">
+                      <span className="rounded-full bg-[#eeeee9] dark:bg-[#12210e] border border-[#c4c7c4]/80 dark:border-[#284520] px-2.5 py-0.5 font-mono text-xs text-[#1c3a13] dark:text-[#d3fa99]">
                         {cita.codigo_reserva}
                       </span>
-                      <span className="text-xs text-slate-500">
+                      <span className="text-xs font-mono text-[#666666] dark:text-[#8ca388]">
                         {cita.paciente_documento}
                       </span>
                     </div>
 
-                    <h3 className="text-base font-bold text-slate-900">
+                    <h3 className="text-base font-medium text-[#1c3a13] dark:text-[#fcfcf7]">
                       {cita.paciente_nombre}
                     </h3>
 
-                    <p className="text-xs text-slate-600">
+                    <p className="text-xs text-[#666666] dark:text-[#8ca388]">
                       <strong>Motivo:</strong> {cita.motivo_consulta || 'Control general'}
                     </p>
 
-                    <p className="inline-flex items-center gap-1.5 text-xs text-slate-500">
-                      <Phone className="h-3.5 w-3.5 text-sky-600" />
+                    <p className="inline-flex items-center gap-1.5 text-xs font-mono text-[#666666] dark:text-[#8ca388]">
+                      <Phone className="h-3.5 w-3.5 text-[#1c3a13] dark:text-[#d3fa99]" />
                       Contacto: {cita.paciente_telefono}
                     </p>
                   </div>
@@ -251,8 +251,8 @@ export function AgendaMedicoPage() {
                 {/* Acciones de transición de estado */}
                 <div className="flex flex-wrap items-center gap-2.5 shrink-0">
                   {esInmutable ? (
-                    <span className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-500">
-                      <Lock className="h-3.5 w-3.5" />
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-[#eeeee9] dark:border-[#284520] bg-[#fcfcf7] dark:bg-[#12210e] px-4 py-2 text-xs font-mono text-[#666666] dark:text-[#8ca388]">
+                      <Lock className="h-3.5 w-3.5 text-[#757c5d]" />
                       Registro cerrado (inmutable)
                     </span>
                   ) : (
@@ -261,7 +261,7 @@ export function AgendaMedicoPage() {
                         type="button"
                         disabled={isBusy}
                         onClick={() => handleTransition(cita.id, 'completada')}
-                        className="inline-flex items-center gap-1.5 rounded-xl bg-sky-600 px-4 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-sky-700 transition-colors disabled:opacity-70"
+                        className="btn-primary text-xs px-4 py-2"
                       >
                         <UserCheck className="h-4 w-4" />
                         Marcar como Atendida
@@ -271,7 +271,7 @@ export function AgendaMedicoPage() {
                         type="button"
                         disabled={isBusy}
                         onClick={() => handleTransition(cita.id, 'no_asistio')}
-                        className="inline-flex items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-xs font-semibold text-amber-800 hover:bg-amber-100 transition-colors disabled:opacity-70"
+                        className="inline-flex items-center gap-1.5 rounded-full border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/40 px-4 py-2 text-xs font-mono text-amber-800 dark:text-amber-200 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors disabled:opacity-70"
                       >
                         <UserX className="h-4 w-4" />
                         Registrar Inasistencia
@@ -285,11 +285,11 @@ export function AgendaMedicoPage() {
         </div>
       )}
 
-      <div className="mt-6 flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-xs text-slate-500">
-        <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+      <div className="mt-6 flex items-center gap-2 rounded-2xl border border-[#eeeee9] dark:border-[#284520] bg-[#eeeee9] dark:bg-[#162812] px-4 py-3 text-xs text-[#666666] dark:text-[#8ca388]">
+        <CheckCircle2 className="h-4 w-4 text-[#1c3a13] dark:text-[#d3fa99] shrink-0" />
         <span>
-          Toda cita marcada como <code>completada</code> o <code>no_asistio</code> bloquea
-          nuevas modificaciones y registra auditoría permanente en <code>historial_citas</code>.
+          Toda cita marcada como <code className="font-mono text-[#1c3a13] dark:text-[#d3fa99]">completada</code> o <code className="font-mono text-[#1c3a13] dark:text-[#d3fa99]">no_asistio</code> bloquea
+          nuevas modificaciones y registra auditoría permanente en <code className="font-mono text-[#1c3a13] dark:text-[#d3fa99]">historial_citas</code>.
         </span>
       </div>
     </DashboardLayout>
