@@ -23,6 +23,7 @@ export async function apiRequest(endpoint, options = {}) {
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
       ...headers,
     },
     signal,

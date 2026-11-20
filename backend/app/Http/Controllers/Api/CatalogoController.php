@@ -39,7 +39,7 @@ class CatalogoController extends Controller
     public function storeEspecialidad(Request $request): JsonResponse
     {
         $userAuth = $request->user();
-        if (! $userAuth || $userAuth->rol !== 'administrador') {
+        if (! $userAuth || ! $userAuth->isAdmin()) {
             return response()->json(['success' => false, 'error' => 'Permisos insuficientes.'], 403);
         }
 
@@ -75,7 +75,7 @@ class CatalogoController extends Controller
     public function updateEspecialidad(Request $request, Especialidad $especialidad): JsonResponse
     {
         $userAuth = $request->user();
-        if (! $userAuth || $userAuth->rol !== 'administrador') {
+        if (! $userAuth || ! $userAuth->isAdmin()) {
             return response()->json(['success' => false, 'error' => 'Permisos insuficientes.'], 403);
         }
 
@@ -108,7 +108,7 @@ class CatalogoController extends Controller
     public function toggleEspecialidad(Request $request, Especialidad $especialidad): JsonResponse
     {
         $userAuth = $request->user();
-        if (! $userAuth || $userAuth->rol !== 'administrador') {
+        if (! $userAuth || ! $userAuth->isAdmin()) {
             return response()->json(['success' => false, 'error' => 'Permisos insuficientes.'], 403);
         }
 
@@ -144,7 +144,7 @@ class CatalogoController extends Controller
     public function storeMedico(Request $request): JsonResponse
     {
         $userAuth = $request->user();
-        if (! $userAuth || $userAuth->rol !== 'administrador') {
+        if (! $userAuth || ! $userAuth->isAdmin()) {
             return response()->json(['success' => false, 'error' => 'Permisos insuficientes.'], 403);
         }
 
@@ -226,7 +226,7 @@ class CatalogoController extends Controller
     public function toggleMedico(Request $request, Medico $medico): JsonResponse
     {
         $userAuth = $request->user();
-        if (! $userAuth || $userAuth->rol !== 'administrador') {
+        if (! $userAuth || ! $userAuth->isAdmin()) {
             return response()->json(['success' => false, 'error' => 'Permisos insuficientes.'], 403);
         }
 
@@ -243,7 +243,7 @@ class CatalogoController extends Controller
     public function pacientes(Request $request): JsonResponse
     {
         $userAuth = $request->user();
-        if (! $userAuth || $userAuth->rol !== 'administrador') {
+        if (! $userAuth || ! $userAuth->isAdmin()) {
             return response()->json(['success' => false, 'error' => 'Permisos insuficientes.'], 403);
         }
 
@@ -268,7 +268,7 @@ class CatalogoController extends Controller
     public function storePaciente(Request $request): JsonResponse
     {
         $userAuth = $request->user();
-        if (! $userAuth || $userAuth->rol !== 'administrador') {
+        if (! $userAuth || ! $userAuth->isAdmin()) {
             return response()->json(['success' => false, 'error' => 'Permisos insuficientes.'], 403);
         }
 

@@ -227,5 +227,20 @@ class PlanPruebasMvpTest extends TestCase
         ]);
         $horarioSolapado->assertStatus(409);
     }
+
+    public function test_admin_edita_especialidad(): void
+    {
+        $adminUser = User::where('email', 'admin@mediturno.co')->firstOrFail();
+        $esp = \App\Models\Especialidad::firstOrFail();
+
+        $res = $this->actingAs($adminUser)->putJson("/api/especialidades/{$esp->id}", [
+            'nombre' => 'Cardiología Actualizada',
+            'descripcion' => 'Descripción nueva',
+            'tiempo_promedio_min' => 30,
+        ]);
+        $res->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.nombre', 'Cardiología Actualizada');
+    }
 }
 

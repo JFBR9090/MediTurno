@@ -73,12 +73,20 @@ class User extends Authenticatable
 
     public function isAdmin(): bool
     {
-        return $this->rol === 'administrador';
+        return in_array($this->rol, ['administrador', 'admin'], true);
     }
 
     public function hasRole(array|string $roles): bool
     {
         $roles = (array) $roles;
+        // Permite tratar 'admin' y 'administrador' de manera equivalente
+        if (in_array('admin', $roles, true) && ! in_array('administrador', $roles, true)) {
+            $roles[] = 'administrador';
+        }
+        if (in_array('administrador', $roles, true) && ! in_array('admin', $roles, true)) {
+            $roles[] = 'admin';
+        }
+
         // Permite tratar 'medico' y 'profesional' de manera equivalente
         if (in_array('profesional', $roles, true) && ! in_array('medico', $roles, true)) {
             $roles[] = 'medico';
@@ -87,7 +95,7 @@ class User extends Authenticatable
             $roles[] = 'profesional';
         }
 
-        return in_array($this->rol, $roles, true);
+        return in_array($this->rol, $roles, true) || ($this->isAdmin() && (in_array('administrador', $roles, true) || in_array('admin', $roles, true)));
     }
 
     public function toFrontendArray(): array
@@ -96,6 +104,7 @@ class User extends Authenticatable
 
         $perfilNormalizado = match ($this->rol) {
             'medico' => 'profesional',
+            'admin' => 'administrador',
             default => $this->rol,
         };
 

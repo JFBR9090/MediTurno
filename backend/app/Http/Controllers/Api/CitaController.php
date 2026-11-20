@@ -45,7 +45,7 @@ class CitaController extends Controller
 
         $response = ['success' => true, 'data' => $citas];
 
-        if ($user->rol === 'administrador') {
+        if ($user->isAdmin()) {
             $hoyInicio = Carbon::now('America/Bogota')->startOfDay();
             $hoyFin = Carbon::now('America/Bogota')->endOfDay();
 
@@ -69,7 +69,7 @@ class CitaController extends Controller
             return response()->json(['success' => false, 'error' => 'Autenticación requerida.'], 401);
         }
 
-        if (! in_array($user->rol, ['paciente', 'administrador'], true)) {
+        if (! in_array($user->rol, ['paciente', 'administrador', 'admin'], true)) {
             return response()->json([
                 'success' => false,
                 'error' => 'No tienes permisos para agendar citas médicas.',
@@ -226,7 +226,7 @@ class CitaController extends Controller
         }
 
         $esDuenio = $user->rol === 'paciente' && $user->paciente?->id === $cita->paciente_id;
-        if (! $esDuenio && $user->rol !== 'administrador') {
+        if (! $esDuenio && ! $user->isAdmin()) {
             return response()->json(['success' => false, 'error' => 'No tienes permisos para cancelar esta cita.'], 403);
         }
 
@@ -291,7 +291,7 @@ class CitaController extends Controller
         }
 
         $esDuenio = $user->rol === 'paciente' && $user->paciente?->id === $cita->paciente_id;
-        if (! $esDuenio && $user->rol !== 'administrador') {
+        if (! $esDuenio && ! $user->isAdmin()) {
             return response()->json(['success' => false, 'error' => 'No tienes permisos para reprogramar esta cita.'], 403);
         }
 
@@ -393,7 +393,7 @@ class CitaController extends Controller
     public function actualizarEstado(Request $request, Cita $cita): JsonResponse
     {
         $user = $request->user();
-        if (! $user || ! in_array($user->rol, ['medico', 'profesional', 'administrador'], true)) {
+        if (! $user || (! $user->isProfesional() && ! $user->isAdmin())) {
             return response()->json(['success' => false, 'error' => 'Permisos insuficientes. Solo el profesional médico asignado puede actualizar el estado clínico.'], 403);
         }
 
@@ -445,7 +445,7 @@ class CitaController extends Controller
     public function reportes(Request $request): JsonResponse
     {
         $user = $request->user();
-        if (! $user || $user->rol !== 'administrador') {
+        if (! $user || ! $user->isAdmin()) {
             return response()->json(['success' => false, 'error' => 'Permisos insuficientes.'], 403);
         }
 
