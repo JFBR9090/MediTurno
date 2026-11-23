@@ -1,0 +1,471 @@
+{
+  "info": {
+    "_postman_id": "mediturno-sprint-2-api-collection",
+    "name": "MediTurno API — Sprint 2",
+    "description": "Colección completa de endpoints para pruebas funcionales, evaluación de backend y base de datos del Sistema MediTurno (Sprint 2).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8000/api",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Healthcheck",
+      "item": [
+        {
+          "name": "Healthcheck & Database Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Autenticación y Gatekeeper",
+      "item": [
+        {
+          "name": "Demo Login (Administrador)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/demo",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "demo"]
+            }
+          }
+        },
+        {
+          "name": "Demo Login (Profesional Médico)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"profesional\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/demo",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "demo"]
+            }
+          }
+        },
+        {
+          "name": "Demo Login (Paciente)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"paciente\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/demo",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "demo"]
+            }
+          }
+        },
+        {
+          "name": "Iniciar Sesión Manual",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"admin@mediturno.com\",\n  \"password\": \"admin123\",\n  \"perfil\": \"administrador\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Registro de Paciente",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Estudiante\",\n  \"apellido\": \"SENA\",\n  \"tipo_documento\": \"CC\",\n  \"numero_documento\": \"1099887766\",\n  \"telefono\": \"3115558899\",\n  \"fecha_nacimiento\": \"1998-05-20\",\n  \"correo\": \"estudiante.sena@correo.co\",\n  \"password\": \"Sena2026*\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Consultar Usuario Actual (/me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            }
+          }
+        },
+        {
+          "name": "Cerrar Sesión",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Catálogos y Especialidades (CRUD)",
+      "item": [
+        {
+          "name": "Listar Especialidades",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/especialidades",
+              "host": ["{{baseUrl}}"],
+              "path": ["especialidades"]
+            }
+          }
+        },
+        {
+          "name": "Crear Especialidad (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Dermatología Clínica\",\n  \"descripcion\": \"Diagnóstico integral de la piel, cabello y uñas.\",\n  \"tiempo_promedio_min\": 30,\n  \"icono\": \"Shield\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/especialidades",
+              "host": ["{{baseUrl}}"],
+              "path": ["especialidades"]
+            }
+          }
+        },
+        {
+          "name": "Editar Especialidad (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Dermatología Especializada\",\n  \"descripcion\": \"Atención avanzada y procedimientos menores.\",\n  \"tiempo_promedio_min\": 30\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/especialidades/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["especialidades", "1"]
+            }
+          }
+        },
+        {
+          "name": "Activar o Desactivar Especialidad (Toggle/Baja Lógica)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/especialidades/1/toggle",
+              "host": ["{{baseUrl}}"],
+              "path": ["especialidades", "1", "toggle"]
+            }
+          }
+        },
+        {
+          "name": "Listar Médicos",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/medicos?solo_activos=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["medicos"],
+              "query": [
+                { "key": "solo_activos", "value": "true" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Listar Pacientes (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pacientes",
+              "host": ["{{baseUrl}}"],
+              "path": ["pacientes"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Agendas y Disponibilidad",
+      "item": [
+        {
+          "name": "Calendario de Días Hábiles del Médico",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/horarios/1/calendario?dias=14",
+              "host": ["{{baseUrl}}"],
+              "path": ["horarios", "1", "calendario"],
+              "query": [
+                { "key": "dias", "value": "14" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Consultar Disponibilidad de Franjas (Slots)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/horarios/1/disponibilidad?fecha=2026-11-23",
+              "host": ["{{baseUrl}}"],
+              "path": ["horarios", "1", "disponibilidad"],
+              "query": [
+                { "key": "fecha", "value": "2026-11-23" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Guardar Franja Horaria (Médico / Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dia_semana\": 3,\n  \"hora_inicio\": \"14:00\",\n  \"hora_fin\": \"17:00\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/horarios/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["horarios", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Citas Médicas y Transacciones (CRUD)",
+      "item": [
+        {
+          "name": "Listar Citas (Según Rol)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/citas",
+              "host": ["{{baseUrl}}"],
+              "path": ["citas"]
+            }
+          }
+        },
+        {
+          "name": "Agendar Cita Médica (Transacción ACID)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"medico_id\": 1,\n  \"especialidad_id\": 1,\n  \"fecha\": \"2026-11-23\",\n  \"hora_inicio\": \"09:00\",\n  \"motivo_consulta\": \"Consulta médica preventiva general.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/citas",
+              "host": ["{{baseUrl}}"],
+              "path": ["citas"]
+            }
+          }
+        },
+        {
+          "name": "Reprogramar Cita Médica",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fecha\": \"2026-11-24\",\n  \"hora_inicio\": \"10:00\",\n  \"motivo\": \"Reprogramación solicitada con anticipación mayor a 2 horas.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/citas/1/reprogramar",
+              "host": ["{{baseUrl}}"],
+              "path": ["citas", "1", "reprogramar"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar Estado Clínico (Médico / Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"completada\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/citas/1/estado",
+              "host": ["{{baseUrl}}"],
+              "path": ["citas", "1", "estado"]
+            }
+          }
+        },
+        {
+          "name": "Cancelar Cita Médica (Baja Lógica / 2h antes)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"motivo\": \"Incompatibilidad horaria con jornada laboral.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/citas/1/cancelar",
+              "host": ["{{baseUrl}}"],
+              "path": ["citas", "1", "cancelar"]
+            }
+          }
+        },
+        {
+          "name": "Reportes Administrativos de Citas",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/citas",
+              "host": ["{{baseUrl}}"],
+              "path": ["reportes", "citas"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Notificaciones In-App",
+      "item": [
+        {
+          "name": "Listar Notificaciones del Usuario",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notificaciones",
+              "host": ["{{baseUrl}}"],
+              "path": ["notificaciones"]
+            }
+          }
+        },
+        {
+          "name": "Marcar Notificaciones como Leídas",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notificaciones/leer",
+              "host": ["{{baseUrl}}"],
+              "path": ["notificaciones", "leer"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
