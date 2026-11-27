@@ -73,29 +73,45 @@ class User extends Authenticatable
 
     public function isAdmin(): bool
     {
-        return in_array($this->rol, ['administrador', 'admin'], true);
+        $rol = mb_strtolower(trim($this->rol ?? ''));
+        return in_array($rol, ['administrador', 'admin'], true);
     }
 
     public function hasRole(array|string $roles): bool
     {
-        $roles = (array) $roles;
-        // Permite tratar 'admin' y 'administrador' de manera equivalente
-        if (in_array('admin', $roles, true) && ! in_array('administrador', $roles, true)) {
-            $roles[] = 'administrador';
+        $rolActual = mb_strtolower(trim($this->rol ?? ''));
+
+        if ($this->isAdmin()) {
+            return true;
         }
-        if (in_array('administrador', $roles, true) && ! in_array('admin', $roles, true)) {
-            $roles[] = 'admin';
+
+        $flattened = [];
+        foreach ((array) $roles as $r) {
+            foreach (explode(',', (string) $r) as $part) {
+                $trimmed = mb_strtolower(trim($part));
+                if ($trimmed !== '') {
+                    $flattened[] = $trimmed;
+                }
+            }
+        }
+
+        // Permite tratar 'admin' y 'administrador' de manera equivalente
+        if (in_array('admin', $flattened, true) && ! in_array('administrador', $flattened, true)) {
+            $flattened[] = 'administrador';
+        }
+        if (in_array('administrador', $flattened, true) && ! in_array('admin', $flattened, true)) {
+            $flattened[] = 'admin';
         }
 
         // Permite tratar 'medico' y 'profesional' de manera equivalente
-        if (in_array('profesional', $roles, true) && ! in_array('medico', $roles, true)) {
-            $roles[] = 'medico';
+        if (in_array('profesional', $flattened, true) && ! in_array('medico', $flattened, true)) {
+            $flattened[] = 'medico';
         }
-        if (in_array('medico', $roles, true) && ! in_array('profesional', $roles, true)) {
-            $roles[] = 'profesional';
+        if (in_array('medico', $flattened, true) && ! in_array('profesional', $flattened, true)) {
+            $flattened[] = 'profesional';
         }
 
-        return in_array($this->rol, $roles, true) || ($this->isAdmin() && (in_array('administrador', $roles, true) || in_array('admin', $roles, true)));
+        return in_array($rolActual, $flattened, true);
     }
 
     public function toFrontendArray(): array

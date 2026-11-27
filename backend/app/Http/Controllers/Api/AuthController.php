@@ -117,6 +117,8 @@ class AuthController extends Controller
 
         // 5. Autenticación exitosa: limpiar intentos y regenerar sesión contra session fixation
         RateLimiter::clear($throttleKey);
+        Auth::logout();
+        $request->session()->invalidate();
         Auth::login($user);
         $request->session()->regenerate();
 
@@ -138,6 +140,20 @@ class AuthController extends Controller
             'correo' => ['required', 'email', 'max:150', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8'],
         ]);
+
+        $edad = \Carbon\Carbon::parse($data['fecha_nacimiento'])->age;
+        if ($edad < 18 && $data['tipo_documento'] === 'CC') {
+            return response()->json([
+                'success' => false,
+                'error' => "Los menores de 18 años ({$edad} años) no pueden registrarse con Cédula de Ciudadanía (CC). Según la legislación colombiana, debes seleccionar Tarjeta de Identidad (TI).",
+                'errors' => [
+                    'tipo_documento' => ['Los menores de 18 años deben registrarse con Tarjeta de Identidad (TI).'],
+                ],
+                'detalles' => [
+                    'tipo_documento' => ['Los menores de 18 años deben registrarse con Tarjeta de Identidad (TI).'],
+                ],
+            ], 422);
+        }
 
         $user = DB::transaction(function () use ($data) {
             $correo = mb_strtolower(trim($data['correo']));
@@ -162,6 +178,8 @@ class AuthController extends Controller
             return $user;
         });
 
+        Auth::logout();
+        $request->session()->invalidate();
         Auth::login($user);
         $request->session()->regenerate();
 
@@ -204,6 +222,8 @@ class AuthController extends Controller
             ], 404);
         }
 
+        Auth::logout();
+        $request->session()->invalidate();
         Auth::login($user);
         $request->session()->regenerate();
 

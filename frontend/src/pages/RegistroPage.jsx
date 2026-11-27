@@ -1,10 +1,23 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Loader2, UserPlus } from 'lucide-react';
+import { Info, Loader2, UserPlus } from 'lucide-react';
 import { Navbar } from '../components/layout/Navbar';
 import { Footer } from '../components/layout/Footer';
 import { useAuth } from '../context/AuthContext';
 import { useMediTurno } from '../context/MediTurnoContext';
+
+export function calcularEdad(fechaNacimiento) {
+  if (!fechaNacimiento) return null;
+  const fecha = new Date(fechaNacimiento + 'T00:00:00');
+  if (isNaN(fecha.getTime())) return null;
+  const hoy = new Date();
+  let edad = hoy.getFullYear() - fecha.getFullYear();
+  const m = hoy.getMonth() - fecha.getMonth();
+  if (m < 0 || (m === 0 && hoy.getDate() < fecha.getDate())) {
+    edad--;
+  }
+  return edad;
+}
 
 export function RegistroPage() {
   const { register } = useAuth();
@@ -33,6 +46,13 @@ export function RegistroPage() {
         return value.trim().length < 2 ? 'Ingresa tu nombre completo.' : '';
       case 'apellido':
         return value.trim().length < 2 ? 'Ingresa tu apellido.' : '';
+      case 'tipo_documento': {
+        const edad = calcularEdad(currentForm.fecha_nacimiento);
+        if (edad !== null && edad < 18 && value === 'CC') {
+          return `Al ser menor de 18 años (${edad} años), debes registrarte con Tarjeta de Identidad (TI).`;
+        }
+        return '';
+      }
       case 'numero_documento':
         return !/^\d{5,15}$/.test(value.trim())
           ? 'Ingresa un número de documento válido (solo dígitos).'
@@ -41,11 +61,17 @@ export function RegistroPage() {
         return !/^\d{7,15}$/.test(value.trim())
           ? 'Ingresa un número de celular válido (ej. 3001234567).'
           : '';
-      case 'fecha_nacimiento':
+      case 'fecha_nacimiento': {
         if (!value) return 'La fecha de nacimiento es obligatoria.';
-        return new Date(value) >= new Date()
-          ? 'La fecha de nacimiento no puede ser futura.'
-          : '';
+        if (new Date(value + 'T00:00:00') >= new Date()) {
+          return 'La fecha de nacimiento no puede ser futura.';
+        }
+        const edad = calcularEdad(value);
+        if (edad !== null && edad < 18 && currentForm.tipo_documento === 'CC') {
+          return `Al tener ${edad} años (menor de 18), debes registrarte con Tarjeta de Identidad (TI).`;
+        }
+        return '';
+      }
       case 'correo':
         return !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())
           ? 'Ingresa un correo electrónico válido.'
@@ -70,6 +96,39 @@ export function RegistroPage() {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     const nextVal = type === 'checkbox' ? checked : value;
+
+    if (name === 'fecha_nacimiento') {
+      const edad = calcularEdad(nextVal);
+      if (edad !== null && edad < 18 && form.tipo_documento === 'CC') {
+        // Forzar automáticamente cambio a TI para menores de edad
+        setForm((prev) => ({
+          ...prev,
+          fecha_nacimiento: nextVal,
+          tipo_documento: 'TI',
+        }));
+        setErrors((prev) => ({
+          ...prev,
+          fecha_nacimiento: '',
+          tipo_documento: '',
+          general: '',
+        }));
+        return;
+      }
+    }
+
+    if (name === 'tipo_documento') {
+      const edad = calcularEdad(form.fecha_nacimiento);
+      if (edad !== null && edad < 18 && nextVal === 'CC') {
+        // Impedir selección de CC si es menor de 18 años
+        setForm((prev) => ({ ...prev, tipo_documento: 'TI' }));
+        setErrors((prev) => ({
+          ...prev,
+          tipo_documento: `Los menores de 18 años (${edad} años) no pueden usar Cédula de Ciudadanía. Debes usar Tarjeta de Identidad (TI).`,
+        }));
+        return;
+      }
+    }
+
     setForm((prev) => ({ ...prev, [name]: nextVal }));
     if (errors[name] || errors.general) {
       setErrors((prev) => ({ ...prev, [name]: '', general: '' }));
@@ -90,6 +149,7 @@ export function RegistroPage() {
     const fieldsToCheck = [
       'nombre',
       'apellido',
+      'tipo_documento',
       'numero_documento',
       'telefono',
       'fecha_nacimiento',
@@ -125,6 +185,9 @@ export function RegistroPage() {
       setSubmitting(false);
     }
   };
+
+  const edadCalculada = calcularEdad(form.fecha_nacimiento);
+  const esMenorDeEdad = edadCalculada !== null && edadCalculada < 18;
 
   return (
     <div className="min-h-screen flex flex-col bg-[#fcfcf7] dark:bg-[#0d170a] text-[#1c3a13] dark:text-[#fcfcf7] transition-colors duration-200">
@@ -192,13 +255,18 @@ export function RegistroPage() {
                   name="tipo_documento"
                   value={form.tipo_documento}
                   onChange={handleChange}
-                  className="input-field"
+                  className={errors.tipo_documento ? 'input-field-error' : 'input-field'}
                 >
-                  <option value="CC">Cédula de Ciudadanía (CC)</option>
+                  <option value="CC" disabled={esMenorDeEdad}>
+                    Cédula de Ciudadanía (CC) {esMenorDeEdad ? '— (Exclusivo para mayores de 18 años)' : ''}
+                  </option>
                   <option value="TI">Tarjeta de Identidad (TI)</option>
                   <option value="CE">Cédula de Extranjería (CE)</option>
-                  <option value="PA">Pasaporte</option>
+                  <option value="PA">Pasaporte (PA)</option>
                 </select>
+                {errors.tipo_documento && (
+                  <p className="mt-1 text-xs text-red-600 font-medium">{errors.tipo_documento}</p>
+                )}
               </div>
 
               <div>
@@ -278,6 +346,20 @@ export function RegistroPage() {
                 )}
               </div>
             </div>
+
+            {esMenorDeEdad && (
+              <div className="rounded-2xl border border-amber-300 bg-amber-50/90 dark:border-amber-700/60 dark:bg-amber-950/40 p-4 text-xs text-amber-900 dark:text-amber-200 flex items-start gap-3 animate-fade-in shadow-sm">
+                <Info className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <p className="font-bold text-amber-950 dark:text-amber-100 text-[13px]">
+                    Requisito de Identificación para Menores de Edad ({edadCalculada} {edadCalculada === 1 ? 'año' : 'años'})
+                  </p>
+                  <p className="text-amber-900/90 dark:text-amber-200/90 leading-relaxed">
+                    Al tener menos de 18 años, la legislación colombiana (Decreto 1260 de 1970 y normatividad de la Registraduría Nacional del Estado Civil) establece que el documento oficial de identidad es la <strong>Tarjeta de Identidad (TI)</strong>. La <strong>Cédula de Ciudadanía (CC)</strong> es de uso exclusivo para mayores de edad, por lo que ha sido inhabilitada y el sistema ha seleccionado automáticamente <strong>TI</strong> para tu registro.
+                  </p>
+                </div>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>

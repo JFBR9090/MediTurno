@@ -335,7 +335,7 @@ Cada historia de usuario (`HU`) corresponde de forma directa a un requerimiento 
 | HU-01 │ RF1 – Registrar paciente en la plataforma | |
 | :--- | :--- |
 | **Descripción:** Como paciente quiero poder registrarme en la plataforma con mis datos personales para solicitar citas médicas según mi rol asignado. | |
-| **Criterios de validación**<br>• Completar nombre, apellido, documento, teléfono, fecha de nacimiento, correo y contraseña.<br>• No permitir correos o números de documento duplicados.<br>• Validar aceptación de política de tratamiento de datos (Ley 1581 de 2012).<br>• Almacenar la contraseña cifrada mediante hashing y asignar rol `paciente`. | **Métricas**<br>Valor: Alto<br>Prioridad: Alta<br>Estimación: 5 pts |
+| **Criterios de validación**<br>• Completar nombre, apellido, documento, teléfono, fecha de nacimiento, correo y contraseña.<br>• No permitir correos o números de documento duplicados.<br>• Regla legal de documento por edad: menores de 18 años deben registrarse obligatoriamente con Tarjeta de Identidad (TI) y no pueden seleccionar Cédula de Ciudadanía (CC), presentando un mensaje explicativo legal (Decreto 1260 de 1970).<br>• Validar aceptación de política de tratamiento de datos (Ley 1581 de 2012).<br>• Almacenar la contraseña cifrada mediante hashing y asignar rol `paciente`. | **Métricas**<br>Valor: Alto<br>Prioridad: Alta<br>Estimación: 5 pts |
 
 | HU-02 │ RF2 – Iniciar sesión segura con selección de perfil institucional y protección contra fuerza bruta | |
 | :--- | :--- |
@@ -1028,6 +1028,8 @@ Las pruebas funcionales y de seguridad del sistema están automatizadas mediante
 | Código | Caso de Prueba | Requerimiento Asociado | Resultado Esperado | Estado |
 | :---: | :--- | :---: | :--- | :---: |
 | **CP-01** | Registrar un paciente válido | `RF1` / `HU-01` | Paciente creado (`201`) en `users` y `pacientes` | Verificado |
+| **CP-01b** | Rechazar registro de menor de edad con Cédula de Ciudadanía (CC) | `RF1` / `HU-01` | Sistema rechaza (`422`) exigiendo Tarjeta de Identidad (TI) | Verificado |
+| **CP-01c** | Permitir registro de menor de edad con Tarjeta de Identidad (TI) | `RF1` / `HU-01` | Paciente menor creado (`201`) con tipo de documento `TI` | Verificado |
 | **CP-02** | Registrar un correo duplicado | `RF1` / `HU-01` | Sistema rechaza el registro (`422`) | Verificado |
 | **CP-03** | Iniciar sesión correctamente | `RF2` / `HU-02` | Acceso autorizado (`200`) y sesión activa | Verificado |
 | **CP-04** | Iniciar sesión con contraseña incorrecta | `RF2` / `HU-02` | Acceso rechazado (`401`) | Verificado |

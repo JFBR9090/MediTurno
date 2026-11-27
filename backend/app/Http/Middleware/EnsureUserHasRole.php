@@ -34,7 +34,18 @@ class EnsureUserHasRole
             return $next($request);
         }
 
-        if ($user->hasRole($roles)) {
+        // Normalizar lista de roles permitidos (descomponer listas separadas por coma y minúsculas)
+        $normalizedRoles = [];
+        foreach ($roles as $r) {
+            foreach (explode(',', (string) $r) as $part) {
+                $trimmed = mb_strtolower(trim($part));
+                if ($trimmed !== '') {
+                    $normalizedRoles[] = $trimmed;
+                }
+            }
+        }
+
+        if ($user->hasRole($normalizedRoles)) {
             return $next($request);
         }
 

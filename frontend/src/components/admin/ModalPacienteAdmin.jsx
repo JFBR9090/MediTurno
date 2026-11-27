@@ -1,5 +1,20 @@
 import { useState } from 'react';
-import { Loader2, X } from 'lucide-react';
+import { Info, Loader2, X } from 'lucide-react';
+
+function calcularEdad(fechaNacimiento) {
+  if (!fechaNacimiento) return null;
+  const hoy = new Date();
+  const fechaNac = new Date(fechaNacimiento);
+  if (isNaN(fechaNac.getTime())) return null;
+
+  let edad = hoy.getFullYear() - fechaNac.getFullYear();
+  const mesActual = hoy.getMonth();
+  const mesNac = fechaNac.getMonth();
+  if (mesActual < mesNac || (mesActual === mesNac && hoy.getDate() < fechaNac.getDate())) {
+    edad--;
+  }
+  return edad;
+}
 
 export function ModalPacienteAdmin({ isOpen, onClose, onSave }) {
   const [form, setForm] = useState({
@@ -16,8 +31,32 @@ export function ModalPacienteAdmin({ isOpen, onClose, onSave }) {
 
   if (!isOpen) return null;
 
+  const edadActual = calcularEdad(form.fecha_nacimiento);
+  const esMenorDeEdad = edadActual !== null && edadActual < 18;
+
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === 'fecha_nacimiento') {
+      const nuevaEdad = calcularEdad(value);
+      if (nuevaEdad !== null && nuevaEdad < 18 && form.tipo_documento === 'CC') {
+        setForm((p) => ({ ...p, fecha_nacimiento: value, tipo_documento: 'TI' }));
+        setErrors((p) => ({ ...p, fecha_nacimiento: '', tipo_documento: '', general: '' }));
+        return;
+      }
+    }
+
+    if (name === 'tipo_documento' && value === 'CC') {
+      if (edadActual !== null && edadActual < 18) {
+        setErrors((p) => ({
+          ...p,
+          tipo_documento: `Los menores de 18 años (${edadActual} años) deben registrarse con Tarjeta de Identidad (TI).`,
+        }));
+        setForm((p) => ({ ...p, tipo_documento: 'TI' }));
+        return;
+      }
+    }
+
     setForm((p) => ({ ...p, [name]: value }));
     if (errors[name] || errors.general) {
       setErrors((p) => ({ ...p, [name]: '', general: '' }));
@@ -35,7 +74,14 @@ export function ModalPacienteAdmin({ isOpen, onClose, onSave }) {
     if (!/^\d{7,15}$/.test(form.telefono.trim())) {
       nextErr.telefono = 'Teléfono inválido.';
     }
-    if (!form.fecha_nacimiento) nextErr.fecha_nacimiento = 'Fecha requerida.';
+    if (!form.fecha_nacimiento) {
+      nextErr.fecha_nacimiento = 'Fecha requerida.';
+    } else {
+      const edad = calcularEdad(form.fecha_nacimiento);
+      if (edad !== null && edad < 18 && form.tipo_documento === 'CC') {
+        nextErr.tipo_documento = `Los menores de 18 años (${edad} años) deben registrarse con Tarjeta de Identidad (TI).`;
+      }
+    }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.correo.trim())) {
       nextErr.correo = 'Correo inválido.';
     }
@@ -129,11 +175,16 @@ export function ModalPacienteAdmin({ isOpen, onClose, onSave }) {
                 onChange={handleChange}
                 className="input-field"
               >
-                <option value="CC">CC</option>
+                <option value="CC" disabled={esMenorDeEdad}>
+                  CC {esMenorDeEdad ? '(Exclusivo > 18 años)' : ''}
+                </option>
                 <option value="TI">TI</option>
                 <option value="CE">CE</option>
                 <option value="PA">PA</option>
               </select>
+              {errors.tipo_documento && (
+                <p className="mt-1 text-xs text-red-600">{errors.tipo_documento}</p>
+              )}
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
@@ -195,6 +246,18 @@ export function ModalPacienteAdmin({ isOpen, onClose, onSave }) {
               {errors.correo && <p className="mt-1 text-xs text-red-600">{errors.correo}</p>}
             </div>
           </div>
+
+          {esMenorDeEdad && (
+            <div className="flex items-start gap-2.5 rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900">
+              <Info className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+              <div>
+                <p className="font-semibold">Paciente Menor de Edad ({edadActual} años)</p>
+                <p className="mt-0.5 text-[11px] text-amber-800 leading-relaxed">
+                  Según la legislación colombiana (Decreto 1260 de 1970 / Registraduría Nacional), los menores de 18 años deben registrarse con Tarjeta de Identidad (TI) en lugar de Cédula de Ciudadanía.
+                </p>
+              </div>
+            </div>
+          )}
 
           {errors.general && (
             <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">

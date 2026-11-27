@@ -283,6 +283,20 @@ class CatalogoController extends Controller
             'password' => ['nullable', 'string', 'min:8'],
         ]);
 
+        $edad = \Carbon\Carbon::parse($data['fecha_nacimiento'])->age;
+        if ($edad < 18 && $data['tipo_documento'] === 'CC') {
+            return response()->json([
+                'success' => false,
+                'error' => "Los menores de 18 años ({$edad} años) no pueden registrarse con Cédula de Ciudadanía (CC). Según la legislación colombiana, deben registrarse con Tarjeta de Identidad (TI).",
+                'errors' => [
+                    'tipo_documento' => ['Los menores de 18 años deben registrarse con Tarjeta de Identidad (TI).'],
+                ],
+                'detalles' => [
+                    'tipo_documento' => ['Los menores de 18 años deben registrarse con Tarjeta de Identidad (TI).'],
+                ],
+            ], 422);
+        }
+
         $paciente = DB::transaction(function () use ($data) {
             $user = User::create([
                 'rol' => 'paciente',

@@ -42,6 +42,51 @@ class PlanPruebasMvpTest extends TestCase
         $this->assertDatabaseHas('pacientes', ['numero_documento' => '1098765432']);
     }
 
+    public function test_cp01b_rechazar_registro_menor_de_edad_con_cedula_de_ciudadania(): void
+    {
+        // Menor de 18 años (15 años) intentando registrarse con CC
+        $fechaMenor = Carbon::now()->subYears(15)->format('Y-m-d');
+        $response = $this->postJson('/api/auth/register', [
+            'nombre' => 'Mateo',
+            'apellido' => 'Gómez',
+            'tipo_documento' => 'CC',
+            'numero_documento' => '1088776655',
+            'telefono' => '3124455667',
+            'fecha_nacimiento' => $fechaMenor,
+            'correo' => 'mateo.menor@correo.co',
+            'password' => 'ClaveSegura2026',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonPath('success', false)
+            ->assertJsonValidationErrors(['tipo_documento']);
+        $this->assertStringContainsString('Tarjeta de Identidad (TI)', $response->json('error'));
+    }
+
+    public function test_cp01c_permitir_registro_menor_de_edad_con_tarjeta_de_identidad(): void
+    {
+        // Menor de 18 años (16 años) registrándose correctamente con TI
+        $fechaMenor = Carbon::now()->subYears(16)->format('Y-m-d');
+        $response = $this->postJson('/api/auth/register', [
+            'nombre' => 'Lucía',
+            'apellido' => 'Ramírez',
+            'tipo_documento' => 'TI',
+            'numero_documento' => '1077665544',
+            'telefono' => '3157788990',
+            'fecha_nacimiento' => $fechaMenor,
+            'correo' => 'lucia.menor@correo.co',
+            'password' => 'ClaveSegura2026',
+        ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('user.tipo_documento', 'TI');
+        $this->assertDatabaseHas('pacientes', [
+            'numero_documento' => '1077665544',
+            'tipo_documento' => 'TI',
+        ]);
+    }
+
     public function test_cp02_rechazar_registro_con_correo_duplicado(): void
     {
         $response = $this->postJson('/api/auth/register', [
